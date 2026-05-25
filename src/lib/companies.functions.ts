@@ -72,28 +72,28 @@ export const getStats = createServerFn({ method: "GET" }).handler(async () => {
     .from("companies")
     .select("id", { count: "exact", head: true });
 
-  // count per asean country via SQL aggregation
-  const { data, error } = await supabaseAdmin.rpc("companies_country_stats");
-  if (error) {
-    // fallback: do it client-side (single query, fields only)
-    const { data: all } = await supabaseAdmin
+  // Aggregate ASEAN country counts in-app (limit 20000 covers full dataset).
+  const map: Record<string, number> = {};
+  let from = 0;
+  const PAGE = 1000;
+  while (true) {
+    const { data: rows, error } = await supabaseAdmin
       .from("companies")
       .select("asean_countries")
-      .limit(20000);
-    const map: Record<string, number> = {};
-    (all ?? []).forEach((r) => {
-      (r.asean_countries as string[]).forEach((c) => {
+      .range(from, from + PAGE - 1);
+    if (error) throw new Error(error.message);
+    if (!rows || rows.length === 0) break;
+    for (const r of rows) {
+      for (const c of (r.asean_countries as string[]) ?? []) {
         map[c] = (map[c] ?? 0) + 1;
-      });
-    });
-    return { total: total ?? 0, counts: map };
+      }
+    }
+    if (rows.length < PAGE) break;
+    from += PAGE;
   }
-  const map: Record<string, number> = {};
-  (data ?? []).forEach((r: { country: string; n: number }) => {
-    map[r.country] = Number(r.n);
-  });
   return { total: total ?? 0, counts: map };
 });
+
 
 export const getCompany = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
