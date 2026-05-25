@@ -247,6 +247,7 @@ function Index() {
                 }}
                 accent
               >
+                <span className="text-base leading-none">🌏</span>
                 아세안 전체
                 <Pill active={country === null}>{grandTotal.toLocaleString()}</Pill>
               </CountryChip>
@@ -262,6 +263,7 @@ function Index() {
                       scrollToList();
                     }}
                   >
+                    <span className="text-base leading-none">{a.flag}</span>
                     {a.kr}
                     <Pill active={on}>{n.toLocaleString()}</Pill>
                   </CountryChip>
