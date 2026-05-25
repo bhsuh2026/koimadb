@@ -105,16 +105,18 @@ export function DetailModal({ company, onClose }: Props) {
             {aseanList.map((n) => (
               <span
                 key={`a-${n}`}
-                className="rounded-sm border border-accent bg-accent px-2 py-1 text-[11.5px] font-semibold text-accent-foreground"
+                className="inline-flex items-center gap-1 rounded-sm border border-accent bg-accent px-2 py-1 text-[11.5px] font-semibold text-accent-foreground"
               >
+                <span className="text-[13px] leading-none">{flagOf(n)}</span>
                 {n}
               </span>
             ))}
             {others.map((n) => (
               <span
                 key={`o-${n}`}
-                className="rounded-sm border border-border bg-secondary px-2 py-1 text-[11.5px] text-secondary-foreground"
+                className="inline-flex items-center gap-1 rounded-sm border border-border bg-secondary px-2 py-1 text-[11.5px] text-secondary-foreground"
               >
+                <span className="text-[13px] leading-none">{flagOf(n)}</span>
                 {n}
               </span>
             ))}
