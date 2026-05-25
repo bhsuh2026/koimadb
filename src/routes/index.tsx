@@ -15,7 +15,7 @@ import {
   Settings,
   X,
 } from "lucide-react";
-import { ASEAN, SCALE, SCOLOR, type Company } from "@/lib/koima-types";
+import { ASEAN, SCALE, SCOLOR, flagOf, type Company } from "@/lib/koima-types";
 import { listCompanies, getStats } from "@/lib/companies.functions";
 import { DetailModal } from "@/components/DetailModal";
 
@@ -247,6 +247,7 @@ function Index() {
                 }}
                 accent
               >
+                <span className="text-base leading-none">🌏</span>
                 아세안 전체
                 <Pill active={country === null}>{grandTotal.toLocaleString()}</Pill>
               </CountryChip>
@@ -262,6 +263,7 @@ function Index() {
                       scrollToList();
                     }}
                   >
+                    <span className="text-base leading-none">{a.flag}</span>
                     {a.kr}
                     <Pill active={on}>{n.toLocaleString()}</Pill>
                   </CountryChip>
@@ -656,8 +658,9 @@ function CompanyCard({
         {company.asean_countries.slice(0, 6).map((n) => (
           <span
             key={n}
-            className="rounded-md border border-accent/20 bg-accent-soft px-1.5 py-0.5 text-[10px] font-semibold text-accent"
+            className="inline-flex items-center gap-1 rounded-md border border-accent/20 bg-accent-soft px-1.5 py-0.5 text-[10px] font-semibold text-accent"
           >
+            <span className="text-[11px] leading-none">{flagOf(n)}</span>
             {n}
           </span>
         ))}
