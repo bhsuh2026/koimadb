@@ -14,7 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      companies: {
+        Row: {
+          asean_countries: string[]
+          biz_no: string | null
+          created_at: string
+          email: string
+          id: string
+          name_en: string
+          name_kr: string
+          other_countries: string[]
+          phone: string
+          scale_code: number
+          updated_at: string
+        }
+        Insert: {
+          asean_countries?: string[]
+          biz_no?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name_en?: string
+          name_kr?: string
+          other_countries?: string[]
+          phone?: string
+          scale_code?: number
+          updated_at?: string
+        }
+        Update: {
+          asean_countries?: string[]
+          biz_no?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name_en?: string
+          name_kr?: string
+          other_countries?: string[]
+          phone?: string
+          scale_code?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
