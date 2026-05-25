@@ -658,8 +658,9 @@ function CompanyCard({
         {company.asean_countries.slice(0, 6).map((n) => (
           <span
             key={n}
-            className="rounded-md border border-accent/20 bg-accent-soft px-1.5 py-0.5 text-[10px] font-semibold text-accent"
+            className="inline-flex items-center gap-1 rounded-md border border-accent/20 bg-accent-soft px-1.5 py-0.5 text-[10px] font-semibold text-accent"
           >
+            <span className="text-[11px] leading-none">{flagOf(n)}</span>
             {n}
           </span>
         ))}
