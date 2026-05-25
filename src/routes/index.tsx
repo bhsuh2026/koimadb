@@ -15,7 +15,7 @@ import {
   Settings,
   X,
 } from "lucide-react";
-import { ASEAN, SCALE, SCOLOR, type Company } from "@/lib/koima-types";
+import { ASEAN, SCALE, SCOLOR, flagOf, type Company } from "@/lib/koima-types";
 import { listCompanies, getStats } from "@/lib/companies.functions";
 import { DetailModal } from "@/components/DetailModal";
 
