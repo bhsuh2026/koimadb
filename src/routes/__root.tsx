@@ -72,14 +72,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "아세안 수입업체 디렉토리 · ASEAN Importer Directory | KOIMA" },
+      {
+        name: "description",
+        content:
+          "아세안 10개국 제품을 수입 중인 한국 기업 디렉토리. KOIMA 바이어 매칭 서비스.",
+      },
+      { name: "author", content: "KOIMA" },
+      {
+        property: "og:title",
+        content: "아세안 수입업체 디렉토리 · KOIMA",
+      },
+      {
+        property: "og:description",
+        content: "Verified Korean buyers actively importing from ASEAN.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
