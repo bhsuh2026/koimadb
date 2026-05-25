@@ -1,18 +1,18 @@
-import { useEffect, useRef } from "react";
-import type { KoimaData, Record8 } from "@/lib/koima-types";
-import { SCOLOR } from "@/lib/koima-types";
+import { useEffect } from "react";
+import type { Company } from "@/lib/koima-types";
+import { SCALE, SCOLOR, ASEAN } from "@/lib/koima-types";
 import { X, Mail, Phone, Building2 } from "lucide-react";
 
 type Props = {
-  data: KoimaData;
-  recordIndex: number | null;
+  company: Company | null;
   onClose: () => void;
 };
 
-export function DetailModal({ data, recordIndex, onClose }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
+const ASEAN_SET = new Set(ASEAN.map((a) => a.kr));
+
+export function DetailModal({ company, onClose }: Props) {
   useEffect(() => {
-    if (recordIndex === null) return;
+    if (!company) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
@@ -20,48 +20,44 @@ export function DetailModal({ data, recordIndex, onClose }: Props) {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-  }, [recordIndex, onClose]);
+  }, [company, onClose]);
 
-  if (recordIndex === null) return null;
-  const r: Record8 = data.records[recordIndex];
-  const [biz, nameKr, nameEn, email, phone, scaleCode, aseanIdx, others] = r;
-  const sc = data.scale[String(scaleCode)] ?? data.scale["6"];
-  const col = SCOLOR[scaleCode] ?? SCOLOR[6];
-  const aNames = aseanIdx.map((i) => data.asean[i].kr);
+  if (!company) return null;
+  const sc = SCALE[company.scale_code] ?? SCALE[6];
+  const col = SCOLOR[company.scale_code] ?? SCOLOR[6];
+  const aseanList = company.asean_countries.filter((c) => ASEAN_SET.has(c));
+  const others = company.other_countries;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-primary/55 p-6 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-primary/55 p-0 backdrop-blur-sm sm:items-center sm:p-6"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div
-        ref={ref}
-        className="max-h-[86vh] w-full max-w-2xl overflow-y-auto rounded-md border-t-[3px] border-accent bg-card shadow-2xl"
-      >
-        <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-5">
-          <div>
-            <h3 className="text-lg font-extrabold leading-tight text-primary">
-              {nameKr || "(상호 미상)"}
+      <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-xl border-t-[3px] border-accent bg-card shadow-2xl sm:rounded-xl">
+        <div className="sticky top-0 flex items-start justify-between gap-4 border-b border-border bg-card px-5 py-4 sm:px-6 sm:py-5">
+          <div className="min-w-0">
+            <h3 className="truncate text-base font-extrabold leading-tight text-primary sm:text-lg">
+              {company.name_kr || "(상호 미상)"}
             </h3>
-            {nameEn && (
-              <div className="mt-1 font-mono text-[11.5px] text-muted-foreground">
-                {nameEn}
+            {company.name_en && (
+              <div className="mt-1 truncate font-mono text-[11px] text-muted-foreground">
+                {company.name_en}
               </div>
             )}
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded border border-border text-muted-foreground transition hover:border-destructive hover:text-destructive"
+            className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground transition hover:border-destructive hover:text-destructive"
             aria-label="Close"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="px-6 py-5">
+        <div className="px-5 py-5 sm:px-6">
           <div className="mb-5 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
             <Field label="사업자번호 · Business No.">
-              <span className="font-mono text-sm">{biz || "—"}</span>
+              <span className="font-mono text-sm">{company.biz_no || "—"}</span>
             </Field>
             <Field label="수입 규모 · Import Scale">
               <span
@@ -72,26 +68,26 @@ export function DetailModal({ data, recordIndex, onClose }: Props) {
               </span>
             </Field>
             <Field label="이메일 · Email">
-              {email ? (
+              {company.email ? (
                 <a
-                  href={`mailto:${email}`}
-                  className="inline-flex items-center gap-1.5 font-mono text-sm text-accent hover:underline"
+                  href={`mailto:${company.email}`}
+                  className="inline-flex items-center gap-1.5 break-all font-mono text-sm text-accent hover:underline"
                 >
-                  <Mail className="h-3.5 w-3.5" />
-                  {email}
+                  <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                  {company.email}
                 </a>
               ) : (
                 <span className="text-sm text-muted-foreground/60">미등록 N/A</span>
               )}
             </Field>
             <Field label="전화 · Phone">
-              {phone ? (
+              {company.phone ? (
                 <a
-                  href={`tel:${phone}`}
+                  href={`tel:${company.phone}`}
                   className="inline-flex items-center gap-1.5 font-mono text-sm text-accent hover:underline"
                 >
                   <Phone className="h-3.5 w-3.5" />
-                  {phone}
+                  {company.phone}
                 </a>
               ) : (
                 <span className="text-sm text-muted-foreground/60">미등록 N/A</span>
@@ -100,13 +96,13 @@ export function DetailModal({ data, recordIndex, onClose }: Props) {
           </div>
 
           <SectionHeading>
-            수입 거래국 · Sourcing Markets ({aseanIdx.length + others.length})
+            수입 거래국 · Sourcing Markets ({aseanList.length + others.length})
             <span className="ml-2 text-[10px] font-normal text-muted-foreground">
               · 파란색: 아세안
             </span>
           </SectionHeading>
           <div className="flex flex-wrap gap-1.5">
-            {aNames.map((n) => (
+            {aseanList.map((n) => (
               <span
                 key={`a-${n}`}
                 className="rounded-sm border border-accent bg-accent px-2 py-1 text-[11.5px] font-semibold text-accent-foreground"
