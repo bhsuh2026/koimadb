@@ -204,14 +204,23 @@ function Index() {
                 Korea Importers Association
               </span>
             </div>
-            <Link
-              to="/admin"
-              className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur transition hover:bg-white/20"
-            >
-              <Settings className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">관리자</span>
-              Admin
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                to="/importers"
+                className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur transition hover:bg-white/20"
+              >
+                <span className="hidden sm:inline">수입업체</span>
+                Directory
+              </Link>
+              <Link
+                to="/admin"
+                className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur transition hover:bg-white/20"
+              >
+                <Settings className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">관리자</span>
+                Admin
+              </Link>
+            </div>
           </div>
 
           <div className="mx-auto max-w-[1300px] px-4 pb-5 pt-6 sm:px-6 sm:pb-6 sm:pt-7">
