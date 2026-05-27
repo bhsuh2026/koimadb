@@ -580,6 +580,10 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
           </button>
         </div>
 
+        <div className="mb-3 rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-200">
+          개인정보 보호를 위해 사업자번호 · 연락처 · 이메일 · HS코드 · 품목은 일부가
+          마스킹되어 표시됩니다.
+        </div>
         <dl className="space-y-3 text-sm">
           {row.biz_no && (
             <Row label="사업자번호">
@@ -588,18 +592,14 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
           )}
           {emails && (
             <Row label="이메일">
-              <div className="flex flex-wrap gap-2">
-                {emails.split(",").map((e) => {
+              <div className="flex flex-wrap gap-2 font-mono text-xs">
+                {emails.split(",").map((e, i) => {
                   const v = e.trim();
                   if (!v) return null;
                   return (
-                    <a
-                      key={v}
-                      href={`mailto:${v}`}
-                      className="text-primary hover:underline"
-                    >
+                    <span key={`${v}-${i}`} className="rounded bg-muted px-1.5 py-0.5">
                       {v}
-                    </a>
+                    </span>
                   );
                 })}
               </div>
@@ -607,23 +607,20 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
           )}
           {phones && (
             <Row label="전화">
-              <div className="flex flex-wrap gap-2">
-                {phones.split("/").map((p) => {
+              <div className="flex flex-wrap gap-2 font-mono text-xs">
+                {phones.split("/").map((p, i) => {
                   const v = p.trim();
                   if (!v) return null;
                   return (
-                    <a
-                      key={v}
-                      href={`tel:${v.replace(/[^\d+]/g, "")}`}
-                      className="text-primary hover:underline"
-                    >
+                    <span key={`${v}-${i}`} className="rounded bg-muted px-1.5 py-0.5">
                       {v}
-                    </a>
+                    </span>
                   );
                 })}
               </div>
             </Row>
           )}
+
           {row.countries.length > 0 && (
             <Row label={`수입국가 (${row.countries.length})`}>
               <div className="flex flex-wrap gap-1">

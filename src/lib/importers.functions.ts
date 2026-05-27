@@ -20,6 +20,95 @@ export type Importer = {
   hs_codes: string[];
 };
 
+const SCALE_LABELS = [
+  "1억불 초과",
+  "5000만불~1억불",
+  "3000만불~5000만불",
+  "1000만불~3000만불",
+  "700만불~1000만불",
+  "500만불~700만불",
+  "300만불~500만불",
+  "100만불~300만불",
+  "50만불~100만불",
+  "30만불~50만불",
+  "10만불~30만불",
+  "5만불~10만불",
+  "3만불~5만불",
+  "1만불~3만불",
+  "1만불 미만",
+];
+
+// ---- Masking helpers ----------------------------------------------------
+// 민감 정보는 서버에서 마스킹해서 반환합니다 (개인정보 보호).
+function maskBizNo(v: string | null): string | null {
+  if (!v) return v;
+  // "123-45-67890" → "123-45-****"
+  return v.replace(/(\d{3}-?\d{2}-?)(\d{5})/, (_, a, b) =>
+    `${a}${"*".repeat(b.length)}`,
+  );
+}
+
+function maskOneEmail(v: string): string {
+  const t = v.trim();
+  if (!t) return t;
+  const at = t.indexOf("@");
+  if (at < 1) return "***";
+  const user = t.slice(0, at);
+  const domain = t.slice(at + 1);
+  const userMasked =
+    user.length <= 2 ? user[0] + "*" : user.slice(0, 2) + "*".repeat(Math.max(2, user.length - 2));
+  const dot = domain.lastIndexOf(".");
+  const tld = dot >= 0 ? domain.slice(dot) : "";
+  return `${userMasked}@***${tld}`;
+}
+function maskEmails(v: string): string {
+  if (!v) return v;
+  return v
+    .split(",")
+    .map((e) => maskOneEmail(e))
+    .filter(Boolean)
+    .join(", ");
+}
+
+function maskOnePhone(v: string): string {
+  const t = v.trim();
+  if (!t) return t;
+  // 마지막 4자리를 ****로 가립니다.
+  return t.replace(/(\d)(?=\d{0,3}$)/g, "*").replace(/\d{4}$/, "****");
+}
+function maskPhones(v: string): string {
+  if (!v) return v;
+  return v.split(/[/,]/).map((p) => maskOnePhone(p)).filter(Boolean).join(" / ");
+}
+
+function maskHs(code: string): string {
+  const d = code.replace(/\D/g, "");
+  if (d.length <= 4) return d + "**";
+  return d.slice(0, 4) + "*".repeat(d.length - 4);
+}
+
+function maskItems(v: string): string {
+  if (!v) return v;
+  // 앞 8글자만 노출, 나머지는 …
+  const trimmed = v.trim();
+  if (trimmed.length <= 8) return trimmed.slice(0, 4) + "…";
+  return trimmed.slice(0, 8) + "…";
+}
+
+function maskRow(r: Importer): Importer {
+  return {
+    ...r,
+    biz_no: maskBizNo(r.biz_no),
+    email: maskEmails(r.email),
+    email_extra: maskEmails(r.email_extra),
+    phone: maskPhones(r.phone),
+    phone_extra: maskPhones(r.phone_extra),
+    hs_codes: (r.hs_codes ?? []).map(maskHs),
+    items_kr: maskItems(r.items_kr),
+    items_en: maskItems(r.items_en),
+  };
+}
+
 const ListInput = z.object({
   q: z.string().max(100).default(""),
   country: z.string().max(50).nullable().default(null),
@@ -53,6 +142,7 @@ export const listImporters = createServerFn({ method: "POST" })
 
     switch (data.sort) {
       case "rank_import_asc":
+      case "countries_desc":
         query = query.order("rank_import", { ascending: true, nullsFirst: false });
         break;
       case "rank_sales_asc":
@@ -60,10 +150,6 @@ export const listImporters = createServerFn({ method: "POST" })
         break;
       case "name_asc":
         query = query.order("name_kr", { ascending: true });
-        break;
-      case "countries_desc":
-        query = query
-          .order("rank_import", { ascending: true, nullsFirst: false });
         break;
     }
 
@@ -73,7 +159,8 @@ export const listImporters = createServerFn({ method: "POST" })
 
     const { data: rows, count, error } = await query;
     if (error) throw new Error(error.message);
-    return { rows: (rows ?? []) as Importer[], total: count ?? 0 };
+    const masked = ((rows ?? []) as Importer[]).map(maskRow);
+    return { rows: masked, total: count ?? 0 };
   });
 
 export const getImporterFacets = createServerFn({ method: "GET" }).handler(
@@ -82,24 +169,33 @@ export const getImporterFacets = createServerFn({ method: "GET" }).handler(
       .from("importers")
       .select("id", { count: "exact", head: true });
 
-    // Top countries — aggregate from a sample (top 5000 by import rank covers
-    // virtually all unique countries) to keep this fast.
+    // Country distribution — sample top 5000 (covers virtually all unique countries).
     const { data: rows, error } = await supabaseAdmin
       .from("importers")
-      .select("countries, scale_label")
+      .select("countries")
       .order("rank_import", { ascending: true, nullsFirst: false })
       .range(0, 4999);
     if (error) throw new Error(error.message);
 
     const countries: Record<string, number> = {};
-    const scales: Record<string, number> = {};
     for (const r of rows ?? []) {
       for (const c of (r.countries as string[]) ?? []) {
         countries[c] = (countries[c] ?? 0) + 1;
       }
-      const s = (r.scale_label as string) ?? "";
-      if (s) scales[s] = (scales[s] ?? 0) + 1;
     }
+
+    // Scale distribution — exact counts via parallel head queries (15 buckets).
+    const scaleEntries = await Promise.all(
+      SCALE_LABELS.map(async (label) => {
+        const { count } = await supabaseAdmin
+          .from("importers")
+          .select("id", { count: "exact", head: true })
+          .eq("scale_label", label);
+        return [label, count ?? 0] as const;
+      }),
+    );
+    const scales: Record<string, number> = Object.fromEntries(scaleEntries);
+
     return { total: total ?? 0, countries, scales };
   },
 );
