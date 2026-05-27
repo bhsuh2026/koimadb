@@ -148,3 +148,18 @@ export const deleteCompany = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+const BulkInput = z.object({
+  rows: z.array(CompanyInputSchema).min(1).max(1000),
+});
+
+export const bulkCreateCompanies = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) => BulkInput.parse(i))
+  .handler(async ({ data }) => {
+    const { data: inserted, error } = await supabaseAdmin
+      .from("companies")
+      .insert(data.rows)
+      .select("id");
+    if (error) throw new Error(error.message);
+    return { inserted: inserted?.length ?? 0 };
+  });
