@@ -344,22 +344,41 @@ function ImportersPage() {
 
 function FilterPanel(props: {
   topCountries: string[];
+  allCountries: string[];
   scalesAvailable: string[];
   scaleCounts: Record<string, number>;
-  country: string | null;
-  setCountry: (c: string | null) => void;
+  countries: string[];
+  setCountries: (c: string[]) => void;
   scales: Set<string>;
   setScales: (s: Set<string>) => void;
   hasEmail: boolean;
   setHasEmail: (b: boolean) => void;
   clearAll: () => void;
 }) {
+  const [countryQ, setCountryQ] = useState("");
+  const [showAll, setShowAll] = useState(false);
+
+  const toggleCountry = (c: string) => {
+    const next = new Set(props.countries);
+    if (next.has(c)) next.delete(c);
+    else next.add(c);
+    props.setCountries(Array.from(next));
+  };
+
   const toggleScale = (s: string) => {
     const next = new Set(props.scales);
     if (next.has(s)) next.delete(s);
     else next.add(s);
     props.setScales(next);
   };
+
+  const filteredAll = useMemo(() => {
+    if (!countryQ.trim()) return [];
+    const q = countryQ.trim();
+    return props.allCountries
+      .filter((c) => c.includes(q) && !props.countries.includes(c))
+      .slice(0, 20);
+  }, [countryQ, props.allCountries, props.countries]);
 
   return (
     <div className="space-y-6">
@@ -369,22 +388,111 @@ function FilterPanel(props: {
         </div>
         <div className="flex flex-wrap gap-1.5">
           <FilterChip
-            active={props.country === null}
-            onClick={() => props.setCountry(null)}
+            active={props.countries.length === 0}
+            onClick={() => props.setCountries([])}
           >
             전체
           </FilterChip>
           {props.topCountries.map((c) => (
             <FilterChip
               key={c}
-              active={props.country === c}
-              onClick={() => props.setCountry(props.country === c ? null : c)}
+              active={props.countries.includes(c)}
+              onClick={() => toggleCountry(c)}
             >
               <span className="mr-1">{flagOf(c)}</span>
               {c}
             </FilterChip>
           ))}
         </div>
+
+        {/* Selected summary */}
+        {props.countries.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1">
+            {props.countries.map((c) => (
+              <span
+                key={c}
+                className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
+              >
+                <span>{flagOf(c)}</span>
+                {c}
+                <button
+                  onClick={() => toggleCountry(c)}
+                  className="ml-0.5 rounded hover:text-destructive"
+                  aria-label={`${c} 제거`}
+                >
+                  <X className="size-3" />
+                </button>
+              </span>
+            ))}
+            <button
+              onClick={() => props.setCountries([])}
+              className="text-[11px] text-muted-foreground underline hover:text-foreground"
+            >
+              초기화
+            </button>
+          </div>
+        )}
+
+        {/* Search more countries */}
+        <div className="relative mt-2">
+          <Search className="pointer-events-none absolute left-2 top-1/2 size-3 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={countryQ}
+            onChange={(e) => setCountryQ(e.target.value)}
+            placeholder="국가 검색…"
+            className="w-full rounded-md border bg-card py-1.5 pl-7 pr-2 text-xs shadow-sm outline-none focus:ring-2 focus:ring-ring"
+          />
+        </div>
+        {filteredAll.length > 0 && (
+          <div className="mt-1 max-h-36 overflow-y-auto rounded-md border bg-card shadow-sm">
+            {filteredAll.map((c) => (
+              <button
+                key={c}
+                onClick={() => {
+                  toggleCountry(c);
+                  setCountryQ("");
+                }}
+                className="flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-xs hover:bg-accent"
+              >
+                <span className="text-sm">{flagOf(c)}</span>
+                <span className="flex-1">{c}</span>
+                <span className="text-[10px] text-muted-foreground">
+                  선택
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Show all toggle */}
+        {!countryQ && props.allCountries.length > props.topCountries.length && (
+          <button
+            onClick={() => setShowAll((v) => !v)}
+            className="mt-1.5 text-xs text-muted-foreground underline hover:text-foreground"
+          >
+            {showAll ? "접기" : `전체 국가 보기 (${props.allCountries.length}개)`}
+          </button>
+        )}
+        {showAll && (
+          <div className="mt-1 max-h-48 overflow-y-auto rounded-md border bg-card p-1.5 shadow-sm">
+            <div className="flex flex-wrap gap-1">
+              {props.allCountries.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => toggleCountry(c)}
+                  className={`rounded-full border px-2 py-0.5 text-[11px] transition ${
+                    props.countries.includes(c)
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-card text-foreground hover:bg-accent"
+                  }`}
+                >
+                  <span className="mr-0.5">{flagOf(c)}</span>
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div>
