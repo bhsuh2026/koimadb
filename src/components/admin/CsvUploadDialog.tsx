@@ -1,5 +1,13 @@
 import { useMemo, useRef, useState } from "react";
-import Papa from "papaparse";
+import type PapaType from "papaparse";
+
+let papaPromise: Promise<typeof PapaType> | null = null;
+const loadPapa = () => {
+  if (!papaPromise) {
+    papaPromise = import("papaparse").then((m) => (m.default ?? m) as typeof PapaType);
+  }
+  return papaPromise;
+};
 import { X, Upload, FileCheck2, AlertTriangle, Download, Loader2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { bulkCreateCompanies } from "@/lib/companies.functions";
@@ -139,11 +147,12 @@ export function CsvUploadDialog({ onClose, onDone }: Props) {
     ? headers.filter((h) => !KNOWN_HEADERS.includes(h))
     : [];
 
-  const handleFile = (file: File) => {
+  const handleFile = async (file: File) => {
     setFileName(file.name);
     setParsing(true);
     setParsed([]);
     setHeaders(null);
+    const Papa = await loadPapa();
     Papa.parse<Record<string, string>>(file, {
       header: true,
       skipEmptyLines: "greedy",
@@ -165,7 +174,7 @@ export function CsvUploadDialog({ onClose, onDone }: Props) {
     });
   };
 
-  const downloadErrorReport = () => {
+  const downloadErrorReport = async () => {
     const rows: RowError[] = [];
     for (const p of parsed) {
       for (const e of p.errors) {
@@ -177,6 +186,7 @@ export function CsvUploadDialog({ onClose, onDone }: Props) {
         });
       }
     }
+    const Papa = await loadPapa();
     const csv = Papa.unparse(rows);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
