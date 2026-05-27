@@ -361,6 +361,7 @@ function FilterPanel(props: {
   hasEmail: boolean;
   setHasEmail: (b: boolean) => void;
   clearAll: () => void;
+  onFilterChange: () => void;
 }) {
   const [countryQ, setCountryQ] = useState("");
   const [showAll, setShowAll] = useState(false);
