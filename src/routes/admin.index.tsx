@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Pencil, Trash2, Search, ChevronLeft, ChevronRight, X, Save } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ChevronLeft, ChevronRight, X, Save, Upload } from "lucide-react";
 import {
   listCompanies,
   createCompany,
@@ -10,6 +10,7 @@ import {
   deleteCompany,
 } from "@/lib/companies.functions";
 import { ASEAN, SCALE, type Company } from "@/lib/koima-types";
+import { CsvUploadDialog } from "@/components/admin/CsvUploadDialog";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/")({
