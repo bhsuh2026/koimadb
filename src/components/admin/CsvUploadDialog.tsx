@@ -147,11 +147,12 @@ export function CsvUploadDialog({ onClose, onDone }: Props) {
     ? headers.filter((h) => !KNOWN_HEADERS.includes(h))
     : [];
 
-  const handleFile = (file: File) => {
+  const handleFile = async (file: File) => {
     setFileName(file.name);
     setParsing(true);
     setParsed([]);
     setHeaders(null);
+    const Papa = await loadPapa();
     Papa.parse<Record<string, string>>(file, {
       header: true,
       skipEmptyLines: "greedy",
