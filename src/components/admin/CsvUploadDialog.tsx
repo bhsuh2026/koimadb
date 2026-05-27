@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import Papa from "papaparse";
+import type Papa from "papaparse";
 import { X, Upload, FileCheck2, AlertTriangle, Download, Loader2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { bulkCreateCompanies } from "@/lib/companies.functions";
