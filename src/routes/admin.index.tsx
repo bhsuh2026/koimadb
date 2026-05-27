@@ -120,8 +120,14 @@ function AdminCompanies() {
           총 <b className="font-mono text-primary">{total.toLocaleString()}</b>건
         </div>
         <button
+          onClick={() => setShowUpload(true)}
+          className="ml-auto inline-flex h-10 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-[13px] font-semibold hover:border-primary hover:text-primary"
+        >
+          <Upload className="h-4 w-4" /> CSV 업로드
+        </button>
+        <button
           onClick={() => setEdit({ mode: "create" })}
-          className="ml-auto inline-flex h-10 items-center gap-1.5 rounded-md bg-primary px-4 text-[13px] font-semibold text-white hover:bg-primary-dark"
+          className="inline-flex h-10 items-center gap-1.5 rounded-md bg-primary px-4 text-[13px] font-semibold text-white hover:bg-primary-dark"
         >
           <Plus className="h-4 w-4" /> 신규 등록
         </button>
