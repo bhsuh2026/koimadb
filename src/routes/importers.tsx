@@ -78,7 +78,7 @@ function ImportersPage() {
 
   const [q, setQ] = useState("");
   const [qDeb, setQDeb] = useState("");
-  const [country, setCountry] = useState<string | null>(null);
+  const [countries, setCountries] = useState<string[]>([]);
   const [scales, setScales] = useState<Set<string>>(new Set());
   const [hs, setHs] = useState("");
   const [hasEmail, setHasEmail] = useState(false);
@@ -94,7 +94,7 @@ function ImportersPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [qDeb, country, scales, hs, hasEmail, sort]);
+  }, [qDeb, countries, scales, hs, hasEmail, sort]);
 
   const scaleArr = useMemo(() => Array.from(scales), [scales]);
 
