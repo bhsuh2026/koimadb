@@ -105,12 +105,12 @@ function ImportersPage() {
   });
 
   const list = useQuery({
-    queryKey: ["importers", { qDeb, country, scaleArr, hs, hasEmail, sort, page }],
+    queryKey: ["importers", { qDeb, countries, scaleArr, hs, hasEmail, sort, page }],
     queryFn: () =>
       listFn({
         data: {
           q: qDeb,
-          country,
+          countries,
           scales: scaleArr,
           hs: hs.trim(),
           hasEmail,
@@ -130,16 +130,21 @@ function ImportersPage() {
       .map(([k]) => k);
   }, [facets.data]);
 
+  const allCountries = useMemo(() => {
+    const m = facets.data?.countries ?? {};
+    return Object.keys(m).sort((a, b) => a.localeCompare(b, "ko"));
+  }, [facets.data]);
+
   const total = list.data?.total ?? 0;
   const rows = list.data?.rows ?? [];
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const clearAll = () => {
-    setQ(""); setCountry(null); setScales(new Set()); setHs(""); setHasEmail(false);
+    setQ(""); setCountries([]); setScales(new Set()); setHs(""); setHasEmail(false);
   };
 
   const activeFilterCount =
-    (country ? 1 : 0) + scales.size + (hs ? 1 : 0) + (hasEmail ? 1 : 0);
+    countries.length + scales.size + (hs ? 1 : 0) + (hasEmail ? 1 : 0);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
