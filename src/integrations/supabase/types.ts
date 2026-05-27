@@ -56,12 +56,73 @@ export type Database = {
         }
         Relationships: []
       }
+      importers: {
+        Row: {
+          biz_no: string | null
+          countries: string[]
+          created_at: string
+          email: string
+          email_extra: string
+          hs_codes: string[]
+          id: string
+          items_en: string
+          items_kr: string
+          name_en: string
+          name_kr: string
+          phone: string
+          phone_extra: string
+          rank_import: number | null
+          rank_sales: number | null
+          scale_label: string
+          updated_at: string
+        }
+        Insert: {
+          biz_no?: string | null
+          countries?: string[]
+          created_at?: string
+          email?: string
+          email_extra?: string
+          hs_codes?: string[]
+          id?: string
+          items_en?: string
+          items_kr?: string
+          name_en?: string
+          name_kr?: string
+          phone?: string
+          phone_extra?: string
+          rank_import?: number | null
+          rank_sales?: number | null
+          scale_label?: string
+          updated_at?: string
+        }
+        Update: {
+          biz_no?: string | null
+          countries?: string[]
+          created_at?: string
+          email?: string
+          email_extra?: string
+          hs_codes?: string[]
+          id?: string
+          items_en?: string
+          items_kr?: string
+          name_en?: string
+          name_kr?: string
+          phone?: string
+          phone_extra?: string
+          rank_import?: number | null
+          rank_sales?: number | null
+          scale_label?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
       [_ in never]: never
