@@ -333,6 +333,7 @@ function ImportersPage() {
               hasEmail={hasEmail}
               setHasEmail={setHasEmail}
               clearAll={clearAll}
+              onFilterChange={() => setPage(1)}
             />
             <button
               onClick={() => setFilterOpen(false)}
