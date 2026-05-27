@@ -88,13 +88,13 @@ function ImportersPage() {
   const [filterOpen, setFilterOpen] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setQDeb(q.trim()), 250);
+    const t = setTimeout(() => {
+      setQDeb(q.trim());
+      setPage(1);
+    }, 250);
     return () => clearTimeout(t);
   }, [q]);
 
-  useEffect(() => {
-    setPage(1);
-  }, [qDeb, countries, scales, hs, hasEmail, sort]);
 
   const scaleArr = useMemo(() => Array.from(scales), [scales]);
 
