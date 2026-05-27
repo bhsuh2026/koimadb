@@ -215,10 +215,11 @@ function ImportersPage() {
         <aside className="hidden w-64 shrink-0 lg:block">
           <FilterPanel
             topCountries={topCountries}
+            allCountries={allCountries}
             scalesAvailable={SCALE_ORDER}
             scaleCounts={facets.data?.scales ?? {}}
-            country={country}
-            setCountry={setCountry}
+            countries={countries}
+            setCountries={setCountries}
             scales={scales}
             setScales={setScales}
             hasEmail={hasEmail}
