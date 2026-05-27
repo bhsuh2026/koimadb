@@ -191,14 +191,20 @@ function ImportersPage() {
             <div className="flex gap-2">
               <input
                 value={hs}
-                onChange={(e) => setHs(e.target.value.replace(/[^\d]/g, ""))}
+                onChange={(e) => {
+                  setHs(e.target.value.replace(/[^\d]/g, ""));
+                  setPage(1);
+                }}
                 placeholder="HS코드"
                 inputMode="numeric"
                 className="w-28 rounded-md border bg-card px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
               />
               <select
                 value={sort}
-                onChange={(e) => setSort(e.target.value as SortKey)}
+                onChange={(e) => {
+                  setSort(e.target.value as SortKey);
+                  setPage(1);
+                }}
                 className="rounded-md border bg-card px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="rank_import_asc">수입액 순</option>
