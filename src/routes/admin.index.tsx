@@ -36,6 +36,7 @@ function AdminCompanies() {
   const [page, setPage] = useState(1);
   const [edit, setEdit] = useState<EditState>(null);
   const [confirmDelete, setConfirmDelete] = useState<Company | null>(null);
+  const [showUpload, setShowUpload] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => {
