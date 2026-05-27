@@ -316,10 +316,11 @@ function ImportersPage() {
             </div>
             <FilterPanel
               topCountries={topCountries}
+              allCountries={allCountries}
               scalesAvailable={SCALE_ORDER}
               scaleCounts={facets.data?.scales ?? {}}
-              country={country}
-              setCountry={setCountry}
+              countries={countries}
+              setCountries={setCountries}
               scales={scales}
               setScales={setScales}
               hasEmail={hasEmail}
