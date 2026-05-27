@@ -174,7 +174,7 @@ export function CsvUploadDialog({ onClose, onDone }: Props) {
     });
   };
 
-  const downloadErrorReport = () => {
+  const downloadErrorReport = async () => {
     const rows: RowError[] = [];
     for (const p of parsed) {
       for (const e of p.errors) {
@@ -186,6 +186,7 @@ export function CsvUploadDialog({ onClose, onDone }: Props) {
         });
       }
     }
+    const Papa = await loadPapa();
     const csv = Papa.unparse(rows);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
