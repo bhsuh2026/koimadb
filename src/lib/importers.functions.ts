@@ -111,7 +111,7 @@ function maskRow(r: Importer): Importer {
 
 const ListInput = z.object({
   q: z.string().max(100).default(""),
-  country: z.string().max(50).nullable().default(null),
+  countries: z.array(z.string().min(1).max(50)).max(50).default([]),
   scales: z.array(z.string().min(1).max(50)).max(20).default([]),
   hs: z.string().max(12).default(""),
   hasEmail: z.boolean().default(false),
@@ -129,7 +129,8 @@ export const listImporters = createServerFn({ method: "POST" })
       .from("importers")
       .select("*", { count: "exact" });
 
-    if (data.country) query = query.contains("countries", [data.country]);
+    if (data.countries.length > 0)
+      query = query.overlaps("countries", data.countries);
     if (data.scales.length) query = query.in("scale_label", data.scales);
     if (data.hasEmail) query = query.neq("email", "");
     if (data.hs) query = query.contains("hs_codes", [data.hs.trim()]);
