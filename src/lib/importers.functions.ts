@@ -129,7 +129,8 @@ export const listImporters = createServerFn({ method: "POST" })
       .from("importers")
       .select("*", { count: "exact" });
 
-    if (data.country) query = query.contains("countries", [data.country]);
+    if (data.countries.length > 0)
+      query = query.overlaps("countries", data.countries);
     if (data.scales.length) query = query.in("scale_label", data.scales);
     if (data.hasEmail) query = query.neq("email", "");
     if (data.hs) query = query.contains("hs_codes", [data.hs.trim()]);
