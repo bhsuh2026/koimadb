@@ -111,7 +111,7 @@ function maskRow(r: Importer): Importer {
 
 const ListInput = z.object({
   q: z.string().max(100).default(""),
-  country: z.string().max(50).nullable().default(null),
+  countries: z.array(z.string().min(1).max(50)).max(50).default([]),
   scales: z.array(z.string().min(1).max(50)).max(20).default([]),
   hs: z.string().max(12).default(""),
   hasEmail: z.boolean().default(false),
