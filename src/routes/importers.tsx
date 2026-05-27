@@ -372,6 +372,7 @@ function FilterPanel(props: {
     if (next.has(c)) next.delete(c);
     else next.add(c);
     props.setCountries(Array.from(next));
+    props.onFilterChange();
   };
 
   const toggleScale = (s: string) => {
@@ -379,6 +380,7 @@ function FilterPanel(props: {
     if (next.has(s)) next.delete(s);
     else next.add(s);
     props.setScales(next);
+    props.onFilterChange();
   };
 
   const filteredAll = useMemo(() => {
