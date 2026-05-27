@@ -140,7 +140,7 @@ function ImportersPage() {
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const clearAll = () => {
-    setQ(""); setCountries([]); setScales(new Set()); setHs(""); setHasEmail(false);
+    setQ(""); setCountries([]); setScales(new Set()); setHs(""); setHasEmail(false); setPage(1);
   };
 
   const activeFilterCount =
