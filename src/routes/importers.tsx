@@ -88,13 +88,13 @@ function ImportersPage() {
   const [filterOpen, setFilterOpen] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setQDeb(q.trim()), 250);
+    const t = setTimeout(() => {
+      setQDeb(q.trim());
+      setPage(1);
+    }, 250);
     return () => clearTimeout(t);
   }, [q]);
 
-  useEffect(() => {
-    setPage(1);
-  }, [qDeb, countries, scales, hs, hasEmail, sort]);
 
   const scaleArr = useMemo(() => Array.from(scales), [scales]);
 
@@ -140,7 +140,7 @@ function ImportersPage() {
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const clearAll = () => {
-    setQ(""); setCountries([]); setScales(new Set()); setHs(""); setHasEmail(false);
+    setQ(""); setCountries([]); setScales(new Set()); setHs(""); setHasEmail(false); setPage(1);
   };
 
   const activeFilterCount =
@@ -191,14 +191,20 @@ function ImportersPage() {
             <div className="flex gap-2">
               <input
                 value={hs}
-                onChange={(e) => setHs(e.target.value.replace(/[^\d]/g, ""))}
+                onChange={(e) => {
+                  setHs(e.target.value.replace(/[^\d]/g, ""));
+                  setPage(1);
+                }}
                 placeholder="HS코드"
                 inputMode="numeric"
                 className="w-28 rounded-md border bg-card px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
               />
               <select
                 value={sort}
-                onChange={(e) => setSort(e.target.value as SortKey)}
+                onChange={(e) => {
+                  setSort(e.target.value as SortKey);
+                  setPage(1);
+                }}
                 className="rounded-md border bg-card px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="rank_import_asc">수입액 순</option>
@@ -225,6 +231,7 @@ function ImportersPage() {
             hasEmail={hasEmail}
             setHasEmail={setHasEmail}
             clearAll={clearAll}
+            onFilterChange={() => setPage(1)}
           />
         </aside>
 
@@ -326,6 +333,7 @@ function ImportersPage() {
               hasEmail={hasEmail}
               setHasEmail={setHasEmail}
               clearAll={clearAll}
+              onFilterChange={() => setPage(1)}
             />
             <button
               onClick={() => setFilterOpen(false)}
@@ -354,6 +362,7 @@ function FilterPanel(props: {
   hasEmail: boolean;
   setHasEmail: (b: boolean) => void;
   clearAll: () => void;
+  onFilterChange: () => void;
 }) {
   const [countryQ, setCountryQ] = useState("");
   const [showAll, setShowAll] = useState(false);
@@ -363,6 +372,7 @@ function FilterPanel(props: {
     if (next.has(c)) next.delete(c);
     else next.add(c);
     props.setCountries(Array.from(next));
+    props.onFilterChange();
   };
 
   const toggleScale = (s: string) => {
@@ -370,6 +380,7 @@ function FilterPanel(props: {
     if (next.has(s)) next.delete(s);
     else next.add(s);
     props.setScales(next);
+    props.onFilterChange();
   };
 
   const filteredAll = useMemo(() => {
@@ -389,7 +400,10 @@ function FilterPanel(props: {
         <div className="flex flex-wrap gap-1.5">
           <FilterChip
             active={props.countries.length === 0}
-            onClick={() => props.setCountries([])}
+            onClick={() => {
+              props.setCountries([]);
+              props.onFilterChange();
+            }}
           >
             전체
           </FilterChip>
@@ -527,7 +541,10 @@ function FilterPanel(props: {
           <input
             type="checkbox"
             checked={props.hasEmail}
-            onChange={(e) => props.setHasEmail(e.target.checked)}
+            onChange={(e) => {
+              props.setHasEmail(e.target.checked);
+              props.onFilterChange();
+            }}
             className="accent-primary"
           />
           이메일 보유 업체만
