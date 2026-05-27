@@ -538,7 +538,10 @@ function FilterPanel(props: {
           <input
             type="checkbox"
             checked={props.hasEmail}
-            onChange={(e) => props.setHasEmail(e.target.checked)}
+            onChange={(e) => {
+              props.setHasEmail(e.target.checked);
+              props.onFilterChange();
+            }}
             className="accent-primary"
           />
           이메일 보유 업체만
