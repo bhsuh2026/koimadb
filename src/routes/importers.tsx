@@ -231,6 +231,7 @@ function ImportersPage() {
             hasEmail={hasEmail}
             setHasEmail={setHasEmail}
             clearAll={clearAll}
+            onFilterChange={() => setPage(1)}
           />
         </aside>
 
