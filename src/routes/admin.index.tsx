@@ -259,6 +259,13 @@ function AdminCompanies() {
           onConfirm={() => deleteMut.mutate(confirmDelete.id)}
         />
       )}
+
+      {showUpload && (
+        <CsvUploadDialog
+          onClose={() => setShowUpload(false)}
+          onDone={invalidate}
+        />
+      )}
     </div>
   );
 }
