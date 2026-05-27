@@ -400,7 +400,10 @@ function FilterPanel(props: {
         <div className="flex flex-wrap gap-1.5">
           <FilterChip
             active={props.countries.length === 0}
-            onClick={() => props.setCountries([])}
+            onClick={() => {
+              props.setCountries([]);
+              props.onFilterChange();
+            }}
           >
             전체
           </FilterChip>
