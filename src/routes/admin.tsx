@@ -7,9 +7,12 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Database, ArrowLeft, ShieldCheck, LogOut } from "lucide-react";
+import { Database, ArrowLeft, ShieldCheck, LogOut, Zap, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyAdminStatus } from "@/lib/auth.functions";
+import { runDbTest } from "@/lib/db-test.functions";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -42,6 +45,8 @@ function AdminLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const [email, setEmail] = useState<string | null>(null);
+  const [testing, setTesting] = useState(false);
+  const testFn = useServerFn(runDbTest);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
@@ -50,6 +55,21 @@ function AdminLayout() {
   const onLogout = async () => {
     await supabase.auth.signOut();
     navigate({ to: "/login", replace: true });
+  };
+
+  const onTest = async () => {
+    setTesting(true);
+    try {
+      const r = await testFn();
+      toast.success(
+        `DB OK · ${r.elapsedMs}ms · companies ${r.companies.toLocaleString()} · importers ${r.importers.toLocaleString()}`,
+      );
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error(`DB 오류: ${msg}`);
+    } finally {
+      setTesting(false);
+    }
   };
 
   return (
@@ -73,6 +93,19 @@ function AdminLayout() {
             <AdminTab to="/admin" active={pathname === "/admin"}>
               <Database className="h-3.5 w-3.5" /> 업체
             </AdminTab>
+            <button
+              onClick={onTest}
+              disabled={testing}
+              className="ml-1 inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1.5 text-[12px] text-muted-foreground hover:border-primary hover:text-primary disabled:opacity-50"
+              title="Supabase 연결 및 테이블 카운트 테스트"
+            >
+              {testing ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Zap className="h-3.5 w-3.5" />
+              )}
+              데이터 테스트
+            </button>
             {email && (
               <span className="ml-2 hidden items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground sm:inline-flex">
                 <ShieldCheck className="h-3 w-3 text-primary" />
