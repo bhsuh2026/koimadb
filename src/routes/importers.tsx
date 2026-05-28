@@ -31,7 +31,6 @@ function Index() {
   const { t } = useLang();
   const listFn = useServerFn(listCompanies);
   const statsFn = useServerFn(getStats);
-  const statsFn = useServerFn(getStats);
 
   const [country, setCountry] = useState<string | null>(null); // null = all
   const [q, setQ] = useState("");
