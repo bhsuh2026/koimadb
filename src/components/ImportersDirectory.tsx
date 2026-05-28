@@ -232,7 +232,7 @@ export function ImportersDirectory({
                   setHs(e.target.value.replace(/[^\d]/g, ""));
                   setPage(1);
                 }}
-                placeholder="HS코드"
+                placeholder={t("HS코드", "HS code")}
                 inputMode="numeric"
                 className="w-28 rounded-md border bg-card px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
               />
@@ -244,9 +244,9 @@ export function ImportersDirectory({
                 }}
                 className="rounded-md border bg-card px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
               >
-                <option value="rank_import_asc">수입액 순</option>
-                <option value="rank_sales_asc">매출액 순</option>
-                <option value="name_asc">업체명 가나다순</option>
+                <option value="rank_import_asc">{t("수입액 순", "By imports")}</option>
+                <option value="rank_sales_asc">{t("매출액 순", "By revenue")}</option>
+                <option value="name_asc">{t("업체명 가나다순", "Name A–Z")}</option>
               </select>
               <Link
                 to="/importers"
