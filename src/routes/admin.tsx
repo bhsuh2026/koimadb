@@ -8,7 +8,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Database, ArrowLeft, ShieldCheck, LogOut, Zap, Loader2 } from "lucide-react";
+import { Database, ArrowLeft, ShieldCheck, LogOut, Zap, Loader2, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyMfaStatus } from "@/lib/auth.functions";
 import { runDbTest } from "@/lib/db-test.functions";
@@ -106,6 +106,9 @@ function AdminLayout() {
           <nav className="ml-auto flex items-center gap-1">
             <AdminTab to="/admin" active={pathname === "/admin"}>
               <Database className="h-3.5 w-3.5" /> 업체
+            </AdminTab>
+            <AdminTab to="/admin/mfa" active={pathname === "/admin/mfa"}>
+              <KeyRound className="h-3.5 w-3.5" /> 2단계 인증
             </AdminTab>
             <button
               onClick={onTest}
