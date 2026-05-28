@@ -598,6 +598,28 @@ function FilterChip({
   );
 }
 
+function maskBizNo(v: string) {
+  const s = v.replace(/\D/g, "");
+  if (s.length === 10) return `${s.slice(0, 3)}-${"*".repeat(2)}-${"*".repeat(5)}`;
+  return v.slice(0, 3) + v.slice(3).replace(/./g, "*");
+}
+function maskEmail(v: string) {
+  const [local, domain] = v.split("@");
+  if (!domain) return v;
+  const maskedLocal = local.length <= 2 ? local : local.slice(0, 2) + "*".repeat(Math.max(1, local.length - 2));
+  const dParts = domain.split(".");
+  const maskedDomain = dParts.map((p, i) => (i === dParts.length - 1 ? p : p.slice(0, 2) + "*".repeat(Math.max(1, p.length - 2)))).join(".");
+  return `${maskedLocal}@${maskedDomain}`;
+}
+function maskPhone(v: string) {
+  return v.replace(/(\d{2,3})-(\d{3,4})-(\d{4})/, (_, a) => `${a}-${"*".repeat(4)}-${"*".repeat(4)}`);
+}
+function maskHS(h: string) {
+  if (h.length <= 4) return h;
+  return h.slice(0, 2) + "*".repeat(h.length - 4) + h.slice(-2);
+}
+
+
 function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
   const countries = row.countries.slice(0, 6);
   const extra = Math.max(0, row.countries.length - countries.length);
@@ -654,16 +676,16 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
 
       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
         {row.biz_no && (
-          <span className="font-mono tabular-nums">사업자 {row.biz_no}</span>
+          <span className="font-mono tabular-nums">사업자 {maskBizNo(row.biz_no)}</span>
         )}
         {row.email && (
           <span className="inline-flex items-center gap-1">
-            <Mail className="size-3" /> {row.email.split(",")[0].trim()}
+            <Mail className="size-3" /> {maskEmail(row.email.split(",")[0].trim())}
           </span>
         )}
         {row.phone && (
           <span className="inline-flex items-center gap-1">
-            <Phone className="size-3" /> {row.phone}
+            <Phone className="size-3" /> {maskPhone(row.phone)}
           </span>
         )}
       </div>
@@ -733,7 +755,7 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
         <dl className="space-y-3 text-sm">
           {row.biz_no && (
             <Row label="사업자번호">
-              <span className="font-mono tabular-nums">{row.biz_no}</span>
+              <span className="font-mono tabular-nums">{maskBizNo(row.biz_no)}</span>
             </Row>
           )}
           {emails && (
@@ -743,8 +765,8 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
                   const v = e.trim();
                   if (!v) return null;
                   return (
-                    <span key={`${v}-${i}`} className="rounded bg-muted px-1.5 py-0.5">
-                      {v}
+                  <span key={`${v}-${i}`} className="rounded bg-muted px-1.5 py-0.5">
+                      {maskEmail(v)}
                     </span>
                   );
                 })}
@@ -758,8 +780,8 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
                   const v = p.trim();
                   if (!v) return null;
                   return (
-                    <span key={`${v}-${i}`} className="rounded bg-muted px-1.5 py-0.5">
-                      {v}
+                  <span key={`${v}-${i}`} className="rounded bg-muted px-1.5 py-0.5">
+                      {maskPhone(v)}
                     </span>
                   );
                 })}
@@ -789,7 +811,7 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
                     key={h}
                     className="rounded bg-muted px-1.5 py-0.5 tabular-nums"
                   >
-                    {h}
+                    {maskHS(h)}
                   </span>
                 ))}
               </div>
