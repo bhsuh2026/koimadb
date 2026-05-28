@@ -139,7 +139,6 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
-}
 
 function AuthSync() {
   const router = useRouter();
