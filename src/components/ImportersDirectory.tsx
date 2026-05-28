@@ -801,7 +801,7 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
       <div className="absolute inset-x-0 bottom-0 max-h-[90vh] overflow-y-auto rounded-t-2xl bg-background p-5 shadow-2xl sm:inset-y-8 sm:left-auto sm:right-8 sm:w-[520px] sm:rounded-2xl">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="text-xl font-semibold">{row.name_kr || row.name_en}</h2>
+            <h2 className="text-xl font-semibold">{displayCompanyName(row.name_kr) || row.name_en}</h2>
             {row.name_en && (
               <p className="text-sm text-muted-foreground">{row.name_en}</p>
             )}
