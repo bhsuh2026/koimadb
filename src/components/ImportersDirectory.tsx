@@ -184,31 +184,35 @@ export function ImportersDirectory({
               />
               <div className="min-w-0">
                 <h1 className="truncate text-lg font-semibold sm:text-xl">
+                <h1 className="truncate text-lg font-semibold sm:text-xl">
                   {scopeBadge && (
                     <span className="mr-1.5">{scopeBadge}</span>
                   )}
-                  {title}
+                  {t(title, "Korean Importers Directory")}
                 </h1>
                 <p className="hidden text-xs text-muted-foreground sm:block">
-                  2025 관세청 기준 ·{" "}
+                  {t("2025 관세청 기준 ·", "2025 Korea Customs ·")}{" "}
                   {(lockedCount ?? facets.data?.total ?? 118353).toLocaleString()}
-                  개 업체
+                  {t("개 업체", " companies")}
                 </p>
               </div>
 
             </div>
-            <button
-              onClick={() => setFilterOpen(true)}
-              className="relative inline-flex items-center gap-1.5 rounded-md border bg-card px-3 py-2 text-sm shadow-sm hover:bg-accent lg:hidden"
-            >
-              <SlidersHorizontal className="size-4" />
-              필터
-              {activeFilterCount > 0 && (
-                <span className="ml-1 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
-                  {activeFilterCount}
-                </span>
-              )}
-            </button>
+            <div className="flex items-center gap-2">
+              <LangToggle />
+              <button
+                onClick={() => setFilterOpen(true)}
+                className="relative inline-flex items-center gap-1.5 rounded-md border bg-card px-3 py-2 text-sm shadow-sm hover:bg-accent lg:hidden"
+              >
+                <SlidersHorizontal className="size-4" />
+                {t("필터", "Filters")}
+                {activeFilterCount > 0 && (
+                  <span className="ml-1 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Search */}
