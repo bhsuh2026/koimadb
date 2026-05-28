@@ -595,7 +595,30 @@ function FilterChip({
     >
       {children}
     </button>
+  );
+}
+
 function maskBizNo(v: string) {
+  const s = v.replace(/\D/g, "");
+  if (s.length === 10) return `${s.slice(0, 3)}-${"*".repeat(2)}-${"*".repeat(5)}`;
+  return v.slice(0, 3) + v.slice(3).replace(/./g, "*");
+}
+function maskEmail(v: string) {
+  const [local, domain] = v.split("@");
+  if (!domain) return v;
+  const maskedLocal = local.length <= 2 ? local : local.slice(0, 2) + "*".repeat(Math.max(1, local.length - 2));
+  const dParts = domain.split(".");
+  const maskedDomain = dParts.map((p, i) => (i === dParts.length - 1 ? p : p.slice(0, 2) + "*".repeat(Math.max(1, p.length - 2)))).join(".");
+  return `${maskedLocal}@${maskedDomain}`;
+}
+function maskPhone(v: string) {
+  return v.replace(/(\d{2,3})-(\d{3,4})-(\d{4})/, (_, a) => `${a}-${"*".repeat(4)}-${"*".repeat(4)}`);
+}
+function maskHS(h: string) {
+  if (h.length <= 4) return h;
+  return h.slice(0, 2) + "*".repeat(h.length - 4) + h.slice(-2);
+}
+
   const s = v.replace(/\D/g, "");
   if (s.length === 10) return `${s.slice(0, 3)}-${"*".repeat(2)}-${"*".repeat(5)}`;
   return v.slice(0, 3) + v.slice(3).replace(/./g, "*");
