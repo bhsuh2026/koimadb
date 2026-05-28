@@ -181,12 +181,7 @@ export function ImportersDirectory({
                 className="h-9 w-auto shrink-0 sm:h-10"
               />
               <div className="min-w-0">
-                <nav className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground">
-                  <Link to="/" className="hover:text-foreground">전체</Link>
-                  <span className="text-muted-foreground/40">·</span>
-                  <Link to="/importers" className="hover:text-foreground">아세안</Link>
-                </nav>
-                <h1 className="mt-0.5 truncate text-lg font-semibold sm:text-xl">
+                <h1 className="truncate text-lg font-semibold sm:text-xl">
                   {scopeBadge && (
                     <span className="mr-1.5">{scopeBadge}</span>
                   )}
@@ -198,6 +193,7 @@ export function ImportersDirectory({
                   개 업체
                 </p>
               </div>
+
             </div>
             <button
               onClick={() => setFilterOpen(true)}
@@ -247,6 +243,14 @@ export function ImportersDirectory({
                 <option value="rank_sales_asc">매출액 순</option>
                 <option value="name_asc">업체명 가나다순</option>
               </select>
+              <Link
+                to="/importers"
+                title="아세안 거래 디렉토리"
+                aria-label="아세안 거래 디렉토리"
+                className="inline-flex items-center justify-center rounded-md border bg-card px-3 py-2 text-base shadow-sm hover:bg-accent"
+              >
+                🌏
+              </Link>
             </div>
           </div>
         </div>
