@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireAdmin } from "./admin-auth.server";
 import type { Company } from "./koima-types";
 
 const CompanyInputSchema = z.object({
@@ -108,6 +109,7 @@ export const getCompany = createServerFn({ method: "POST" })
   });
 
 export const createCompany = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
   .inputValidator((i: unknown) => CompanyInputSchema.parse(i))
   .handler(async ({ data }) => {
     const { data: row, error } = await supabaseAdmin
@@ -120,6 +122,7 @@ export const createCompany = createServerFn({ method: "POST" })
   });
 
 export const updateCompany = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
   .inputValidator((i: unknown) =>
     z
       .object({ id: z.string().uuid() })
@@ -139,6 +142,7 @@ export const updateCompany = createServerFn({ method: "POST" })
   });
 
 export const deleteCompany = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data }) => {
     const { error } = await supabaseAdmin
@@ -154,6 +158,7 @@ const BulkInput = z.object({
 });
 
 export const bulkCreateCompanies = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
   .inputValidator((i: unknown) => BulkInput.parse(i))
   .handler(async ({ data }) => {
     const { data: inserted, error } = await supabaseAdmin
