@@ -308,8 +308,6 @@ function Index() {
             </select>
           </div>
         </div>
-          </div>
-        </div>
 
         {/* Grid */}
         {listQuery.isLoading && !listQuery.data ? (
