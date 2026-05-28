@@ -359,7 +359,7 @@ function Index() {
         )}
 
         <footer className="mt-10 border-t border-border pt-6 text-center text-[11px] leading-relaxed text-muted-foreground">
-          출처 · 관세청 수입실적 / KOIMA · 문의:{" "}
+          {t("출처 · 관세청 수입실적 / KOIMA · 문의:", "Source · Korea Customs / KOIMA · Contact:")}{" "}
           <a href="mailto:seobh@koima.or.kr" className="text-accent hover:underline">
             seobh@koima.or.kr
           </a>
