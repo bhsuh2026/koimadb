@@ -1,0 +1,9 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": ".output/public",
+  "functions": {
+    ".output/server/**": {
+      "runtime": "nodejs20.x"
+    }
+  }
+}
