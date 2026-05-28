@@ -1,3 +1,4 @@
+import koimaLogo from "@/assets/koima-logo.png";
 import {
   createFileRoute,
   Link,

@@ -1,3 +1,4 @@
+import koimaLogo from "@/assets/koima-logo.png";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
