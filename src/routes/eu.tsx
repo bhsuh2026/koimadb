@@ -237,17 +237,17 @@ function Index() {
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 backdrop-blur">
               <Sparkles className="h-3 w-3 text-white/80" />
               <span className="text-[10px] uppercase tracking-[0.16em] text-white/80">
-                ASEAN · 아세안 10개국
+                EU · 유럽연합 27개국
               </span>
             </div>
             <h1 className="text-[24px] font-extrabold leading-tight tracking-tight sm:text-[34px]">
-              아세안 거래 한국 수입업체 디렉토리
+              EU 거래 한국 수입업체 디렉토리
               <span className="mt-2 block text-[14px] font-semibold text-white/70 sm:text-[17px]">
-                Korean Importers Sourcing from ASEAN
+                Korean Importers Sourcing from the European Union
               </span>
             </h1>
             <p className="mt-4 max-w-3xl text-[12.5px] leading-relaxed text-white/75">
-              아세안 10개국 제품을 수입 중인 한국 기업을 국가별로 확인하실 수 있습니다.
+              EU 27개국 제품을 수입 중인 한국 기업을 국가별로 확인하실 수 있습니다.
               아래에서 국가를 선택하면 해당국 거래 수입업체로 좁혀집니다.
             </p>
           </div>
@@ -266,11 +266,11 @@ function Index() {
                 }}
                 accent
               >
-                <span className="text-base leading-none">🌏</span>
-                아세안 전체
+                <span className="text-base leading-none">🇪🇺</span>
+                EU 전체
                 <Pill active={country === null}>{grandTotal.toLocaleString()}</Pill>
               </CountryChip>
-              {ASEAN.map((a) => {
+              {EU.map((a) => {
                 const on = country === a.kr;
                 const n = counts[a.kr] ?? 0;
                 return (
@@ -288,6 +288,7 @@ function Index() {
                   </CountryChip>
                 );
               })}
+
             </div>
           </div>
         </div>
