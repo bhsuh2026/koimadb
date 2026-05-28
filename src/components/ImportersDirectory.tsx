@@ -235,6 +235,10 @@ export function ImportersDirectory({
                 value={sort}
                 onChange={(e) => {
                   setSort(e.target.value as SortKey);
+              <select
+                value={sort}
+                onChange={(e) => {
+                  setSort(e.target.value as SortKey);
                   setPage(1);
                 }}
                 className="rounded-md border bg-card px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
@@ -243,10 +247,15 @@ export function ImportersDirectory({
                 <option value="rank_sales_asc">매출액 순</option>
                 <option value="name_asc">업체명 가나다순</option>
               </select>
+              <Link
+                to="/importers"
+                title="아세안 거래 디렉토리"
+                aria-label="아세안 거래 디렉토리"
+                className="inline-flex items-center justify-center rounded-md border bg-card px-3 py-2 text-base shadow-sm hover:bg-accent"
+              >
+                🌏
+              </Link>
             </div>
-          </div>
-        </div>
-      </header>
 
       <div className="mx-auto flex max-w-7xl gap-6 px-4 py-6 sm:px-6">
         {/* Sidebar (desktop) */}
