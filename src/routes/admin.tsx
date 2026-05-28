@@ -53,8 +53,6 @@ export const Route = createFileRoute("/admin")({
   },
   component: AdminLayout,
 });
-  component: AdminLayout,
-});
 
 function AdminLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
