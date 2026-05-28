@@ -87,8 +87,6 @@ function Index() {
 
   const scopeName = country ?? "EU 전체";
 
-  const scopeName = country ?? "아세안 전체";
-
   const scrollToList = () => {
     setTimeout(() => dirRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   };
@@ -110,8 +108,9 @@ function Index() {
       "수입규모",
       "이메일",
       "전화번호",
-      "아세안거래국",
+      "EU거래국",
       "기타거래국",
+
     ];
     const res = await listFn({
       data: {
