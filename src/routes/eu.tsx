@@ -58,12 +58,13 @@ function Index() {
   const scaleArr = useMemo(() => Array.from(scales), [scales]);
 
   const listQuery = useQuery({
-    queryKey: ["companies", { country, qDeb, scaleArr, mailOnly, sort, page }],
+    queryKey: ["eu-companies", { country, qDeb, scaleArr, mailOnly, sort, page }],
     queryFn: () =>
       listFn({
         data: {
           q: qDeb,
-          asean: country,
+          other: country,
+          otherIn: country ? [] : EU_NAMES,
           scales: scaleArr,
           hasEmail: mailOnly,
           sort,
@@ -75,14 +76,16 @@ function Index() {
   });
 
   const statsQuery = useQuery({
-    queryKey: ["stats"],
-    queryFn: () => statsFn(),
+    queryKey: ["eu-stats"],
+    queryFn: () => statsFn({ data: { countries: EU_NAMES } }),
     staleTime: 5 * 60 * 1000,
   });
 
   const total = listQuery.data?.total ?? 0;
   const rows = listQuery.data?.rows ?? [];
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  const scopeName = country ?? "EU 전체";
 
   const scopeName = country ?? "아세안 전체";
 
