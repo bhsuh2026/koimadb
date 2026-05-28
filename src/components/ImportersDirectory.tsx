@@ -20,7 +20,7 @@ import {
   getImporterFacets,
   type Importer,
 } from "@/lib/importers.functions";
-import { flagOf, displayCountry } from "@/lib/koima-types";
+import { flagOf, displayCountry, displayCompanyName } from "@/lib/koima-types";
 import { AseanFlag } from "@/components/AseanFlag";
 import { LangToggle, useLang } from "@/lib/i18n";
 
