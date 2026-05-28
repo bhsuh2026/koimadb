@@ -30,6 +30,7 @@ const PAGE_SIZE = 40;
 type SortKey = "scale_desc" | "scale_asc" | "name_asc" | "countries_desc";
 
 function Index() {
+  const { t, lang } = useLang();
   const listFn = useServerFn(listCompanies);
   const statsFn = useServerFn(getEuStats);
 
