@@ -243,16 +243,31 @@ export const SCOLOR: Record<number, [string, string]> = {
 
 // 상호 뒤에 붙은 지점/공장 등 접미부를 표시용으로 제거합니다.
 // 예: "지에스칼텍스(주)여수공장" → "지에스칼텍스(주)"
-//     "신한정밀공업(주) 대덕공장" → "신한정밀공업(주)"
+// 상호 뒤에 붙은 지점/공장 등 접미부 + 괄호 안 지점 표기를 표시용으로 제거합니다.
+// 예: "지에스칼텍스(주)여수공장" → "지에스칼텍스(주)"
+//     "한국가스공사(인천기지본부)" → "한국가스공사"
+//     "앰코테크놀로지코리아(주)(부평 5 공장)" → "앰코테크놀로지코리아(주)"
 // (주)/㈜가 문자열 맨 앞에 있는 경우(예: "(주)티비공장")는 본명일 수 있어 건드리지 않습니다.
-const BRANCH_SUFFIX_RE =
-  /^(.+?(?:\(주\)|㈜))\s*\S*?(?:공장|지점|지사|사업소|영업소|출장소|본부|본사|연구소|사업부|센터|공단)(?:지점|공장)?$/;
+const BRANCH_KEYWORDS =
+  "공장|지점|지사|사업소|영업소|출장소|본부|본사|연구소|사업부|센터|공단|기지|물류센터|연구개발센터";
+const BRANCH_SUFFIX_RE = new RegExp(
+  `^(.+?(?:\\(주\\)|㈜))\\s*\\S*?(?:${BRANCH_KEYWORDS})(?:지점|공장)?$`
+);
+const TRAILING_PAREN_BRANCH_RE = new RegExp(
+  `\\s*[\\(（][^()（）]*(?:${BRANCH_KEYWORDS})[^()（）]*[\\)）]\\s*$`
+);
 export function displayCompanyName(name: string | null | undefined): string {
   if (!name) return "";
-  const s = name.trim();
-  // (주)/㈜가 맨 앞이면 건드리지 않음
+  let s = name.trim();
+  // 끝에 붙은 (xxx공장), (xxx본부) 같은 괄호는 반복 제거
+  while (true) {
+    const next = s.replace(TRAILING_PAREN_BRANCH_RE, "").trim();
+    if (next === s) break;
+    s = next;
+  }
   if (/^(?:\(주\)|㈜|주식회사)/.test(s)) return s;
   const m = s.match(BRANCH_SUFFIX_RE);
   return m ? m[1] : s;
 }
+
 
