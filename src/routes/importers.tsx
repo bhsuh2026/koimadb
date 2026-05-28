@@ -169,25 +169,27 @@ function Index() {
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 backdrop-blur">
               <Sparkles className="h-3 w-3 text-white/80" />
               <span className="text-[10px] uppercase tracking-[0.16em] text-white/80">
-                ASEAN · 아세안 10개국
+                {t("ASEAN · 아세안 10개국", "ASEAN · 10 Member States")}
               </span>
             </div>
             <h1 className="text-[24px] font-extrabold leading-tight tracking-tight sm:text-[34px]">
-              아세안 거래 한국 수입업체 디렉토리
+              {t("아세안 거래 한국 수입업체 디렉토리", "Korean Importers Sourcing from ASEAN")}
               <span className="mt-2 block text-[14px] font-semibold text-white/70 sm:text-[17px]">
-                Korean Importers Sourcing from ASEAN
+                {t("Korean Importers Sourcing from ASEAN", "아세안 거래 한국 수입업체 디렉토리")}
               </span>
             </h1>
             <p className="mt-4 max-w-3xl text-[12.5px] leading-relaxed text-white/75">
-              아세안 10개국 제품을 수입 중인 한국 기업을 국가별로 확인하실 수 있습니다.
-              아래에서 국가를 선택하면 해당국 거래 수입업체로 좁혀집니다.
+              {t(
+                "아세안 10개국 제품을 수입 중인 한국 기업을 국가별로 확인하실 수 있습니다. 아래에서 국가를 선택하면 해당국 거래 수입업체로 좁혀집니다.",
+                "Browse Korean companies importing from the 10 ASEAN nations. Select a country below to narrow results to importers trading with that country.",
+              )}
             </p>
           </div>
 
           {/* COUNTRY TABS — horizontal scroll on mobile */}
           <div className="mx-auto max-w-[1300px] px-4 pb-6 sm:px-6 sm:pb-7">
             <div className="pb-2 text-[10px] font-bold uppercase tracking-wider text-white/55">
-              국가 선택 · Select a Country
+              {t("국가 선택 · Select a Country", "Select a Country · 국가 선택")}
             </div>
             <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0 sm:overflow-visible">
               <CountryChip
@@ -199,7 +201,7 @@ function Index() {
                 accent
               >
                 <span className="text-base leading-none">🌏</span>
-                아세안 전체
+                {t("아세안 전체", "All ASEAN")}
                 <Pill active={country === null}>{grandTotal.toLocaleString()}</Pill>
               </CountryChip>
               {ASEAN.map((a) => {
@@ -215,7 +217,7 @@ function Index() {
                     }}
                   >
                     <span className="text-base leading-none">{a.flag}</span>
-                    {a.kr}
+                    {lang === "en" ? a.en : a.kr}
                     <Pill active={on}>{n.toLocaleString()}</Pill>
                   </CountryChip>
                 );
