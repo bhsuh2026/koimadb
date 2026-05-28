@@ -314,16 +314,10 @@ export function CsvUploadDialog({ onClose, onDone }: Props) {
               {/* Error list */}
               {stats.errorRows > 0 && (
                 <div className="rounded-lg border border-border bg-card">
-                  <div className="flex items-center justify-between border-b border-border px-3 py-2">
+                  <div className="flex items-center border-b border-border px-3 py-2">
                     <div className="text-[12px] font-semibold text-destructive">
                       오류 {stats.errorCount}건 · {stats.errorRows}행
                     </div>
-                    <button
-                      onClick={downloadErrorReport}
-                      className="inline-flex items-center gap-1 text-[12px] text-primary hover:underline"
-                    >
-                      <Download className="h-3 w-3" /> 오류 리포트 (CSV)
-                    </button>
                   </div>
                   <div className="max-h-[260px] overflow-y-auto">
                     <table className="w-full text-[12px]">
