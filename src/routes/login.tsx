@@ -46,14 +46,21 @@ function LoginPage() {
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement;
+    const formData = new FormData(form);
+    const submittedEmail = String(formData.get("email") ?? "").trim();
+    const submittedPassword = String(formData.get("password") ?? "");
+
     setErr(null);
     setInfo(null);
     setBusy(true);
+    setEmail(submittedEmail);
+    setPassword(submittedPassword);
     try {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
-          email,
-          password,
+          email: submittedEmail,
+          password: submittedPassword,
           options: { emailRedirectTo: window.location.origin + "/login" },
         });
         if (error) throw error;
@@ -64,7 +71,10 @@ function LoginPage() {
         return;
       }
 
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({
+        email: submittedEmail,
+        password: submittedPassword,
+      });
       if (error) throw error;
 
       const status = await checkAdmin();
@@ -94,6 +104,7 @@ function LoginPage() {
               이메일
             </label>
             <input
+              name="email"
               type="email"
               required
               autoComplete="email"
@@ -107,6 +118,7 @@ function LoginPage() {
               비밀번호
             </label>
             <input
+              name="password"
               type="password"
               required
               minLength={6}
