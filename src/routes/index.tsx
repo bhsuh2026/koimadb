@@ -1,3 +1,4 @@
+import koimaLogo from "@/assets/koima-logo.png";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -152,16 +153,27 @@ function ImportersPage() {
       <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
           <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <Link to="/importers" className="text-xs text-muted-foreground hover:text-foreground">
-                KOIMA ASEAN 디렉토리 →
-              </Link>
-              <h1 className="mt-0.5 truncate text-lg font-semibold sm:text-xl">
-                한국 수입업체 디렉토리
-              </h1>
-              <p className="hidden text-xs text-muted-foreground sm:block">
-                2025 관세청 기준 · {(facets.data?.total ?? 118353).toLocaleString()}개 업체
-              </p>
+            <div className="flex min-w-0 items-center gap-3">
+              <img
+                src={koimaLogo}
+                alt="KOIMA 한국수입업협회"
+                className="h-9 w-auto shrink-0 sm:h-10"
+              />
+              <div className="min-w-0">
+                <Link
+                  to="/importers"
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  KOIMA ASEAN 디렉토리 →
+                </Link>
+                <h1 className="mt-0.5 truncate text-lg font-semibold sm:text-xl">
+                  한국 수입업체 디렉토리
+                </h1>
+                <p className="hidden text-xs text-muted-foreground sm:block">
+                  2025 관세청 기준 ·{" "}
+                  {(facets.data?.total ?? 118353).toLocaleString()}개 업체
+                </p>
+              </div>
             </div>
             <button
               onClick={() => setFilterOpen(true)}
