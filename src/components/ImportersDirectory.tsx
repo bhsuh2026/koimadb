@@ -253,6 +253,15 @@ export function ImportersDirectory({
               >
                 <AseanFlag className="h-5 w-auto" />
               </Link>
+              <Link
+                to="/eu"
+                title="EU 거래 디렉토리"
+                aria-label="EU 거래 디렉토리"
+                className="inline-flex items-center justify-center rounded-md border bg-card px-2 py-2 text-xl leading-none shadow-sm hover:bg-accent"
+              >
+                🇪🇺
+              </Link>
+
             </div>
           </div>
         </div>
