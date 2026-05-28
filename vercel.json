@@ -1,9 +1,4 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": ".output/public",
-  "functions": {
-    ".output/server/**": {
-      "runtime": "nodejs20.x"
-    }
-  }
+  "buildCommand": "DEPLOY_TARGET=vercel npm run build",
+  "framework": null
 }
