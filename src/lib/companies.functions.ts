@@ -65,8 +65,49 @@ export const listCompanies = createServerFn({ method: "POST" })
 
     const { data: rows, count, error } = await query;
     if (error) throw new Error(error.message);
-    return { rows: (rows ?? []) as Company[], total: count ?? 0 };
+    const masked = ((rows ?? []) as Company[]).map(maskCompany);
+    return { rows: masked, total: count ?? 0 };
   });
+
+// ---- Masking helpers (개인정보 보호) ----
+function maskBizNo(v: string | null): string | null {
+  if (!v) return v;
+  return v.replace(/(\d{3}-?\d{2}-?)(\d{5})/, (_, a, b) => `${a}${"*".repeat(b.length)}`);
+}
+function maskOneEmail(v: string): string {
+  const t = v.trim();
+  if (!t) return t;
+  const at = t.indexOf("@");
+  if (at < 1) return "***";
+  const user = t.slice(0, at);
+  const domain = t.slice(at + 1);
+  const userMasked = user.length <= 2 ? user[0] + "*" : user.slice(0, 2) + "*".repeat(Math.max(2, user.length - 2));
+  const dot = domain.lastIndexOf(".");
+  const tld = dot >= 0 ? domain.slice(dot) : "";
+  return `${userMasked}@***${tld}`;
+}
+function maskEmails(v: string): string {
+  if (!v) return v;
+  return v.split(",").map(maskOneEmail).filter(Boolean).join(", ");
+}
+function maskOnePhone(v: string): string {
+  const t = v.trim();
+  if (!t) return t;
+  return t.replace(/(\d)(?=\d{0,3}$)/g, "*").replace(/\d{4}$/, "****");
+}
+function maskPhones(v: string): string {
+  if (!v) return v;
+  return v.split(/[/,]/).map(maskOnePhone).filter(Boolean).join(" / ");
+}
+function maskCompany(r: Company): Company {
+  return {
+    ...r,
+    biz_no: maskBizNo(r.biz_no),
+    email: maskEmails(r.email),
+    phone: maskPhones(r.phone),
+  };
+}
+
 
 export const getStats = createServerFn({ method: "GET" }).handler(async () => {
   const { count: total } = await supabaseAdmin
