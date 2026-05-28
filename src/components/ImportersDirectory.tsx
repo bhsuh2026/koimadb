@@ -20,7 +20,7 @@ import {
   getImporterFacets,
   type Importer,
 } from "@/lib/importers.functions";
-import { flagOf } from "@/lib/koima-types";
+import { flagOf, displayCountry } from "@/lib/koima-types";
 import { AseanFlag } from "@/components/AseanFlag";
 import { LangToggle, useLang } from "@/lib/i18n";
 
@@ -306,7 +306,7 @@ export function ImportersDirectory({
                   개 결과
                   {lockedCountry && (
                     <span className="ml-1 text-xs">
-                      · {flagOf(lockedCountry)} {lockedCountry} 거래
+                      · {flagOf(lockedCountry)} {displayCountry(lockedCountry)} 거래
                     </span>
                   )}
                 </>
@@ -482,7 +482,7 @@ function FilterPanel(props: {
         {props.lockedCountry && (
           <div className="mb-2 inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
             <span>{flagOf(props.lockedCountry)}</span>
-            {props.lockedCountry}
+            {displayCountry(props.lockedCountry)}
             <span className="ml-1 text-[10px] font-normal text-primary/70">고정</span>
           </div>
         )}
@@ -506,7 +506,7 @@ function FilterPanel(props: {
               onClick={() => toggleCountry(c)}
             >
               <span className="mr-1">{flagOf(c)}</span>
-              {c}
+              {displayCountry(c)}
             </FilterChip>
           ))}
         </div>
@@ -520,11 +520,11 @@ function FilterPanel(props: {
                 className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
               >
                 <span>{flagOf(c)}</span>
-                {c}
+                {displayCountry(c)}
                 <button
                   onClick={() => toggleCountry(c)}
                   className="ml-0.5 rounded hover:text-destructive"
-                  aria-label={`${c} 제거`}
+                  aria-label={`${displayCountry(c)} 제거`}
                 >
                   <X className="size-3" />
                 </button>
@@ -564,7 +564,7 @@ function FilterPanel(props: {
                 className="flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-xs hover:bg-accent"
               >
                 <span className="text-sm">{flagOf(c)}</span>
-                <span className="flex-1">{c}</span>
+                <span className="flex-1">{displayCountry(c)}</span>
                 <span className="text-[10px] text-muted-foreground">선택</span>
               </button>
             ))}
@@ -594,7 +594,7 @@ function FilterPanel(props: {
                   }`}
                 >
                   <span className="mr-0.5">{flagOf(c)}</span>
-                  {c}
+                  {displayCountry(c)}
                 </button>
               ))}
             </div>
@@ -749,7 +749,7 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
               key={c}
               className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px]"
             >
-              <span>{flagOf(c)}</span> {c}
+              <span>{flagOf(c)}</span> {displayCountry(c)}
             </span>
           ))}
           {extra > 0 && (
@@ -883,7 +883,7 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
                     key={c}
                     className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs"
                   >
-                    <span>{flagOf(c)}</span> {c}
+                    <span>{flagOf(c)}</span> {displayCountry(c)}
                   </span>
                 ))}
               </div>
