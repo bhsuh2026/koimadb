@@ -224,8 +224,8 @@ export const SCALE: Record<number, [string, string]> = {
   13: ["3,000만~5,000만불", "USD 30–50M"],
   14: ["5,000만~1억불", "USD 50–100M"],
   15: ["1억불 초과", "Over USD 100M"],
-};
-
+const BRANCH_KEYWORDS =
+  "공장|지점|지사|사업소|영업소|출장소|본부|본사|연구소|사업부|센터|공단|기지|물류센터|연구개발센터|제련소|제철소|제강소|발전소|정유공장|제조소|작업소|terminal|터미널|캠퍼스";
 export const SCOLOR: Record<number, [string, string]> = {
   6: ["#6D6E70", "#ececec"],
 
