@@ -21,6 +21,8 @@ import {
   type Importer,
 } from "@/lib/importers.functions";
 import { flagOf } from "@/lib/koima-types";
+import { AseanFlag } from "@/components/AseanFlag";
+
 
 const PAGE_SIZE = 50;
 
