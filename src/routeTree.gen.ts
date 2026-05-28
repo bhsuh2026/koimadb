@@ -9,13 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UsaRouteImport } from './routes/usa'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ImportersRouteImport } from './routes/importers'
+import { Route as ChinaRouteImport } from './routes/china'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminMfaRouteImport } from './routes/admin.mfa'
 
+const UsaRoute = UsaRouteImport.update({
+  id: '/usa',
+  path: '/usa',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -24,6 +31,11 @@ const LoginRoute = LoginRouteImport.update({
 const ImportersRoute = ImportersRouteImport.update({
   id: '/importers',
   path: '/importers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChinaRoute = ChinaRouteImport.update({
+  id: '/china',
+  path: '/china',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -50,15 +62,19 @@ const AdminMfaRoute = AdminMfaRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/china': typeof ChinaRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
+  '/usa': typeof UsaRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/china': typeof ChinaRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
+  '/usa': typeof UsaRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/admin': typeof AdminIndexRoute
 }
@@ -66,22 +82,41 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/china': typeof ChinaRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
+  '/usa': typeof UsaRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/importers' | '/login' | '/admin/mfa' | '/admin/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/china'
+    | '/importers'
+    | '/login'
+    | '/usa'
+    | '/admin/mfa'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/importers' | '/login' | '/admin/mfa' | '/admin'
+  to:
+    | '/'
+    | '/china'
+    | '/importers'
+    | '/login'
+    | '/usa'
+    | '/admin/mfa'
+    | '/admin'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/china'
     | '/importers'
     | '/login'
+    | '/usa'
     | '/admin/mfa'
     | '/admin/'
   fileRoutesById: FileRoutesById
@@ -89,12 +124,21 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  ChinaRoute: typeof ChinaRoute
   ImportersRoute: typeof ImportersRoute
   LoginRoute: typeof LoginRoute
+  UsaRoute: typeof UsaRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/usa': {
+      id: '/usa'
+      path: '/usa'
+      fullPath: '/usa'
+      preLoaderRoute: typeof UsaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -107,6 +151,13 @@ declare module '@tanstack/react-router' {
       path: '/importers'
       fullPath: '/importers'
       preLoaderRoute: typeof ImportersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/china': {
+      id: '/china'
+      path: '/china'
+      fullPath: '/china'
+      preLoaderRoute: typeof ChinaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -155,9 +206,21 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  ChinaRoute: ChinaRoute,
   ImportersRoute: ImportersRoute,
   LoginRoute: LoginRoute,
+  UsaRoute: UsaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
