@@ -15,7 +15,7 @@ import {
   Settings,
   X,
 } from "lucide-react";
-import { EU, EU_NAMES, SCALE, SCOLOR, flagOf, type Company } from "@/lib/koima-types";
+import { EU, EU_NAMES, SCALE, SCOLOR, flagOf, displayCountry, type Company } from "@/lib/koima-types";
 import { listCompanies, getEuStats } from "@/lib/companies.functions";
 import { DetailModal } from "@/components/DetailModal";
 import { LangToggle, useLang } from "@/lib/i18n";
@@ -611,7 +611,7 @@ function CompanyCard({
             className="inline-flex items-center gap-1 rounded-md border border-accent/20 bg-accent-soft px-1.5 py-0.5 text-[10px] font-semibold text-accent"
           >
             <span className="text-[11px] leading-none">{flagOf(n)}</span>
-            {n}
+            {displayCountry(n)}
           </span>
         ))}
         {company.asean_countries.length > 6 && (
