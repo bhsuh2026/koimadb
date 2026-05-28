@@ -262,22 +262,22 @@ function Index() {
         {/* Desktop filter panel */}
         <div className="mt-4 hidden gap-4 rounded-xl border border-border bg-card p-4 md:grid md:grid-cols-[1fr_2fr]">
           <div>
-            <Label kr="옵션 · Options" />
+            <Label kr={t("옵션 · Options", "Options")} />
             <div className="flex flex-wrap items-center gap-3">
               <Toggle on={mailOnly} onClick={() => setMailOnly((v) => !v)}>
-                이메일 보유만
+                {t("이메일 보유만", "With email only")}
               </Toggle>
               <button
                 onClick={reset}
                 className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-[11px] text-muted-foreground transition hover:border-destructive hover:text-destructive"
               >
                 <RotateCcw className="h-3 w-3" />
-                초기화
+                {t("초기화", "Reset")}
               </button>
             </div>
           </div>
           <div>
-            <Label kr="수입 규모대 · Annual import scale" />
+            <Label kr={t("수입 규모대 · Annual import scale", "Annual import scale")} />
             <ScaleChips scales={scales} setScales={setScales} />
           </div>
         </div>
@@ -288,7 +288,7 @@ function Index() {
             <b className="font-mono text-[18px] font-bold text-primary">
               {total.toLocaleString()}
             </b>{" "}
-            개사 ·{" "}
+            {t("개사", "companies")} ·{" "}
             <span className="font-semibold text-foreground">{scopeName}</span>
           </div>
           <div className="ml-auto flex gap-2">
@@ -297,10 +297,12 @@ function Index() {
               onChange={(e) => setSort(e.target.value as SortKey)}
               className="h-9 cursor-pointer rounded-md border border-border bg-card px-2.5 text-[12px]"
             >
-              <option value="scale_desc">수입규모 ↓</option>
-              <option value="scale_asc">수입규모 ↑</option>
-              <option value="name_asc">업체명 A–Z</option>
+              <option value="scale_desc">{t("수입규모 ↓", "Import size ↓")}</option>
+              <option value="scale_asc">{t("수입규모 ↑", "Import size ↑")}</option>
+              <option value="name_asc">{t("업체명 A–Z", "Name A–Z")}</option>
             </select>
+          </div>
+        </div>
           </div>
         </div>
 
