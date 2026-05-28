@@ -1,3 +1,4 @@
+import koimaLogo from "@/assets/koima-logo.png";
 import {
   createFileRoute,
   Link,
@@ -83,8 +84,9 @@ function AdminLayout() {
             <ArrowLeft className="h-3.5 w-3.5" />
             사이트
           </Link>
-          <div className="flex items-baseline gap-2">
-            <h1 className="text-base font-extrabold text-primary">KOIMA Admin</h1>
+          <div className="flex items-center gap-2">
+            <img src={koimaLogo} alt="KOIMA" className="h-7 w-auto" />
+            <span className="text-base font-extrabold text-primary">Admin</span>
             <span className="hidden text-[10px] uppercase tracking-wider text-muted-foreground sm:inline">
               데이터베이스 관리
             </span>

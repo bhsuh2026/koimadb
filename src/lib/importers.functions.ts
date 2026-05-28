@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireAdmin } from "./admin-auth.server";
 
 export type Importer = {
   id: string;
@@ -200,3 +201,95 @@ export const getImporterFacets = createServerFn({ method: "GET" }).handler(
     return { total: total ?? 0, countries, scales };
   },
 );
+
+// ====== Admin (관리자) ======================================================
+
+const ImporterInputSchema = z.object({
+  rank_import: z.number().int().nullable().optional(),
+  rank_sales: z.number().int().nullable().optional(),
+  biz_no: z.string().max(50).nullable().optional(),
+  name_kr: z.string().max(255).default(""),
+  name_en: z.string().max(255).default(""),
+  email: z.string().max(500).default(""),
+  email_extra: z.string().max(500).default(""),
+  phone: z.string().max(100).default(""),
+  phone_extra: z.string().max(100).default(""),
+  countries: z.array(z.string().min(1).max(50)).max(50).default([]),
+  scale_label: z.string().max(50).default(""),
+  items_kr: z.string().max(2000).default(""),
+  items_en: z.string().max(2000).default(""),
+  hs_codes: z.array(z.string().min(1).max(20)).max(200).default([]),
+});
+
+// 관리자용: 마스킹 없이 원본 데이터 반환
+export const adminListImporters = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .inputValidator((i: unknown) =>
+    z.object({
+      q: z.string().max(100).default(""),
+      page: z.number().int().min(1).default(1),
+      pageSize: z.number().int().min(1).max(100).default(25),
+    }).parse(i),
+  )
+  .handler(async ({ data }) => {
+    let query = supabaseAdmin
+      .from("importers")
+      .select("*", { count: "exact" });
+    if (data.q) {
+      const q = data.q.replace(/[%,]/g, " ").trim();
+      query = query.or(
+        `name_kr.ilike.%${q}%,name_en.ilike.%${q}%,biz_no.ilike.%${q}%,items_kr.ilike.%${q}%`,
+      );
+    }
+    query = query.order("rank_import", { ascending: true, nullsFirst: false });
+    const from = (data.page - 1) * data.pageSize;
+    query = query.range(from, from + data.pageSize - 1);
+    const { data: rows, count, error } = await query;
+    if (error) throw new Error(error.message);
+    return { rows: (rows ?? []) as Importer[], total: count ?? 0 };
+  });
+
+export const createImporter = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .inputValidator((i: unknown) => ImporterInputSchema.parse(i))
+  .handler(async ({ data }) => {
+    const { data: row, error } = await supabaseAdmin
+      .from("importers")
+      .insert(data)
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return row as Importer;
+  });
+
+export const updateImporter = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .inputValidator((i: unknown) =>
+    z.object({ id: z.string().uuid() })
+      .merge(ImporterInputSchema.partial())
+      .parse(i),
+  )
+  .handler(async ({ data }) => {
+    const { id, ...patch } = data;
+    const { data: row, error } = await supabaseAdmin
+      .from("importers")
+      .update(patch)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return row as Importer;
+  });
+
+export const deleteImporter = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data }) => {
+    const { error } = await supabaseAdmin
+      .from("importers")
+      .delete()
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
