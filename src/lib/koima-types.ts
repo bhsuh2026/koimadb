@@ -217,28 +217,18 @@ export const SCALE: Record<number, [string, string]> = {
   6: ["50만불 미만", "Under USD 0.5M"],
   7: ["50만~100만불", "USD 0.5–1M"],
   8: ["100만~300만불", "USD 1–3M"],
-const BRANCH_KEYWORDS = "공장|지점|지사|사업소|영업소|출장소|본부|본사|연구소|사업부|센터|공단|기지|지역본부|지역단|지역사업본부|물류센터|연구개발센터";
-const BRANCH_SUFFIX_RE = new RegExp(
-  `^(.+?(?:\\(주\\)|㈜))\\s*\\S*?(?:${BRANCH_KEYWORDS})(?:지점|공장)?$`
-);
-// 끝에 붙은 괄호 (지점/공장/본부 등) 제거: 예 "한국가스공사(인천기지본부)" → "한국가스공사"
-const TRAILING_PAREN_BRANCH_RE = new RegExp(
-  `\\s*[\\(（][^()（）]*(?:${BRANCH_KEYWORDS})[^()（）]*[\\)）]\\s*$`
-);
-export function displayCompanyName(name: string | null | undefined): string {
-  if (!name) return "";
-  let s = name.trim();
-  // 끝에 붙은 (xxx공장), (xxx본부) 같은 괄호는 반복 제거 — (주)/㈜는 보존
-  while (true) {
-    const next = s.replace(TRAILING_PAREN_BRANCH_RE, "");
-    if (next === s) break;
-    s = next.trim();
-  }
-  // (주)/㈜가 맨 앞이면 더 이상 자르지 않음
-  if (/^(?:\(주\)|㈜|주식회사)/.test(s)) return s;
-  const m = s.match(BRANCH_SUFFIX_RE);
-  return m ? m[1] : s;
-}
+  9: ["300만~500만불", "USD 3–5M"],
+  10: ["500만~700만불", "USD 5–7M"],
+  11: ["700만~1,000만불", "USD 7–10M"],
+  12: ["1,000만~3,000만불", "USD 10–30M"],
+  13: ["3,000만~5,000만불", "USD 30–50M"],
+  14: ["5,000만~1억불", "USD 50–100M"],
+  15: ["1억불 초과", "Over USD 100M"],
+};
+
+export const SCOLOR: Record<number, [string, string]> = {
+  6: ["#6D6E70", "#ececec"],
+
 
   7: ["#5a6a3a", "#eef0e4"],
   8: ["#4a6a4a", "#e6f0e8"],
