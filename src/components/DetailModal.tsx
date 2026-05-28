@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import type { Company } from "@/lib/koima-types";
-import { SCALE, SCOLOR, ASEAN, flagOf, displayCountry } from "@/lib/koima-types";
+import { SCALE, SCOLOR, ASEAN, flagOf, displayCountry, displayCompanyName } from "@/lib/koima-types";
 import { X, Mail, Phone, Building2 } from "lucide-react";
 
 type Props = {
