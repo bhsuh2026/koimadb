@@ -45,6 +45,8 @@ function AdminLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const [email, setEmail] = useState<string | null>(null);
+  const [testing, setTesting] = useState(false);
+  const testFn = useServerFn(runDbTest);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
@@ -53,6 +55,21 @@ function AdminLayout() {
   const onLogout = async () => {
     await supabase.auth.signOut();
     navigate({ to: "/login", replace: true });
+  };
+
+  const onTest = async () => {
+    setTesting(true);
+    try {
+      const r = await testFn();
+      toast.success(
+        `DB OK · ${r.elapsedMs}ms · companies ${r.companies.toLocaleString()} · importers ${r.importers.toLocaleString()}`,
+      );
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error(`DB 오류: ${msg}`);
+    } finally {
+      setTesting(false);
+    }
   };
 
   return (
