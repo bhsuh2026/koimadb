@@ -314,15 +314,15 @@ function Index() {
           <GridSkeleton />
         ) : listQuery.error ? (
           <div className="mt-6 rounded-md border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
-            데이터를 불러오지 못했습니다 · 잠시 후 다시 시도해 주세요.
+            {t("데이터를 불러오지 못했습니다 · 잠시 후 다시 시도해 주세요.", "Could not load data. Please try again shortly.")}
           </div>
         ) : total === 0 ? (
           <div className="mt-4 rounded-xl border border-border bg-card px-6 py-16 text-center text-muted-foreground">
             <div className="text-[15px] font-semibold text-foreground/70">
-              검색 결과가 없습니다
+              {t("검색 결과가 없습니다", "No results")}
             </div>
             <div className="mt-1.5 text-[13px]">
-              국가 탭이나 조건을 변경하세요.
+              {t("국가 탭이나 조건을 변경하세요.", "Try a different country or filter.")}
             </div>
           </div>
         ) : (
