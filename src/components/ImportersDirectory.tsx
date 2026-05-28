@@ -184,7 +184,6 @@ export function ImportersDirectory({
               />
               <div className="min-w-0">
                 <h1 className="truncate text-lg font-semibold sm:text-xl">
-                <h1 className="truncate text-lg font-semibold sm:text-xl">
                   {scopeBadge && (
                     <span className="mr-1.5">{scopeBadge}</span>
                   )}
