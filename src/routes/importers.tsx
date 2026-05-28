@@ -1,119 +1,68 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Search,
+  Download,
+  RotateCcw,
   Mail,
   Phone,
   ChevronLeft,
   ChevronRight,
+  Sparkles,
   SlidersHorizontal,
+  Settings,
   X,
-  Building2,
-  TrendingUp,
-  Globe2,
 } from "lucide-react";
-import {
-  listImporters,
-  getImporterFacets,
-  type Importer,
-} from "@/lib/importers.functions";
-import { flagOf } from "@/lib/koima-types";
+import { ASEAN, SCALE, SCOLOR, flagOf, type Company } from "@/lib/koima-types";
+import { listCompanies, getStats } from "@/lib/companies.functions";
+import { DetailModal } from "@/components/DetailModal";
 
 export const Route = createFileRoute("/importers")({
-  component: ImportersPage,
-  head: () => ({
-    meta: [
-      { title: "한국 수입업체 디렉토리 — 2025 관세청 기준" },
-      {
-        name: "description",
-        content:
-          "2025년 관세청 기준 한국 수입업체 11.8만 곳의 사업자정보 · 수입국가 · 품목 · HS코드 · 연락처를 한 곳에서 검색하세요.",
-      },
-      { property: "og:title", content: "한국 수입업체 디렉토리" },
-      {
-        property: "og:description",
-        content: "2025 관세청 기준 한국 수입업체 11.8만 곳을 검색하세요.",
-      },
-    ],
-  }),
+  component: Index,
 });
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 40;
 
-type SortKey = "rank_import_asc" | "rank_sales_asc" | "name_asc";
+type SortKey = "scale_desc" | "scale_asc" | "name_asc" | "countries_desc";
 
-const SCALE_ORDER = [
-  "1억불 초과",
-  "5000만불~1억불",
-  "3000만불~5000만불",
-  "1000만불~3000만불",
-  "700만불~1000만불",
-  "500만불~700만불",
-  "300만불~500만불",
-  "100만불~300만불",
-  "50만불~100만불",
-  "30만불~50만불",
-  "10만불~30만불",
-  "5만불~10만불",
-  "3만불~5만불",
-  "1만불~3만불",
-  "1만불 미만",
-];
+function Index() {
+  const listFn = useServerFn(listCompanies);
+  const statsFn = useServerFn(getStats);
 
-function scaleColor(label: string): string {
-  const i = SCALE_ORDER.indexOf(label);
-  if (i < 0) return "bg-muted text-muted-foreground";
-  if (i <= 1) return "bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-300";
-  if (i <= 4) return "bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-300";
-  if (i <= 7) return "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300";
-  if (i <= 10) return "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300";
-  return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300";
-}
-
-function ImportersPage() {
-  const listFn = useServerFn(listImporters);
-  const facetsFn = useServerFn(getImporterFacets);
-
+  const [country, setCountry] = useState<string | null>(null); // null = all
   const [q, setQ] = useState("");
   const [qDeb, setQDeb] = useState("");
-  const [countries, setCountries] = useState<string[]>([]);
-  const [scales, setScales] = useState<Set<string>>(new Set());
-  const [hs, setHs] = useState("");
-  const [hasEmail, setHasEmail] = useState(false);
-  const [sort, setSort] = useState<SortKey>("rank_import_asc");
+  const [scales, setScales] = useState<Set<number>>(new Set());
+  const [mailOnly, setMailOnly] = useState(false);
+  const [sort, setSort] = useState<SortKey>("scale_desc");
   const [page, setPage] = useState(1);
-  const [opened, setOpened] = useState<Importer | null>(null);
+  const [opened, setOpened] = useState<Company | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
 
+  const dirRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    const t = setTimeout(() => {
-      setQDeb(q.trim());
-      setPage(1);
-    }, 250);
+    const t = setTimeout(() => setQDeb(q.trim()), 200);
     return () => clearTimeout(t);
   }, [q]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [country, qDeb, scales, mailOnly, sort]);
 
   const scaleArr = useMemo(() => Array.from(scales), [scales]);
 
-  const facets = useQuery({
-    queryKey: ["importer-facets"],
-    queryFn: () => facetsFn(),
-    staleTime: 5 * 60_000,
-  });
-
-  const list = useQuery({
-    queryKey: ["importers", { qDeb, countries, scaleArr, hs, hasEmail, sort, page }],
+  const listQuery = useQuery({
+    queryKey: ["companies", { country, qDeb, scaleArr, mailOnly, sort, page }],
     queryFn: () =>
       listFn({
         data: {
           q: qDeb,
-          countries,
+          asean: country,
           scales: scaleArr,
-          hs: hs.trim(),
-          hasEmail,
+          hasEmail: mailOnly,
           sort,
           page,
           pageSize: PAGE_SIZE,
@@ -122,461 +71,436 @@ function ImportersPage() {
     placeholderData: (prev) => prev,
   });
 
-  const topCountries = useMemo(() => {
-    const m = facets.data?.countries ?? {};
-    return Object.entries(m)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 16)
-      .map(([k]) => k);
-  }, [facets.data]);
+  const statsQuery = useQuery({
+    queryKey: ["stats"],
+    queryFn: () => statsFn(),
+    staleTime: 5 * 60 * 1000,
+  });
 
-  const allCountries = useMemo(() => {
-    const m = facets.data?.countries ?? {};
-    return Object.keys(m).sort((a, b) => a.localeCompare(b, "ko"));
-  }, [facets.data]);
-
-  const total = list.data?.total ?? 0;
-  const rows = list.data?.rows ?? [];
+  const total = listQuery.data?.total ?? 0;
+  const rows = listQuery.data?.rows ?? [];
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  const clearAll = () => {
-    setQ(""); setCountries([]); setScales(new Set()); setHs(""); setHasEmail(false); setPage(1);
+  const scopeName = country ?? "아세안 전체";
+
+  const scrollToList = () => {
+    setTimeout(() => dirRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   };
 
-  const activeFilterCount =
-    countries.length + scales.size + (hs ? 1 : 0) + (hasEmail ? 1 : 0);
+  const reset = () => {
+    setQ("");
+    setScales(new Set());
+    setMailOnly(false);
+    setSort("scale_desc");
+    setCountry(null);
+  };
+
+  const exportCsv = async () => {
+    // Export current filter result (up to 5000)
+    const head = [
+      "업체명(한글)",
+      "업체명(영문)",
+      "사업자번호",
+      "수입규모",
+      "이메일",
+      "전화번호",
+      "아세안거래국",
+      "기타거래국",
+    ];
+    const res = await listFn({
+      data: {
+        q: qDeb,
+        asean: country,
+        scales: scaleArr,
+        hasEmail: mailOnly,
+        sort,
+        page: 1,
+        pageSize: 200,
+      },
+    });
+    // For very large exports just take what we have (paginate to grab all)
+    const all: Company[] = [...res.rows];
+    const totalCount = res.total;
+    let p = 2;
+    while (all.length < totalCount && all.length < 5000) {
+      const next = await listFn({
+        data: {
+          q: qDeb,
+          asean: country,
+          scales: scaleArr,
+          hasEmail: mailOnly,
+          sort,
+          page: p,
+          pageSize: 200,
+        },
+      });
+      all.push(...next.rows);
+      if (next.rows.length === 0) break;
+      p++;
+    }
+    const esc = (v: unknown) => {
+      const s = v == null ? "" : String(v);
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const rowsCsv = all.map((c) => [
+      c.name_kr,
+      c.name_en,
+      c.biz_no ?? "",
+      (SCALE[c.scale_code] ?? ["", ""])[0],
+      c.email,
+      c.phone,
+      c.asean_countries.join(" / "),
+      c.other_countries.join(" / "),
+    ]);
+    const csv =
+      "\uFEFF" +
+      [head, ...rowsCsv].map((r) => r.map(esc).join(",")).join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    const scope = country ?? "아세안전체";
+    a.href = URL.createObjectURL(blob);
+    a.download = `KOIMA_${scope}_수입업체_${new Date()
+      .toISOString()
+      .slice(0, 10)
+      .replace(/-/g, "")}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  const pagerNums = useMemo(() => {
+    const nums: (number | "…")[] = [];
+    for (let i = 1; i <= pages; i++) {
+      if (i === 1 || i === pages || (i >= page - 1 && i <= page + 1)) nums.push(i);
+      else if (nums[nums.length - 1] !== "…") nums.push("…");
+    }
+    return nums;
+  }, [page, pages]);
+
+  const counts = statsQuery.data?.counts ?? {};
+  const grandTotal = statsQuery.data?.total ?? 0;
+  const activeFilters =
+    (country ? 1 : 0) + (scales.size ? 1 : 0) + (mailOnly ? 1 : 0) + (qDeb ? 1 : 0);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Header */}
-      <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur">
-        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
-          <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <Link to="/" className="text-xs text-muted-foreground hover:text-foreground">
-                ← KOIMA ASEAN
-              </Link>
-              <h1 className="mt-0.5 truncate text-lg font-semibold sm:text-xl">
-                한국 수입업체 디렉토리
-              </h1>
-              <p className="hidden text-xs text-muted-foreground sm:block">
-                2025 관세청 기준 · {(facets.data?.total ?? 118353).toLocaleString()}개 업체
-              </p>
+      {/* ===== HERO ===== */}
+      <header className="relative overflow-hidden text-white">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary-dark" />
+        <div
+          className="absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 25% 30%, white 1px, transparent 1px)",
+            backgroundSize: "32px 32px",
+          }}
+        />
+        <div className="relative">
+          <div className="mx-auto flex max-w-[1300px] items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-6 sm:py-3.5">
+            <div className="flex min-w-0 items-baseline gap-2.5">
+              <span className="text-[17px] font-extrabold tracking-wide">
+                KOIMA<span className="text-[#ff5d6e]">.</span>
+              </span>
+              <span className="hidden text-[9px] uppercase tracking-[0.2em] text-white/60 sm:inline">
+                Korea Importers Association
+              </span>
             </div>
-            <button
-              onClick={() => setFilterOpen(true)}
-              className="relative inline-flex items-center gap-1.5 rounded-md border bg-card px-3 py-2 text-sm shadow-sm hover:bg-accent lg:hidden"
-            >
-              <SlidersHorizontal className="size-4" />
-              필터
-              {activeFilterCount > 0 && (
-                <span className="ml-1 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
-                  {activeFilterCount}
-                </span>
-              )}
-            </button>
+            <div className="flex items-center gap-2">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur transition hover:bg-white/20"
+              >
+                <span className="hidden sm:inline">수입업체</span>
+                Directory
+              </Link>
+              <Link
+                to="/admin"
+                className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur transition hover:bg-white/20"
+              >
+                <Settings className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">관리자</span>
+                Admin
+              </Link>
+            </div>
           </div>
 
-          {/* Search */}
-          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="업체명 · 사업자번호 · 품목으로 검색"
-                className="w-full rounded-md border bg-card py-2 pl-9 pr-3 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
-              />
+          <div className="mx-auto max-w-[1300px] px-4 pb-5 pt-6 sm:px-6 sm:pb-6 sm:pt-7">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 backdrop-blur">
+              <Sparkles className="h-3 w-3 text-white/80" />
+              <span className="text-[10px] uppercase tracking-[0.16em] text-white/80">
+                ASEAN · 아세안 10개국
+              </span>
             </div>
-            <div className="flex gap-2">
-              <input
-                value={hs}
-                onChange={(e) => {
-                  setHs(e.target.value.replace(/[^\d]/g, ""));
-                  setPage(1);
+            <h1 className="text-[24px] font-extrabold leading-tight tracking-tight sm:text-[34px]">
+              아세안 거래 한국 수입업체 디렉토리
+              <span className="mt-2 block text-[14px] font-semibold text-white/70 sm:text-[17px]">
+                Korean Importers Sourcing from ASEAN
+              </span>
+            </h1>
+            <p className="mt-4 max-w-3xl text-[12.5px] leading-relaxed text-white/75">
+              아세안 10개국 제품을 수입 중인 한국 기업을 국가별로 확인하실 수 있습니다.
+              아래에서 국가를 선택하면 해당국 거래 수입업체로 좁혀집니다.
+            </p>
+          </div>
+
+          {/* COUNTRY TABS — horizontal scroll on mobile */}
+          <div className="mx-auto max-w-[1300px] px-4 pb-6 sm:px-6 sm:pb-7">
+            <div className="pb-2 text-[10px] font-bold uppercase tracking-wider text-white/55">
+              국가 선택 · Select a Country
+            </div>
+            <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0 sm:overflow-visible">
+              <CountryChip
+                active={country === null}
+                onClick={() => {
+                  setCountry(null);
+                  scrollToList();
                 }}
-                placeholder="HS코드"
-                inputMode="numeric"
-                className="w-28 rounded-md border bg-card px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
-              />
-              <select
-                value={sort}
-                onChange={(e) => {
-                  setSort(e.target.value as SortKey);
-                  setPage(1);
-                }}
-                className="rounded-md border bg-card px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
+                accent
               >
-                <option value="rank_import_asc">수입액 순</option>
-                <option value="rank_sales_asc">매출액 순</option>
-                <option value="name_asc">업체명 가나다순</option>
-              </select>
+                <span className="text-base leading-none">🌏</span>
+                아세안 전체
+                <Pill active={country === null}>{grandTotal.toLocaleString()}</Pill>
+              </CountryChip>
+              {ASEAN.map((a) => {
+                const on = country === a.kr;
+                const n = counts[a.kr] ?? 0;
+                return (
+                  <CountryChip
+                    key={a.kr}
+                    active={on}
+                    onClick={() => {
+                      setCountry(a.kr);
+                      scrollToList();
+                    }}
+                  >
+                    <span className="text-base leading-none">{a.flag}</span>
+                    {a.kr}
+                    <Pill active={on}>{n.toLocaleString()}</Pill>
+                  </CountryChip>
+                );
+              })}
             </div>
           </div>
         </div>
       </header>
 
-      <div className="mx-auto flex max-w-7xl gap-6 px-4 py-6 sm:px-6">
-        {/* Sidebar (desktop) */}
-        <aside className="hidden w-64 shrink-0 lg:block">
-          <FilterPanel
-            topCountries={topCountries}
-            allCountries={allCountries}
-            scalesAvailable={SCALE_ORDER}
-            scaleCounts={facets.data?.scales ?? {}}
-            countries={countries}
-            setCountries={setCountries}
-            scales={scales}
-            setScales={setScales}
-            hasEmail={hasEmail}
-            setHasEmail={setHasEmail}
-            clearAll={clearAll}
-            onFilterChange={() => setPage(1)}
-          />
-        </aside>
-
-        {/* Results */}
-        <main className="min-w-0 flex-1">
-          <div className="mb-3 flex items-center justify-between text-sm text-muted-foreground">
-            <div>
-              {list.isLoading ? (
-                "검색 중…"
-              ) : (
-                <>
-                  <span className="font-semibold text-foreground">
-                    {total.toLocaleString()}
-                  </span>{" "}
-                  개 결과
-                </>
+      {/* ===== DIRECTORY ===== */}
+      <div
+        ref={dirRef}
+        className="mx-auto max-w-[1300px] scroll-mt-4 px-4 pb-20 pt-6 sm:px-6"
+      >
+        {/* Sticky search bar */}
+        <div className="sticky top-0 z-30 -mx-4 border-b border-border bg-background/85 px-4 py-3 backdrop-blur sm:mx-0 sm:px-0 sm:bg-transparent sm:border-0 sm:static">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="업체명·사업자번호 검색"
+                className="h-11 w-full rounded-lg border border-border bg-card px-3 pl-9 text-sm focus:border-primary focus:outline-none"
+              />
+            </div>
+            <button
+              onClick={() => setFilterOpen(true)}
+              className="relative inline-flex h-11 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-[12px] font-semibold text-foreground transition hover:border-primary md:hidden"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              필터
+              {activeFilters > 0 && (
+                <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground">
+                  {activeFilters}
+                </span>
               )}
-            </div>
-            {activeFilterCount > 0 && (
-              <button
-                onClick={clearAll}
-                className="inline-flex items-center gap-1 text-xs hover:text-foreground"
-              >
-                <X className="size-3.5" /> 필터 초기화
-              </button>
-            )}
+            </button>
           </div>
+        </div>
 
-          <div className="space-y-2">
-            {list.isLoading && !list.data
-              ? Array.from({ length: 8 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-24 animate-pulse rounded-lg border bg-muted/30"
-                  />
-                ))
-              : rows.map((r) => (
-                  <ImporterCard key={r.id} row={r} onOpen={() => setOpened(r)} />
-                ))}
-            {!list.isLoading && rows.length === 0 && (
-              <div className="rounded-lg border bg-card p-10 text-center text-muted-foreground">
-                조건에 맞는 업체가 없습니다.
-              </div>
-            )}
-          </div>
-
-          {/* Pagination */}
-          {pages > 1 && (
-            <div className="mt-6 flex items-center justify-center gap-2 text-sm">
+        {/* Desktop filter panel */}
+        <div className="mt-4 hidden gap-4 rounded-xl border border-border bg-card p-4 md:grid md:grid-cols-[1fr_2fr]">
+          <div>
+            <Label kr="옵션 · Options" />
+            <div className="flex flex-wrap items-center gap-3">
+              <Toggle on={mailOnly} onClick={() => setMailOnly((v) => !v)}>
+                이메일 보유만
+              </Toggle>
               <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                className="inline-flex items-center gap-1 rounded-md border bg-card px-3 py-2 shadow-sm enabled:hover:bg-accent disabled:opacity-40"
+                onClick={reset}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-[11px] text-muted-foreground transition hover:border-destructive hover:text-destructive"
               >
-                <ChevronLeft className="size-4" /> 이전
-              </button>
-              <span className="px-2 tabular-nums">
-                {page} / {pages.toLocaleString()}
-              </span>
-              <button
-                onClick={() => setPage((p) => Math.min(pages, p + 1))}
-                disabled={page >= pages}
-                className="inline-flex items-center gap-1 rounded-md border bg-card px-3 py-2 shadow-sm enabled:hover:bg-accent disabled:opacity-40"
-              >
-                다음 <ChevronRight className="size-4" />
+                <RotateCcw className="h-3 w-3" />
+                초기화
               </button>
             </div>
-          )}
-        </main>
+          </div>
+          <div>
+            <Label kr="수입 규모대 · Annual import scale" />
+            <ScaleChips scales={scales} setScales={setScales} />
+          </div>
+        </div>
+
+        {/* Toolbar */}
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <div className="text-[13px] text-muted-foreground">
+            <b className="font-mono text-[18px] font-bold text-primary">
+              {total.toLocaleString()}
+            </b>{" "}
+            개사 ·{" "}
+            <span className="font-semibold text-foreground">{scopeName}</span>
+          </div>
+          <div className="ml-auto flex gap-2">
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortKey)}
+              className="h-9 cursor-pointer rounded-md border border-border bg-card px-2.5 text-[12px]"
+            >
+              <option value="scale_desc">수입규모 ↓</option>
+              <option value="scale_asc">수입규모 ↑</option>
+              <option value="name_asc">업체명 A–Z</option>
+            </select>
+            <button
+              onClick={exportCsv}
+              disabled={!total}
+              className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-3 text-[12px] font-semibold text-white transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Download className="h-3.5 w-3.5" />
+              CSV
+            </button>
+          </div>
+        </div>
+
+        {/* Grid */}
+        {listQuery.isLoading && !listQuery.data ? (
+          <GridSkeleton />
+        ) : listQuery.error ? (
+          <div className="mt-6 rounded-md border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
+            데이터를 불러오지 못했습니다 · {String(listQuery.error)}
+          </div>
+        ) : total === 0 ? (
+          <div className="mt-4 rounded-xl border border-border bg-card px-6 py-16 text-center text-muted-foreground">
+            <div className="text-[15px] font-semibold text-foreground/70">
+              검색 결과가 없습니다
+            </div>
+            <div className="mt-1.5 text-[13px]">
+              국가 탭이나 조건을 변경하세요.
+            </div>
+          </div>
+        ) : (
+          <div
+            className={`mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 ${
+              listQuery.isFetching ? "opacity-60 transition-opacity" : ""
+            }`}
+          >
+            {rows.map((c) => (
+              <CompanyCard key={c.id} company={c} onOpen={() => setOpened(c)} />
+            ))}
+          </div>
+        )}
+
+        {/* Pager */}
+        {pages > 1 && (
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-1.5">
+            <PagerBtn onClick={() => setPage(page - 1)} disabled={page === 1}>
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </PagerBtn>
+            {pagerNums.map((n, idx) =>
+              n === "…" ? (
+                <span
+                  key={`e-${idx}`}
+                  className="px-2 font-mono text-[11px] text-muted-foreground"
+                >
+                  …
+                </span>
+              ) : (
+                <PagerBtn key={n} active={n === page} onClick={() => setPage(n)}>
+                  {n}
+                </PagerBtn>
+              ),
+            )}
+            <PagerBtn onClick={() => setPage(page + 1)} disabled={page === pages}>
+              <ChevronRight className="h-3.5 w-3.5" />
+            </PagerBtn>
+          </div>
+        )}
+
+        <footer className="mt-10 border-t border-border pt-6 text-center text-[11px] leading-relaxed text-muted-foreground">
+          출처 · 관세청 수입실적 / KOIMA · 문의:{" "}
+          <a href="mailto:seobh@koima.or.kr" className="text-accent hover:underline">
+            seobh@koima.or.kr
+          </a>
+        </footer>
       </div>
+
+      <DetailModal company={opened} onClose={() => setOpened(null)} />
 
       {/* Mobile filter sheet */}
       {filterOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setFilterOpen(false)}
-          />
-          <div className="absolute inset-y-0 right-0 w-[88%] max-w-sm overflow-y-auto bg-background p-4 shadow-xl">
+        <div
+          className="fixed inset-0 z-50 flex items-end bg-primary/40 backdrop-blur-sm md:hidden"
+          onClick={(e) => e.target === e.currentTarget && setFilterOpen(false)}
+        >
+          <div className="max-h-[85vh] w-full overflow-y-auto rounded-t-2xl bg-card p-5">
             <div className="mb-4 flex items-center justify-between">
-              <div className="font-semibold">필터</div>
+              <h3 className="text-base font-bold text-foreground">필터</h3>
               <button
                 onClick={() => setFilterOpen(false)}
-                className="rounded p-1 hover:bg-accent"
-                aria-label="닫기"
+                className="flex h-9 w-9 items-center justify-center rounded-md border border-border"
               >
-                <X className="size-5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
-            <FilterPanel
-              topCountries={topCountries}
-              allCountries={allCountries}
-              scalesAvailable={SCALE_ORDER}
-              scaleCounts={facets.data?.scales ?? {}}
-              countries={countries}
-              setCountries={setCountries}
-              scales={scales}
-              setScales={setScales}
-              hasEmail={hasEmail}
-              setHasEmail={setHasEmail}
-              clearAll={clearAll}
-              onFilterChange={() => setPage(1)}
-            />
-            <button
-              onClick={() => setFilterOpen(false)}
-              className="mt-6 w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow"
-            >
-              {total.toLocaleString()}개 결과 보기
-            </button>
+            <Label kr="옵션" />
+            <div className="mb-5 flex flex-wrap items-center gap-3">
+              <Toggle on={mailOnly} onClick={() => setMailOnly((v) => !v)}>
+                이메일 보유만
+              </Toggle>
+            </div>
+            <Label kr="수입 규모대" />
+            <ScaleChips scales={scales} setScales={setScales} />
+            <div className="mt-6 flex gap-2">
+              <button
+                onClick={reset}
+                className="flex-1 rounded-md border border-border px-4 py-2.5 text-[13px] font-semibold text-muted-foreground"
+              >
+                초기화
+              </button>
+              <button
+                onClick={() => setFilterOpen(false)}
+                className="flex-1 rounded-md bg-primary px-4 py-2.5 text-[13px] font-semibold text-white"
+              >
+                적용 · {total.toLocaleString()}개
+              </button>
+            </div>
           </div>
         </div>
       )}
-
-      {opened && <DetailSheet row={opened} onClose={() => setOpened(null)} />}
     </div>
   );
 }
 
-function FilterPanel(props: {
-  topCountries: string[];
-  allCountries: string[];
-  scalesAvailable: string[];
-  scaleCounts: Record<string, number>;
-  countries: string[];
-  setCountries: (c: string[]) => void;
-  scales: Set<string>;
-  setScales: (s: Set<string>) => void;
-  hasEmail: boolean;
-  setHasEmail: (b: boolean) => void;
-  clearAll: () => void;
-  onFilterChange: () => void;
-}) {
-  const [countryQ, setCountryQ] = useState("");
-  const [showAll, setShowAll] = useState(false);
+/* ============ Small UI ============ */
 
-  const toggleCountry = (c: string) => {
-    const next = new Set(props.countries);
-    if (next.has(c)) next.delete(c);
-    else next.add(c);
-    props.setCountries(Array.from(next));
-    props.onFilterChange();
-  };
-
-  const toggleScale = (s: string) => {
-    const next = new Set(props.scales);
-    if (next.has(s)) next.delete(s);
-    else next.add(s);
-    props.setScales(next);
-    props.onFilterChange();
-  };
-
-  const filteredAll = useMemo(() => {
-    if (!countryQ.trim()) return [];
-    const q = countryQ.trim();
-    return props.allCountries
-      .filter((c) => c.includes(q) && !props.countries.includes(c))
-      .slice(0, 20);
-  }, [countryQ, props.allCountries, props.countries]);
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          <Globe2 className="size-3.5" /> 주요 수입국가
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          <FilterChip
-            active={props.countries.length === 0}
-            onClick={() => {
-              props.setCountries([]);
-              props.onFilterChange();
-            }}
-          >
-            전체
-          </FilterChip>
-          {props.topCountries.map((c) => (
-            <FilterChip
-              key={c}
-              active={props.countries.includes(c)}
-              onClick={() => toggleCountry(c)}
-            >
-              <span className="mr-1">{flagOf(c)}</span>
-              {c}
-            </FilterChip>
-          ))}
-        </div>
-
-        {/* Selected summary */}
-        {props.countries.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1">
-            {props.countries.map((c) => (
-              <span
-                key={c}
-                className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
-              >
-                <span>{flagOf(c)}</span>
-                {c}
-                <button
-                  onClick={() => toggleCountry(c)}
-                  className="ml-0.5 rounded hover:text-destructive"
-                  aria-label={`${c} 제거`}
-                >
-                  <X className="size-3" />
-                </button>
-              </span>
-            ))}
-            <button
-              onClick={() => props.setCountries([])}
-              className="text-[11px] text-muted-foreground underline hover:text-foreground"
-            >
-              초기화
-            </button>
-          </div>
-        )}
-
-        {/* Search more countries */}
-        <div className="relative mt-2">
-          <Search className="pointer-events-none absolute left-2 top-1/2 size-3 -translate-y-1/2 text-muted-foreground" />
-          <input
-            value={countryQ}
-            onChange={(e) => setCountryQ(e.target.value)}
-            placeholder="국가 검색…"
-            className="w-full rounded-md border bg-card py-1.5 pl-7 pr-2 text-xs shadow-sm outline-none focus:ring-2 focus:ring-ring"
-          />
-        </div>
-        {filteredAll.length > 0 && (
-          <div className="mt-1 max-h-36 overflow-y-auto rounded-md border bg-card shadow-sm">
-            {filteredAll.map((c) => (
-              <button
-                key={c}
-                onClick={() => {
-                  toggleCountry(c);
-                  setCountryQ("");
-                }}
-                className="flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-xs hover:bg-accent"
-              >
-                <span className="text-sm">{flagOf(c)}</span>
-                <span className="flex-1">{c}</span>
-                <span className="text-[10px] text-muted-foreground">
-                  선택
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Show all toggle */}
-        {!countryQ && props.allCountries.length > props.topCountries.length && (
-          <button
-            onClick={() => setShowAll((v) => !v)}
-            className="mt-1.5 text-xs text-muted-foreground underline hover:text-foreground"
-          >
-            {showAll ? "접기" : `전체 국가 보기 (${props.allCountries.length}개)`}
-          </button>
-        )}
-        {showAll && (
-          <div className="mt-1 max-h-48 overflow-y-auto rounded-md border bg-card p-1.5 shadow-sm">
-            <div className="flex flex-wrap gap-1">
-              {props.allCountries.map((c) => (
-                <button
-                  key={c}
-                  onClick={() => toggleCountry(c)}
-                  className={`rounded-full border px-2 py-0.5 text-[11px] transition ${
-                    props.countries.includes(c)
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-card text-foreground hover:bg-accent"
-                  }`}
-                >
-                  <span className="mr-0.5">{flagOf(c)}</span>
-                  {c}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div>
-        <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          <TrendingUp className="size-3.5" /> 수입액 구간
-        </div>
-        <div className="space-y-1">
-          {props.scalesAvailable.map((s) => (
-            <label
-              key={s}
-              className="flex cursor-pointer items-center justify-between rounded px-2 py-1.5 text-sm hover:bg-accent"
-            >
-              <span className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={props.scales.has(s)}
-                  onChange={() => toggleScale(s)}
-                  className="accent-primary"
-                />
-                <span>{s}</span>
-              </span>
-              <span className="text-xs tabular-nums text-muted-foreground">
-                {(props.scaleCounts[s] ?? 0).toLocaleString()}
-              </span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <label className="flex cursor-pointer items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={props.hasEmail}
-            onChange={(e) => {
-              props.setHasEmail(e.target.checked);
-              props.onFilterChange();
-            }}
-            className="accent-primary"
-          />
-          이메일 보유 업체만
-        </label>
-      </div>
-
-      <button
-        onClick={props.clearAll}
-        className="w-full rounded-md border bg-card px-3 py-2 text-xs hover:bg-accent"
-      >
-        필터 초기화
-      </button>
-    </div>
-  );
-}
-
-function FilterChip({
+function CountryChip({
   active,
   onClick,
+  accent = false,
   children,
 }: {
   active: boolean;
   onClick: () => void;
+  accent?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <button
       onClick={onClick}
-      className={`rounded-full border px-2.5 py-1 text-xs transition ${
+      className={`flex flex-shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition ${
         active
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-card text-foreground hover:bg-accent"
+          ? accent
+            ? "border-[#ff5d6e] bg-[#ff5d6e] text-white"
+            : "border-white bg-white text-primary"
+          : accent
+            ? "border-[#ff5d6e]/40 bg-[#ff5d6e]/15 text-white/90"
+            : "border-white/15 bg-white/[0.08] text-white/85 hover:bg-white/[0.15]"
       }`}
     >
       {children}
@@ -584,228 +508,202 @@ function FilterChip({
   );
 }
 
-function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
-  const countries = row.countries.slice(0, 6);
-  const extra = Math.max(0, row.countries.length - countries.length);
+function Pill({ children, active }: { children: React.ReactNode; active: boolean }) {
   return (
-    <button
-      onClick={onOpen}
-      className="group block w-full rounded-lg border bg-card p-3 text-left shadow-sm transition hover:border-primary/40 hover:shadow-md sm:p-4"
+    <span
+      className={`rounded-full px-1.5 py-px font-mono text-[10px] ${
+        active ? "bg-black/15" : "bg-black/20 text-white/85"
+      }`}
     >
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <Building2 className="size-3.5 shrink-0 text-muted-foreground" />
-            <span className="truncate text-[15px] font-semibold sm:text-base">
-              {row.name_kr || row.name_en}
-            </span>
-            {row.rank_import != null && row.rank_import <= 100 && (
-              <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
-                TOP {row.rank_import}
-              </span>
-            )}
-          </div>
-          {row.name_en && (
-            <div className="truncate text-xs text-muted-foreground">
-              {row.name_en}
-            </div>
-          )}
-        </div>
-        {row.scale_label && (
-          <span
-            className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${scaleColor(row.scale_label)}`}
-          >
-            {row.scale_label}
-          </span>
-        )}
-      </div>
+      {children}
+    </span>
+  );
+}
 
-      {countries.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1">
-          {countries.map((c) => (
-            <span
-              key={c}
-              className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px]"
-            >
-              <span>{flagOf(c)}</span> {c}
-            </span>
-          ))}
-          {extra > 0 && (
-            <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
-              +{extra}
-            </span>
-          )}
-        </div>
-      )}
+function Label({ kr }: { kr: string }) {
+  return (
+    <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+      {kr}
+    </div>
+  );
+}
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-        {row.biz_no && (
-          <span className="font-mono tabular-nums">사업자 {row.biz_no}</span>
-        )}
-        {row.email && (
-          <span className="inline-flex items-center gap-1">
-            <Mail className="size-3" /> {row.email.split(",")[0].trim()}
-          </span>
-        )}
-        {row.phone && (
-          <span className="inline-flex items-center gap-1">
-            <Phone className="size-3" /> {row.phone}
-          </span>
-        )}
-      </div>
-
-      {row.items_kr && (
-        <div className="mt-2 line-clamp-2 text-xs text-muted-foreground/90">
-          {row.items_kr}
-        </div>
-      )}
+function Toggle({
+  on,
+  onClick,
+  children,
+}: {
+  on: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button onClick={onClick} className="flex items-center gap-2 text-[12px]">
+      <span
+        className={`relative h-[20px] w-[36px] rounded-full transition ${
+          on ? "bg-emerald-600" : "bg-border"
+        }`}
+      >
+        <span
+          className={`absolute top-[2px] h-[16px] w-[16px] rounded-full bg-white shadow-sm transition ${
+            on ? "left-[18px]" : "left-[2px]"
+          }`}
+        />
+      </span>
+      {children}
     </button>
   );
 }
 
-function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
-  const emails = [row.email, row.email_extra].filter(Boolean).join(", ");
-  const phones = [row.phone, row.phone_extra].filter(Boolean).join(" / ");
-
+function ScaleChips({
+  scales,
+  setScales,
+}: {
+  scales: Set<number>;
+  setScales: React.Dispatch<React.SetStateAction<Set<number>>>;
+}) {
   return (
-    <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="absolute inset-x-0 bottom-0 max-h-[90vh] overflow-y-auto rounded-t-2xl bg-background p-5 shadow-2xl sm:inset-y-8 sm:left-auto sm:right-8 sm:w-[520px] sm:rounded-2xl">
-        <div className="mb-4 flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h2 className="text-xl font-semibold">{row.name_kr || row.name_en}</h2>
-            {row.name_en && (
-              <p className="text-sm text-muted-foreground">{row.name_en}</p>
-            )}
-            <div className="mt-2 flex flex-wrap gap-2">
-              {row.scale_label && (
-                <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${scaleColor(row.scale_label)}`}
-                >
-                  {row.scale_label}
-                </span>
-              )}
-              {row.rank_import != null && (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
-                  수입액 순위 #{row.rank_import.toLocaleString()}
-                </span>
-              )}
-              {row.rank_sales != null && (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
-                  매출액 순위 #{row.rank_sales.toLocaleString()}
-                </span>
-              )}
-            </div>
-          </div>
+    <div className="flex flex-wrap gap-1.5">
+      {[15, 14, 13, 12, 11, 10, 9, 8, 7, 6].map((code) => {
+        const on = scales.has(code);
+        const lbl = SCALE[code][0];
+        return (
           <button
-            onClick={onClose}
-            className="rounded p-1 hover:bg-accent"
-            aria-label="닫기"
+            key={code}
+            onClick={() =>
+              setScales((prev) => {
+                const next = new Set(prev);
+                if (next.has(code)) next.delete(code);
+                else next.add(code);
+                return next;
+              })
+            }
+            className={`whitespace-nowrap rounded-md border px-2.5 py-1.5 font-mono text-[10.5px] transition ${
+              on
+                ? "border-primary bg-primary text-white"
+                : "border-border bg-background text-muted-foreground hover:border-primary"
+            }`}
           >
-            <X className="size-5" />
+            {lbl}
           </button>
-        </div>
-
-        <div className="mb-3 rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-200">
-          개인정보 보호를 위해 사업자번호 · 연락처 · 이메일 · HS코드 · 품목은 일부가
-          마스킹되어 표시됩니다.
-        </div>
-        <dl className="space-y-3 text-sm">
-          {row.biz_no && (
-            <Row label="사업자번호">
-              <span className="font-mono tabular-nums">{row.biz_no}</span>
-            </Row>
-          )}
-          {emails && (
-            <Row label="이메일">
-              <div className="flex flex-wrap gap-2 font-mono text-xs">
-                {emails.split(",").map((e, i) => {
-                  const v = e.trim();
-                  if (!v) return null;
-                  return (
-                    <span key={`${v}-${i}`} className="rounded bg-muted px-1.5 py-0.5">
-                      {v}
-                    </span>
-                  );
-                })}
-              </div>
-            </Row>
-          )}
-          {phones && (
-            <Row label="전화">
-              <div className="flex flex-wrap gap-2 font-mono text-xs">
-                {phones.split("/").map((p, i) => {
-                  const v = p.trim();
-                  if (!v) return null;
-                  return (
-                    <span key={`${v}-${i}`} className="rounded bg-muted px-1.5 py-0.5">
-                      {v}
-                    </span>
-                  );
-                })}
-              </div>
-            </Row>
-          )}
-
-          {row.countries.length > 0 && (
-            <Row label={`수입국가 (${row.countries.length})`}>
-              <div className="flex flex-wrap gap-1">
-                {row.countries.map((c) => (
-                  <span
-                    key={c}
-                    className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs"
-                  >
-                    <span>{flagOf(c)}</span> {c}
-                  </span>
-                ))}
-              </div>
-            </Row>
-          )}
-          {row.hs_codes.length > 0 && (
-            <Row label="HS코드">
-              <div className="flex flex-wrap gap-1 font-mono text-xs">
-                {row.hs_codes.map((h) => (
-                  <span
-                    key={h}
-                    className="rounded bg-muted px-1.5 py-0.5 tabular-nums"
-                  >
-                    {h}
-                  </span>
-                ))}
-              </div>
-            </Row>
-          )}
-          {row.items_kr && (
-            <Row label="취급 품목">
-              <p className="whitespace-pre-wrap leading-relaxed">{row.items_kr}</p>
-            </Row>
-          )}
-          {row.items_en && (
-            <Row label="Items (EN)">
-              <p className="whitespace-pre-wrap leading-relaxed text-muted-foreground">
-                {row.items_en}
-              </p>
-            </Row>
-          )}
-        </dl>
-      </div>
+        );
+      })}
     </div>
   );
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function PagerBtn({
+  children,
+  onClick,
+  active,
+  disabled,
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  active?: boolean;
+  disabled?: boolean;
+}) {
   return (
-    <div>
-      <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        {label}
-      </dt>
-      <dd className="mt-1">{children}</dd>
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex h-9 min-w-[36px] items-center justify-center rounded-md border px-2 font-mono text-[12px] transition ${
+        active
+          ? "border-primary bg-primary text-white"
+          : "border-border bg-card text-foreground hover:border-primary"
+      } disabled:cursor-not-allowed disabled:opacity-40`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function GridSkeleton() {
+  return (
+    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      {Array.from({ length: 9 }).map((_, i) => (
+        <div
+          key={i}
+          className="h-[150px] animate-pulse rounded-xl border border-border bg-card"
+        />
+      ))}
     </div>
+  );
+}
+
+function CompanyCard({
+  company,
+  onOpen,
+}: {
+  company: Company;
+  onOpen: () => void;
+}) {
+  const sc = SCALE[company.scale_code] ?? SCALE[6];
+  const col = SCOLOR[company.scale_code] ?? SCOLOR[6];
+  return (
+    <button
+      onClick={onOpen}
+      className="group flex flex-col gap-2.5 rounded-xl border border-border bg-card p-4 text-left transition hover:-translate-y-[1px] hover:border-primary hover:shadow-lg hover:shadow-primary/5"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="truncate text-[14.5px] font-bold leading-tight text-foreground group-hover:text-primary">
+            {company.name_kr || "(상호 미상)"}
+          </div>
+          {company.name_en && (
+            <div className="mt-0.5 truncate font-mono text-[10.5px] text-muted-foreground">
+              {company.name_en}
+            </div>
+          )}
+        </div>
+        <span
+          className="flex-shrink-0 whitespace-nowrap rounded-md px-2 py-1 font-mono text-[9.5px] font-semibold"
+          style={{ color: col[0], background: col[1] }}
+        >
+          {sc[1]}
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-1">
+        {company.asean_countries.slice(0, 6).map((n) => (
+          <span
+            key={n}
+            className="inline-flex items-center gap-1 rounded-md border border-accent/20 bg-accent-soft px-1.5 py-0.5 text-[10px] font-semibold text-accent"
+          >
+            <span className="text-[11px] leading-none">{flagOf(n)}</span>
+            {n}
+          </span>
+        ))}
+        {company.asean_countries.length > 6 && (
+          <span className="rounded-md bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">
+            +{company.asean_countries.length - 6}
+          </span>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {company.email ? (
+          <span className="inline-flex items-center gap-1 rounded-md border border-accent/15 bg-accent-soft px-2 py-0.5 text-[10.5px] text-accent">
+            <Mail className="h-3 w-3" />
+            <span className="max-w-[180px] truncate">{company.email}</span>
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary px-2 py-0.5 text-[10.5px] text-muted-foreground/50">
+            <Mail className="h-3 w-3" />
+            이메일 미등록
+          </span>
+        )}
+        {company.phone && (
+          <span className="inline-flex items-center gap-1 rounded-md border border-border bg-paper px-2 py-0.5 text-[10.5px] text-muted-foreground">
+            <Phone className="h-3 w-3" />
+            {company.phone}
+          </span>
+        )}
+      </div>
+      <div className="flex gap-4 border-t border-border pt-2 text-[11px] text-muted-foreground">
+        <span className="font-mono">{company.biz_no || "—"}</span>
+        <span className="ml-auto">
+          거래국 {company.asean_countries.length + company.other_countries.length}
+        </span>
+      </div>
+    </button>
   );
 }
