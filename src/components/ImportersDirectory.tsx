@@ -70,9 +70,9 @@ export function ImportersDirectory({
   title,
   scopeBadge,
 }: ImportersDirectoryProps) {
+  const { t } = useLang();
   const listFn = useServerFn(listImporters);
   const facetsFn = useServerFn(getImporterFacets);
-
   const [q, setQ] = useState("");
   const [qDeb, setQDeb] = useState("");
   const [countries, setCountries] = useState<string[]>(
