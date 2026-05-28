@@ -346,6 +346,20 @@ function ImportersPage() {
       )}
 
       {opened && <DetailSheet row={opened} onClose={() => setOpened(null)} />}
+
+      {/* Footer */}
+      <footer className="border-t bg-card">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+          <div className="flex flex-col items-center gap-3 text-center text-xs text-muted-foreground sm:flex-row sm:justify-between">
+            <p>
+              출처 · Source: 2025 관세청 수입실적 / Korea Customs Service · 데이터 갱신 2026.05
+            </p>
+            <p>
+              KOIMA 품목별 수입업체 검색 · 바이어 매칭 서비스 | 문의: seobh@koima.or.kr
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
