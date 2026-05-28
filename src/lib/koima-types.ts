@@ -226,6 +226,7 @@ export const SCALE: Record<number, [string, string]> = {
   15: ["1억불 초과", "Over USD 100M"],
 };
 
+
 export const SCOLOR: Record<number, [string, string]> = {
   6: ["#6D6E70", "#ececec"],
 
@@ -249,7 +250,7 @@ export const SCOLOR: Record<number, [string, string]> = {
 //     "앰코테크놀로지코리아(주)(부평 5 공장)" → "앰코테크놀로지코리아(주)"
 // (주)/㈜가 문자열 맨 앞에 있는 경우(예: "(주)티비공장")는 본명일 수 있어 건드리지 않습니다.
 const BRANCH_KEYWORDS =
-  "공장|지점|지사|사업소|영업소|출장소|본부|본사|연구소|사업부|센터|공단|기지|물류센터|연구개발센터";
+  "공장|지점|지사|사업소|영업소|출장소|본부|본사|연구소|사업부|센터|공단|기지|물류센터|연구개발센터|제련소|제철소|제강소|발전소|정유공장|제조소|작업소|터미널|캠퍼스";
 const BRANCH_SUFFIX_RE = new RegExp(
   `^(.+?(?:\\(주\\)|㈜))\\s*\\S*?(?:${BRANCH_KEYWORDS})(?:지점|공장)?$`
 );
