@@ -676,16 +676,16 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
 
       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
         {row.biz_no && (
-          <span className="font-mono tabular-nums">사업자 {row.biz_no}</span>
+          <span className="font-mono tabular-nums">사업자 {maskBizNo(row.biz_no)}</span>
         )}
         {row.email && (
           <span className="inline-flex items-center gap-1">
-            <Mail className="size-3" /> {row.email.split(",")[0].trim()}
+            <Mail className="size-3" /> {maskEmail(row.email.split(",")[0].trim())}
           </span>
         )}
         {row.phone && (
           <span className="inline-flex items-center gap-1">
-            <Phone className="size-3" /> {row.phone}
+            <Phone className="size-3" /> {maskPhone(row.phone)}
           </span>
         )}
       </div>
@@ -755,7 +755,7 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
         <dl className="space-y-3 text-sm">
           {row.biz_no && (
             <Row label="사업자번호">
-              <span className="font-mono tabular-nums">{row.biz_no}</span>
+              <span className="font-mono tabular-nums">{maskBizNo(row.biz_no)}</span>
             </Row>
           )}
           {emails && (
@@ -765,8 +765,8 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
                   const v = e.trim();
                   if (!v) return null;
                   return (
-                    <span key={`${v}-${i}`} className="rounded bg-muted px-1.5 py-0.5">
-                      {v}
+                  <span key={`${v}-${i}`} className="rounded bg-muted px-1.5 py-0.5">
+                      {maskEmail(v)}
                     </span>
                   );
                 })}
@@ -780,8 +780,8 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
                   const v = p.trim();
                   if (!v) return null;
                   return (
-                    <span key={`${v}-${i}`} className="rounded bg-muted px-1.5 py-0.5">
-                      {v}
+                  <span key={`${v}-${i}`} className="rounded bg-muted px-1.5 py-0.5">
+                      {maskPhone(v)}
                     </span>
                   );
                 })}
@@ -811,7 +811,7 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
                     key={h}
                     className="rounded bg-muted px-1.5 py-0.5 tabular-nums"
                   >
-                    {h}
+                    {maskHS(h)}
                   </span>
                 ))}
               </div>
