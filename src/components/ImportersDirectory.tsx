@@ -235,10 +235,6 @@ export function ImportersDirectory({
                 value={sort}
                 onChange={(e) => {
                   setSort(e.target.value as SortKey);
-              <select
-                value={sort}
-                onChange={(e) => {
-                  setSort(e.target.value as SortKey);
                   setPage(1);
                 }}
                 className="rounded-md border bg-card px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
@@ -256,6 +252,9 @@ export function ImportersDirectory({
                 🌏
               </Link>
             </div>
+          </div>
+        </div>
+      </header>
 
       <div className="mx-auto flex max-w-7xl gap-6 px-4 py-6 sm:px-6">
         {/* Sidebar (desktop) */}
