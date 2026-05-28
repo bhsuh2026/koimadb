@@ -5,7 +5,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Search,
-  Download,
   RotateCcw,
   Mail,
   Phone,
@@ -96,77 +95,6 @@ function Index() {
     setCountry(null);
   };
 
-  const exportCsv = async () => {
-    // Export current filter result (up to 5000)
-    const head = [
-      "업체명(한글)",
-      "업체명(영문)",
-      "사업자번호",
-      "수입규모",
-      "이메일",
-      "전화번호",
-      "아세안거래국",
-      "기타거래국",
-    ];
-    const res = await listFn({
-      data: {
-        q: qDeb,
-        asean: country,
-        scales: scaleArr,
-        hasEmail: mailOnly,
-        sort,
-        page: 1,
-        pageSize: 200,
-      },
-    });
-    // For very large exports just take what we have (paginate to grab all)
-    const all: Company[] = [...res.rows];
-    const totalCount = res.total;
-    let p = 2;
-    while (all.length < totalCount && all.length < 5000) {
-      const next = await listFn({
-        data: {
-          q: qDeb,
-          asean: country,
-          scales: scaleArr,
-          hasEmail: mailOnly,
-          sort,
-          page: p,
-          pageSize: 200,
-        },
-      });
-      all.push(...next.rows);
-      if (next.rows.length === 0) break;
-      p++;
-    }
-    const esc = (v: unknown) => {
-      const s = v == null ? "" : String(v);
-      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-    };
-    const rowsCsv = all.map((c) => [
-      c.name_kr,
-      c.name_en,
-      c.biz_no ?? "",
-      (SCALE[c.scale_code] ?? ["", ""])[0],
-      c.email,
-      c.phone,
-      c.asean_countries.join(" / "),
-      c.other_countries.join(" / "),
-    ]);
-    const csv =
-      "\uFEFF" +
-      [head, ...rowsCsv].map((r) => r.map(esc).join(",")).join("\r\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const a = document.createElement("a");
-    const scope = country ?? "아세안전체";
-    a.href = URL.createObjectURL(blob);
-    a.download = `KOIMA_${scope}_수입업체_${new Date()
-      .toISOString()
-      .slice(0, 10)
-      .replace(/-/g, "")}.csv`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  };
 
   const pagerNums = useMemo(() => {
     const nums: (number | "…")[] = [];
@@ -366,14 +294,6 @@ function Index() {
               <option value="scale_asc">수입규모 ↑</option>
               <option value="name_asc">업체명 A–Z</option>
             </select>
-            <button
-              onClick={exportCsv}
-              disabled={!total}
-              className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-3 text-[12px] font-semibold text-white transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Download className="h-3.5 w-3.5" />
-              CSV
-            </button>
           </div>
         </div>
 
