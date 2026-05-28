@@ -238,3 +238,19 @@ export const SCOLOR: Record<number, [string, string]> = {
   14: ["#a83a3a", "#f4e4e4"],
   15: ["#D0001B", "#fae2e4"],
 };
+
+// 상호 뒤에 붙은 지점/공장 등 접미부를 표시용으로 제거합니다.
+// 예: "지에스칼텍스(주)여수공장" → "지에스칼텍스(주)"
+//     "신한정밀공업(주) 대덕공장" → "신한정밀공업(주)"
+// (주)/㈜가 문자열 맨 앞에 있는 경우(예: "(주)티비공장")는 본명일 수 있어 건드리지 않습니다.
+const BRANCH_SUFFIX_RE =
+  /^(.+?(?:\(주\)|㈜))\s*\S*?(?:공장|지점|지사|사업소|영업소|출장소|본부|본사|연구소|사업부|센터|공단)(?:지점|공장)?$/;
+export function displayCompanyName(name: string | null | undefined): string {
+  if (!name) return "";
+  const s = name.trim();
+  // (주)/㈜가 맨 앞이면 건드리지 않음
+  if (/^(?:\(주\)|㈜|주식회사)/.test(s)) return s;
+  const m = s.match(BRANCH_SUFFIX_RE);
+  return m ? m[1] : s;
+}
+
