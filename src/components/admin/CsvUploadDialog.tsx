@@ -8,7 +8,7 @@ const loadPapa = () => {
   }
   return papaPromise;
 };
-import { X, Upload, FileCheck2, AlertTriangle, Download, Loader2 } from "lucide-react";
+import { X, Upload, FileCheck2, AlertTriangle, Loader2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { bulkCreateCompanies } from "@/lib/companies.functions";
 import { ASEAN, SCALE, type CompanyInput } from "@/lib/koima-types";
@@ -118,9 +118,6 @@ function validateRow(rowNum: number, raw: Record<string, string>): ParsedRow {
   return { rowNum, raw, value, errors };
 }
 
-const TEMPLATE_CSV = `name_kr,name_en,biz_no,email,phone,scale_code,asean_countries,other_countries
-샘플무역,Sample Trade,123-45-67890,info@sample.co.kr,02-1234-5678,8,베트남;태국,중국;일본
-`;
 
 export function CsvUploadDialog({ onClose, onDone }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -174,38 +171,6 @@ export function CsvUploadDialog({ onClose, onDone }: Props) {
     });
   };
 
-  const downloadErrorReport = async () => {
-    const rows: RowError[] = [];
-    for (const p of parsed) {
-      for (const e of p.errors) {
-        rows.push({
-          row: p.rowNum,
-          field: e.field,
-          message: e.message,
-          raw: JSON.stringify(p.raw),
-        });
-      }
-    }
-    const Papa = await loadPapa();
-    const csv = Papa.unparse(rows);
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `error-report-${fileName || "upload"}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const downloadTemplate = () => {
-    const blob = new Blob([TEMPLATE_CSV], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "companies-template.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
 
   const upload = async () => {
     const valid = parsed.filter((r) => r.value).map((r) => r.value!) as CompanyInput[];
@@ -257,17 +222,10 @@ export function CsvUploadDialog({ onClose, onDone }: Props) {
         <div className="flex-1 overflow-y-auto p-5">
           {/* Step 1: File select */}
           <div className="mb-4 rounded-lg border border-border bg-secondary/30 p-4">
-            <div className="mb-2 flex items-center justify-between gap-2">
+            <div className="mb-2 flex items-center gap-2">
               <div className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">
                 1단계 — 파일 선택
               </div>
-              <button
-                onClick={downloadTemplate}
-                className="inline-flex items-center gap-1 text-[12px] text-primary hover:underline"
-              >
-                <Download className="h-3 w-3" />
-                템플릿 다운로드
-              </button>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <input
@@ -356,16 +314,10 @@ export function CsvUploadDialog({ onClose, onDone }: Props) {
               {/* Error list */}
               {stats.errorRows > 0 && (
                 <div className="rounded-lg border border-border bg-card">
-                  <div className="flex items-center justify-between border-b border-border px-3 py-2">
+                  <div className="flex items-center border-b border-border px-3 py-2">
                     <div className="text-[12px] font-semibold text-destructive">
                       오류 {stats.errorCount}건 · {stats.errorRows}행
                     </div>
-                    <button
-                      onClick={downloadErrorReport}
-                      className="inline-flex items-center gap-1 text-[12px] text-primary hover:underline"
-                    >
-                      <Download className="h-3 w-3" /> 오류 리포트 (CSV)
-                    </button>
                   </div>
                   <div className="max-h-[260px] overflow-y-auto">
                     <table className="w-full text-[12px]">
