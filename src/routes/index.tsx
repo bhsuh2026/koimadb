@@ -21,7 +21,7 @@ import {
 } from "@/lib/importers.functions";
 import { flagOf } from "@/lib/koima-types";
 
-export const Route = createFileRoute("/importers")({
+export const Route = createFileRoute("/")({
   component: ImportersPage,
   head: () => ({
     meta: [
@@ -153,8 +153,8 @@ function ImportersPage() {
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <Link to="/" className="text-xs text-muted-foreground hover:text-foreground">
-                ← KOIMA ASEAN
+              <Link to="/importers" className="text-xs text-muted-foreground hover:text-foreground">
+                KOIMA ASEAN 디렉토리 →
               </Link>
               <h1 className="mt-0.5 truncate text-lg font-semibold sm:text-xl">
                 한국 수입업체 디렉토리

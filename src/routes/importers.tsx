@@ -19,7 +19,7 @@ import { ASEAN, SCALE, SCOLOR, flagOf, type Company } from "@/lib/koima-types";
 import { listCompanies, getStats } from "@/lib/companies.functions";
 import { DetailModal } from "@/components/DetailModal";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/importers")({
   component: Index,
 });
 
@@ -206,7 +206,7 @@ function Index() {
             </div>
             <div className="flex items-center gap-2">
               <Link
-                to="/importers"
+                to="/"
                 className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur transition hover:bg-white/20"
               >
                 <span className="hidden sm:inline">수입업체</span>
