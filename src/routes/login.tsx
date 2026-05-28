@@ -93,9 +93,12 @@ function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-sm">
-        <div className="mb-5 flex items-center gap-2">
-          <ShieldCheck className="h-5 w-5 text-primary" />
-          <h1 className="text-base font-bold text-primary">KOIMA 관리자</h1>
+        <div className="mb-5 flex flex-col items-center gap-3">
+          <img src={koimaLogo} alt="KOIMA" className="h-9 w-auto" />
+          <div className="flex items-center gap-1.5">
+            <ShieldCheck className="h-4 w-4 text-primary" />
+            <h1 className="text-sm font-bold text-primary">관리자 로그인</h1>
+          </div>
         </div>
 
         <form onSubmit={onSubmit} className="space-y-3">
