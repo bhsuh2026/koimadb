@@ -184,10 +184,6 @@ export function ImportersDirectory({
                 <nav className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground">
                   <Link to="/" className="hover:text-foreground">전체</Link>
                   <span className="text-muted-foreground/40">·</span>
-                  <Link to="/china" className="hover:text-foreground">중국</Link>
-                  <span className="text-muted-foreground/40">·</span>
-                  <Link to="/usa" className="hover:text-foreground">미국</Link>
-                  <span className="text-muted-foreground/40">·</span>
                   <Link to="/importers" className="hover:text-foreground">아세안</Link>
                 </nav>
                 <h1 className="mt-0.5 truncate text-lg font-semibold sm:text-xl">
