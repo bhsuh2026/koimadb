@@ -21,6 +21,8 @@ import {
   type Importer,
 } from "@/lib/importers.functions";
 import { flagOf } from "@/lib/koima-types";
+import { AseanFlag } from "@/components/AseanFlag";
+
 
 const PAGE_SIZE = 50;
 
@@ -247,9 +249,9 @@ export function ImportersDirectory({
                 to="/importers"
                 title="아세안 거래 디렉토리"
                 aria-label="아세안 거래 디렉토리"
-                className="inline-flex items-center justify-center rounded-md border bg-card px-3 py-2 text-base shadow-sm hover:bg-accent"
+                className="inline-flex items-center justify-center rounded-md border bg-card px-2 py-2 shadow-sm hover:bg-accent"
               >
-                🌏
+                <AseanFlag className="h-5 w-auto" />
               </Link>
             </div>
           </div>
