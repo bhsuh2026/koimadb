@@ -8,9 +8,9 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Database, ArrowLeft, ShieldCheck, LogOut, Zap, Loader2 } from "lucide-react";
+import { Database, ArrowLeft, ShieldCheck, LogOut, Zap, Loader2, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { getMyAdminStatus } from "@/lib/auth.functions";
+import { getMyMfaStatus } from "@/lib/auth.functions";
 import { runDbTest } from "@/lib/db-test.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -28,11 +28,23 @@ export const Route = createFileRoute("/admin")({
         search: { redirect: location.href },
       });
     }
-    // 2) admin 역할 확인 (서버 검증)
+    // 2) 관리자 + MFA 상태 확인 (서버 검증)
     try {
-      const status = await getMyAdminStatus();
+      const status = await getMyMfaStatus();
       if (!status.isAdmin) {
         throw redirect({ to: "/login", search: { redirect: location.href } });
+      }
+      // 미등록 관리자는 등록 페이지를 제외하면 등록 화면으로 강제 이동
+      if (!status.hasVerifiedTotp && location.pathname !== "/admin/mfa") {
+        throw redirect({ to: "/admin/mfa" });
+      }
+      // 등록은 했는데 이번 세션이 AAL2가 아니라면 다시 로그인(2차 인증) 필요
+      if (status.hasVerifiedTotp && status.aal !== "aal2") {
+        await supabase.auth.signOut();
+        throw redirect({
+          to: "/login",
+          search: { redirect: location.href },
+        });
       }
     } catch (e) {
       if (e && typeof e === "object" && "to" in e) throw e;
@@ -94,6 +106,9 @@ function AdminLayout() {
           <nav className="ml-auto flex items-center gap-1">
             <AdminTab to="/admin" active={pathname === "/admin"}>
               <Database className="h-3.5 w-3.5" /> 업체
+            </AdminTab>
+            <AdminTab to="/admin/mfa" active={pathname === "/admin/mfa"}>
+              <KeyRound className="h-3.5 w-3.5" /> 2단계 인증
             </AdminTab>
             <button
               onClick={onTest}
