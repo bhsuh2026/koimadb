@@ -18,6 +18,8 @@ const CompanyInputSchema = z.object({
 const ListInput = z.object({
   q: z.string().max(100).default(""),
   asean: z.string().max(50).nullable().default(null),
+  other: z.string().max(50).nullable().default(null),
+  otherIn: z.array(z.string().min(1).max(50)).max(50).default([]),
   scales: z.array(z.number().int().min(6).max(15)).max(20).default([]),
   hasEmail: z.boolean().default(false),
   sort: z.enum(["scale_desc", "scale_asc", "name_asc", "countries_desc"]).default("scale_desc"),
@@ -33,6 +35,8 @@ export const listCompanies = createServerFn({ method: "POST" })
       .select("*", { count: "exact" });
 
     if (data.asean) query = query.contains("asean_countries", [data.asean]);
+    if (data.other) query = query.contains("other_countries", [data.other]);
+    if (data.otherIn.length) query = query.overlaps("other_countries", data.otherIn);
     if (data.scales.length) query = query.in("scale_code", data.scales);
     if (data.hasEmail) query = query.neq("email", "");
     if (data.q) {
