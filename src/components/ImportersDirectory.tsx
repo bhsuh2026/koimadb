@@ -22,7 +22,7 @@ import {
 } from "@/lib/importers.functions";
 import { flagOf } from "@/lib/koima-types";
 import { AseanFlag } from "@/components/AseanFlag";
-
+import { LangToggle, useLang } from "@/lib/i18n";
 
 const PAGE_SIZE = 50;
 
@@ -70,9 +70,9 @@ export function ImportersDirectory({
   title,
   scopeBadge,
 }: ImportersDirectoryProps) {
+  const { t } = useLang();
   const listFn = useServerFn(listImporters);
   const facetsFn = useServerFn(getImporterFacets);
-
   const [q, setQ] = useState("");
   const [qDeb, setQDeb] = useState("");
   const [countries, setCountries] = useState<string[]>(
@@ -187,28 +187,31 @@ export function ImportersDirectory({
                   {scopeBadge && (
                     <span className="mr-1.5">{scopeBadge}</span>
                   )}
-                  {title}
+                  {t(title, "Korean Importers Directory")}
                 </h1>
                 <p className="hidden text-xs text-muted-foreground sm:block">
-                  2025 관세청 기준 ·{" "}
+                  {t("2025 관세청 기준 ·", "2025 Korea Customs ·")}{" "}
                   {(lockedCount ?? facets.data?.total ?? 118353).toLocaleString()}
-                  개 업체
+                  {t("개 업체", " companies")}
                 </p>
               </div>
 
             </div>
-            <button
-              onClick={() => setFilterOpen(true)}
-              className="relative inline-flex items-center gap-1.5 rounded-md border bg-card px-3 py-2 text-sm shadow-sm hover:bg-accent lg:hidden"
-            >
-              <SlidersHorizontal className="size-4" />
-              필터
-              {activeFilterCount > 0 && (
-                <span className="ml-1 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
-                  {activeFilterCount}
-                </span>
-              )}
-            </button>
+            <div className="flex items-center gap-2">
+              <LangToggle />
+              <button
+                onClick={() => setFilterOpen(true)}
+                className="relative inline-flex items-center gap-1.5 rounded-md border bg-card px-3 py-2 text-sm shadow-sm hover:bg-accent lg:hidden"
+              >
+                <SlidersHorizontal className="size-4" />
+                {t("필터", "Filters")}
+                {activeFilterCount > 0 && (
+                  <span className="ml-1 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Search */}
@@ -218,7 +221,7 @@ export function ImportersDirectory({
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="업체명 · 사업자번호 · 품목으로 검색"
+                placeholder={t("업체명 · 사업자번호 · 품목으로 검색", "Search by name · biz no · items")}
                 className="w-full rounded-md border bg-card py-2 pl-9 pr-3 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
@@ -229,7 +232,7 @@ export function ImportersDirectory({
                   setHs(e.target.value.replace(/[^\d]/g, ""));
                   setPage(1);
                 }}
-                placeholder="HS코드"
+                placeholder={t("HS코드", "HS code")}
                 inputMode="numeric"
                 className="w-28 rounded-md border bg-card px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
               />
@@ -241,9 +244,9 @@ export function ImportersDirectory({
                 }}
                 className="rounded-md border bg-card px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
               >
-                <option value="rank_import_asc">수입액 순</option>
-                <option value="rank_sales_asc">매출액 순</option>
-                <option value="name_asc">업체명 가나다순</option>
+                <option value="rank_import_asc">{t("수입액 순", "By imports")}</option>
+                <option value="rank_sales_asc">{t("매출액 순", "By revenue")}</option>
+                <option value="name_asc">{t("업체명 가나다순", "Name A–Z")}</option>
               </select>
               <Link
                 to="/importers"

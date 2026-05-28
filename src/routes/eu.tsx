@@ -18,6 +18,7 @@ import {
 import { EU, EU_NAMES, SCALE, SCOLOR, flagOf, type Company } from "@/lib/koima-types";
 import { listCompanies, getEuStats } from "@/lib/companies.functions";
 import { DetailModal } from "@/components/DetailModal";
+import { LangToggle, useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/eu")({
   component: Index,
@@ -29,6 +30,7 @@ const PAGE_SIZE = 40;
 type SortKey = "scale_desc" | "scale_asc" | "name_asc" | "countries_desc";
 
 function Index() {
+  const { t, lang } = useLang();
   const listFn = useServerFn(listCompanies);
   const statsFn = useServerFn(getEuStats);
 
@@ -84,7 +86,11 @@ function Index() {
   const rows = listQuery.data?.rows ?? [];
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  const scopeName = country ?? "EU 전체";
+  const scopeName = country
+    ? lang === "en"
+      ? (EU.find((a) => a.kr === country)?.en ?? country)
+      : country
+    : t("EU 전체", "All EU");
 
   const scrollToList = () => {
     setTimeout(() => dirRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
@@ -143,24 +149,23 @@ function Index() {
                 to="/"
                 className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur transition hover:bg-white/20"
               >
-                <span className="hidden sm:inline">수입업체</span>
+                <span className="hidden sm:inline">{t("수입업체", "Importers")}</span>
                 Directory
               </Link>
               <Link
                 to="/importers"
                 className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur transition hover:bg-white/20"
               >
-                🌏 <span className="hidden sm:inline">아세안</span>
+                🌏 <span className="hidden sm:inline">{t("아세안", "ASEAN")}</span>
               </Link>
-
               <Link
                 to="/admin"
                 className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur transition hover:bg-white/20"
               >
                 <Settings className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">관리자</span>
-                Admin
+                <span className="hidden sm:inline">{t("관리자", "Admin")}</span>
               </Link>
+              <LangToggle className="inline-flex items-center gap-1 rounded-md border border-white/20 bg-white/10 px-2 py-1.5 text-[11px] font-bold text-white/90 backdrop-blur transition hover:bg-white/20" />
             </div>
           </div>
 
@@ -168,25 +173,27 @@ function Index() {
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 backdrop-blur">
               <Sparkles className="h-3 w-3 text-white/80" />
               <span className="text-[10px] uppercase tracking-[0.16em] text-white/80">
-                EU · 유럽연합 27개국
+                {t("EU · 유럽연합 27개국", "EU · 27 Member States")}
               </span>
             </div>
             <h1 className="text-[24px] font-extrabold leading-tight tracking-tight sm:text-[34px]">
-              EU 거래 한국 수입업체 디렉토리
+              {t("EU 거래 한국 수입업체 디렉토리", "Korean Importers Sourcing from the European Union")}
               <span className="mt-2 block text-[14px] font-semibold text-white/70 sm:text-[17px]">
-                Korean Importers Sourcing from the European Union
+                {t("Korean Importers Sourcing from the European Union", "EU 거래 한국 수입업체 디렉토리")}
               </span>
             </h1>
             <p className="mt-4 max-w-3xl text-[12.5px] leading-relaxed text-white/75">
-              EU 27개국 제품을 수입 중인 한국 기업을 국가별로 확인하실 수 있습니다.
-              아래에서 국가를 선택하면 해당국 거래 수입업체로 좁혀집니다.
+              {t(
+                "EU 27개국 제품을 수입 중인 한국 기업을 국가별로 확인하실 수 있습니다. 아래에서 국가를 선택하면 해당국 거래 수입업체로 좁혀집니다.",
+                "Browse Korean companies importing from the 27 EU nations. Select a country below to narrow results to importers trading with that country.",
+              )}
             </p>
           </div>
 
           {/* COUNTRY TABS — horizontal scroll on mobile */}
           <div className="mx-auto max-w-[1300px] px-4 pb-6 sm:px-6 sm:pb-7">
             <div className="pb-2 text-[10px] font-bold uppercase tracking-wider text-white/55">
-              국가 선택 · Select a Country
+              {t("국가 선택 · Select a Country", "Select a Country · 국가 선택")}
             </div>
             <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0 sm:overflow-visible">
               <CountryChip
@@ -198,7 +205,7 @@ function Index() {
                 accent
               >
                 <span className="text-base leading-none">🇪🇺</span>
-                EU 전체
+                {t("EU 전체", "All EU")}
                 <Pill active={country === null}>{grandTotal.toLocaleString()}</Pill>
               </CountryChip>
               {EU.map((a) => {
@@ -214,7 +221,7 @@ function Index() {
                     }}
                   >
                     <span className="text-base leading-none">{a.flag}</span>
-                    {a.kr}
+                    {lang === "en" ? a.en : a.kr}
                     <Pill active={on}>{n.toLocaleString()}</Pill>
                   </CountryChip>
                 );
@@ -238,7 +245,7 @@ function Index() {
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="업체명·사업자번호 검색"
+                placeholder={t("업체명·사업자번호 검색", "Search company name or biz no.")}
                 className="h-11 w-full rounded-lg border border-border bg-card px-3 pl-9 text-sm focus:border-primary focus:outline-none"
               />
             </div>
@@ -247,7 +254,7 @@ function Index() {
               className="relative inline-flex h-11 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-[12px] font-semibold text-foreground transition hover:border-primary md:hidden"
             >
               <SlidersHorizontal className="h-4 w-4" />
-              필터
+              {t("필터", "Filters")}
               {activeFilters > 0 && (
                 <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground">
                   {activeFilters}
@@ -260,22 +267,22 @@ function Index() {
         {/* Desktop filter panel */}
         <div className="mt-4 hidden gap-4 rounded-xl border border-border bg-card p-4 md:grid md:grid-cols-[1fr_2fr]">
           <div>
-            <Label kr="옵션 · Options" />
+            <Label kr={t("옵션 · Options", "Options")} />
             <div className="flex flex-wrap items-center gap-3">
               <Toggle on={mailOnly} onClick={() => setMailOnly((v) => !v)}>
-                이메일 보유만
+                {t("이메일 보유만", "With email only")}
               </Toggle>
               <button
                 onClick={reset}
                 className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-[11px] text-muted-foreground transition hover:border-destructive hover:text-destructive"
               >
                 <RotateCcw className="h-3 w-3" />
-                초기화
+                {t("초기화", "Reset")}
               </button>
             </div>
           </div>
           <div>
-            <Label kr="수입 규모대 · Annual import scale" />
+            <Label kr={t("수입 규모대 · Annual import scale", "Annual import scale")} />
             <ScaleChips scales={scales} setScales={setScales} />
           </div>
         </div>
@@ -286,7 +293,7 @@ function Index() {
             <b className="font-mono text-[18px] font-bold text-primary">
               {total.toLocaleString()}
             </b>{" "}
-            개사 ·{" "}
+            {t("개사", "companies")} ·{" "}
             <span className="font-semibold text-foreground">{scopeName}</span>
           </div>
           <div className="ml-auto flex gap-2">
@@ -295,9 +302,9 @@ function Index() {
               onChange={(e) => setSort(e.target.value as SortKey)}
               className="h-9 cursor-pointer rounded-md border border-border bg-card px-2.5 text-[12px]"
             >
-              <option value="scale_desc">수입규모 ↓</option>
-              <option value="scale_asc">수입규모 ↑</option>
-              <option value="name_asc">업체명 A–Z</option>
+              <option value="scale_desc">{t("수입규모 ↓", "Import size ↓")}</option>
+              <option value="scale_asc">{t("수입규모 ↑", "Import size ↑")}</option>
+              <option value="name_asc">{t("업체명 A–Z", "Name A–Z")}</option>
             </select>
           </div>
         </div>
@@ -307,15 +314,15 @@ function Index() {
           <GridSkeleton />
         ) : listQuery.error ? (
           <div className="mt-6 rounded-md border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
-            데이터를 불러오지 못했습니다 · 잠시 후 다시 시도해 주세요.
+            {t("데이터를 불러오지 못했습니다 · 잠시 후 다시 시도해 주세요.", "Could not load data. Please try again shortly.")}
           </div>
         ) : total === 0 ? (
           <div className="mt-4 rounded-xl border border-border bg-card px-6 py-16 text-center text-muted-foreground">
             <div className="text-[15px] font-semibold text-foreground/70">
-              검색 결과가 없습니다
+              {t("검색 결과가 없습니다", "No results")}
             </div>
             <div className="mt-1.5 text-[13px]">
-              국가 탭이나 조건을 변경하세요.
+              {t("국가 탭이나 조건을 변경하세요.", "Try a different country or filter.")}
             </div>
           </div>
         ) : (
@@ -357,7 +364,7 @@ function Index() {
         )}
 
         <footer className="mt-10 border-t border-border pt-6 text-center text-[11px] leading-relaxed text-muted-foreground">
-          출처 · 관세청 수입실적 / KOIMA · 문의:{" "}
+          {t("출처 · 관세청 수입실적 / KOIMA · 문의:", "Source · Korea Customs / KOIMA · Contact:")}{" "}
           <a href="mailto:seobh@koima.or.kr" className="text-accent hover:underline">
             seobh@koima.or.kr
           </a>
@@ -374,7 +381,7 @@ function Index() {
         >
           <div className="max-h-[85vh] w-full overflow-y-auto rounded-t-2xl bg-card p-5">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-base font-bold text-foreground">필터</h3>
+              <h3 className="text-base font-bold text-foreground">{t("필터", "Filters")}</h3>
               <button
                 onClick={() => setFilterOpen(false)}
                 className="flex h-9 w-9 items-center justify-center rounded-md border border-border"
@@ -382,26 +389,26 @@ function Index() {
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <Label kr="옵션" />
+            <Label kr={t("옵션", "Options")} />
             <div className="mb-5 flex flex-wrap items-center gap-3">
               <Toggle on={mailOnly} onClick={() => setMailOnly((v) => !v)}>
-                이메일 보유만
+                {t("이메일 보유만", "With email only")}
               </Toggle>
             </div>
-            <Label kr="수입 규모대" />
+            <Label kr={t("수입 규모대", "Annual import scale")} />
             <ScaleChips scales={scales} setScales={setScales} />
             <div className="mt-6 flex gap-2">
               <button
                 onClick={reset}
                 className="flex-1 rounded-md border border-border px-4 py-2.5 text-[13px] font-semibold text-muted-foreground"
               >
-                초기화
+                {t("초기화", "Reset")}
               </button>
               <button
                 onClick={() => setFilterOpen(false)}
                 className="flex-1 rounded-md bg-primary px-4 py-2.5 text-[13px] font-semibold text-white"
               >
-                적용 · {total.toLocaleString()}개
+                {t(`적용 · ${total.toLocaleString()}개`, `Apply · ${total.toLocaleString()}`)}
               </button>
             </div>
           </div>
