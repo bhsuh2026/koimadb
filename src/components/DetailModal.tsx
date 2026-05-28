@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import type { Company } from "@/lib/koima-types";
-import { SCALE, SCOLOR, ASEAN, flagOf, displayCountry } from "@/lib/koima-types";
+import { SCALE, SCOLOR, ASEAN, flagOf, displayCountry, displayCompanyName } from "@/lib/koima-types";
 import { X, Mail, Phone, Building2 } from "lucide-react";
 
 type Props = {
@@ -37,7 +37,7 @@ export function DetailModal({ company, onClose }: Props) {
         <div className="sticky top-0 flex items-start justify-between gap-4 border-b border-border bg-card px-5 py-4 sm:px-6 sm:py-5">
           <div className="min-w-0">
             <h3 className="truncate text-base font-extrabold leading-tight text-primary sm:text-lg">
-              {company.name_kr || "(상호 미상)"}
+              {displayCompanyName(company.name_kr) || "(상호 미상)"}
             </h3>
             {company.name_en && (
               <div className="mt-1 truncate font-mono text-[11px] text-muted-foreground">

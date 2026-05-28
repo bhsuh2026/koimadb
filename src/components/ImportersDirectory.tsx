@@ -20,7 +20,7 @@ import {
   getImporterFacets,
   type Importer,
 } from "@/lib/importers.functions";
-import { flagOf, displayCountry } from "@/lib/koima-types";
+import { flagOf, displayCountry, displayCompanyName } from "@/lib/koima-types";
 import { AseanFlag } from "@/components/AseanFlag";
 import { LangToggle, useLang } from "@/lib/i18n";
 
@@ -719,7 +719,7 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
           <div className="flex items-center gap-2">
             <Building2 className="size-3.5 shrink-0 text-muted-foreground" />
             <span className="truncate text-[15px] font-semibold sm:text-base">
-              {row.name_kr || row.name_en}
+              {displayCompanyName(row.name_kr) || row.name_en}
             </span>
             {row.rank_import != null && row.rank_import <= 100 && (
               <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
@@ -801,7 +801,7 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
       <div className="absolute inset-x-0 bottom-0 max-h-[90vh] overflow-y-auto rounded-t-2xl bg-background p-5 shadow-2xl sm:inset-y-8 sm:left-auto sm:right-8 sm:w-[520px] sm:rounded-2xl">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="text-xl font-semibold">{row.name_kr || row.name_en}</h2>
+            <h2 className="text-xl font-semibold">{displayCompanyName(row.name_kr) || row.name_en}</h2>
             {row.name_en && (
               <p className="text-sm text-muted-foreground">{row.name_en}</p>
             )}
