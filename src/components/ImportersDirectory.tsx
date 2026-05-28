@@ -243,6 +243,8 @@ export function ImportersDirectory({
               >
                 <option value="rank_import_asc">수입액 순</option>
                 <option value="rank_sales_asc">매출액 순</option>
+                <option value="name_asc">업체명 가나다순</option>
+              </select>
               <Link
                 to="/importers"
                 title="아세안 거래 디렉토리"
@@ -251,8 +253,7 @@ export function ImportersDirectory({
               >
                 <AseanFlag className="h-5 w-auto" />
               </Link>
-                🌏
-              </Link>
+            </div>
             </div>
           </div>
         </div>
