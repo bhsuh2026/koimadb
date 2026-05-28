@@ -6,10 +6,14 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-// Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-// @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
+// Vercel 배포 설정:
+// - cloudflare: false  → Cloudflare Workers 플러그인 비활성화
+// - tanstackStart.target: "vercel"  → Vercel adapter(Nitro vercel preset) 사용
+// - server.entry: "server"  → 기존 SSR error wrapper(src/server.ts) 유지
 export default defineConfig({
+  cloudflare: false,
   tanstackStart: {
+    target: "vercel",
     server: { entry: "server" },
   },
 });
