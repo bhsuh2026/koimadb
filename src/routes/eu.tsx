@@ -31,7 +31,8 @@ type SortKey = "scale_desc" | "scale_asc" | "name_asc" | "countries_desc";
 
 function Index() {
   const listFn = useServerFn(listCompanies);
-  const statsFn = useServerFn(getStats);
+  const statsFn = useServerFn(getEuStats);
+
 
   const [country, setCountry] = useState<string | null>(null); // null = all
   const [q, setQ] = useState("");
