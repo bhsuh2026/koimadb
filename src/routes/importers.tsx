@@ -240,7 +240,7 @@ function Index() {
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="업체명·사업자번호 검색"
+                placeholder={t("업체명·사업자번호 검색", "Search company name or biz no.")}
                 className="h-11 w-full rounded-lg border border-border bg-card px-3 pl-9 text-sm focus:border-primary focus:outline-none"
               />
             </div>
@@ -249,7 +249,7 @@ function Index() {
               className="relative inline-flex h-11 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-[12px] font-semibold text-foreground transition hover:border-primary md:hidden"
             >
               <SlidersHorizontal className="h-4 w-4" />
-              필터
+              {t("필터", "Filters")}
               {activeFilters > 0 && (
                 <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground">
                   {activeFilters}
