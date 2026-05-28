@@ -1,4 +1,5 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { nitro } from "nitro/vite";
 
 // Lovable published 사이트는 Cloudflare Workers에서 실행됩니다.
 // Vercel로 배포할 때만 DEPLOY_TARGET=vercel 환경변수를 설정하세요.
@@ -8,8 +9,8 @@ export default defineConfig(
   isVercel
     ? {
         cloudflare: false,
+        plugins: [nitro({ preset: "vercel" })],
         tanstackStart: {
-          target: "vercel",
           server: { entry: "server" },
         },
       }
