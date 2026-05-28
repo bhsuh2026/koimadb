@@ -140,6 +140,39 @@ export const getStats = createServerFn({ method: "GET" }).handler(async () => {
   return { total: total ?? 0, counts: map };
 });
 
+// EU stats — counts companies trading with each EU country and the EU-wide total.
+export const getEuStats = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) =>
+    z.object({ countries: z.array(z.string().min(1).max(50)).min(1).max(50) }).parse(i),
+  )
+  .handler(async ({ data }) => {
+    const set = new Set(data.countries);
+    const map: Record<string, number> = {};
+    for (const c of data.countries) map[c] = 0;
+    let from = 0;
+    const PAGE = 1000;
+    let total = 0;
+    while (true) {
+      const { data: rows, error } = await supabaseAdmin
+        .from("companies")
+        .select("other_countries")
+        .overlaps("other_countries", data.countries)
+        .range(from, from + PAGE - 1);
+      if (error) throw new Error(error.message);
+      if (!rows || rows.length === 0) break;
+      total += rows.length;
+      for (const r of rows) {
+        for (const c of (r.other_countries as string[]) ?? []) {
+          if (set.has(c)) map[c] = (map[c] ?? 0) + 1;
+        }
+      }
+      if (rows.length < PAGE) break;
+      from += PAGE;
+    }
+    return { total, counts: map };
+  });
+
+
 
 export const getCompany = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
