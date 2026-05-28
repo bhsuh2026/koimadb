@@ -22,7 +22,7 @@ import {
 } from "@/lib/importers.functions";
 import { flagOf } from "@/lib/koima-types";
 import { AseanFlag } from "@/components/AseanFlag";
-
+import { LangToggle, useLang } from "@/lib/i18n";
 
 const PAGE_SIZE = 50;
 
