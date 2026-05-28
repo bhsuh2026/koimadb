@@ -93,6 +93,19 @@ function AdminLayout() {
             <AdminTab to="/admin" active={pathname === "/admin"}>
               <Database className="h-3.5 w-3.5" /> 업체
             </AdminTab>
+            <button
+              onClick={onTest}
+              disabled={testing}
+              className="ml-1 inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1.5 text-[12px] text-muted-foreground hover:border-primary hover:text-primary disabled:opacity-50"
+              title="Supabase 연결 및 테이블 카운트 테스트"
+            >
+              {testing ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Zap className="h-3.5 w-3.5" />
+              )}
+              데이터 테스트
+            </button>
             {email && (
               <span className="ml-2 hidden items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground sm:inline-flex">
                 <ShieldCheck className="h-3 w-3 text-primary" />
