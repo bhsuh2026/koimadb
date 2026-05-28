@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ImportersRouteImport } from './routes/importers'
+import { Route as EuRouteImport } from './routes/eu'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -24,6 +25,11 @@ const LoginRoute = LoginRouteImport.update({
 const ImportersRoute = ImportersRouteImport.update({
   id: '/importers',
   path: '/importers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuRoute = EuRouteImport.update({
+  id: '/eu',
+  path: '/eu',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -50,6 +56,7 @@ const AdminMfaRoute = AdminMfaRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
   '/admin/mfa': typeof AdminMfaRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
   '/admin/mfa': typeof AdminMfaRoute
@@ -66,6 +74,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
   '/admin/mfa': typeof AdminMfaRoute
@@ -73,13 +82,21 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/importers' | '/login' | '/admin/mfa' | '/admin/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/eu'
+    | '/importers'
+    | '/login'
+    | '/admin/mfa'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/importers' | '/login' | '/admin/mfa' | '/admin'
+  to: '/' | '/eu' | '/importers' | '/login' | '/admin/mfa' | '/admin'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/eu'
     | '/importers'
     | '/login'
     | '/admin/mfa'
@@ -89,6 +106,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  EuRoute: typeof EuRoute
   ImportersRoute: typeof ImportersRoute
   LoginRoute: typeof LoginRoute
 }
@@ -107,6 +125,13 @@ declare module '@tanstack/react-router' {
       path: '/importers'
       fullPath: '/importers'
       preLoaderRoute: typeof ImportersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu': {
+      id: '/eu'
+      path: '/eu'
+      fullPath: '/eu'
+      preLoaderRoute: typeof EuRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -155,19 +180,10 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  EuRoute: EuRoute,
   ImportersRoute: ImportersRoute,
   LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

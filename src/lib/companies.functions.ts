@@ -18,6 +18,8 @@ const CompanyInputSchema = z.object({
 const ListInput = z.object({
   q: z.string().max(100).default(""),
   asean: z.string().max(50).nullable().default(null),
+  other: z.string().max(50).nullable().default(null),
+  otherIn: z.array(z.string().min(1).max(50)).max(50).default([]),
   scales: z.array(z.number().int().min(6).max(15)).max(20).default([]),
   hasEmail: z.boolean().default(false),
   sort: z.enum(["scale_desc", "scale_asc", "name_asc", "countries_desc"]).default("scale_desc"),
@@ -33,6 +35,8 @@ export const listCompanies = createServerFn({ method: "POST" })
       .select("*", { count: "exact" });
 
     if (data.asean) query = query.contains("asean_countries", [data.asean]);
+    if (data.other) query = query.contains("other_countries", [data.other]);
+    if (data.otherIn.length) query = query.overlaps("other_countries", data.otherIn);
     if (data.scales.length) query = query.in("scale_code", data.scales);
     if (data.hasEmail) query = query.neq("email", "");
     if (data.q) {
@@ -135,6 +139,39 @@ export const getStats = createServerFn({ method: "GET" }).handler(async () => {
   }
   return { total: total ?? 0, counts: map };
 });
+
+// EU stats — counts companies trading with each EU country and the EU-wide total.
+export const getEuStats = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) =>
+    z.object({ countries: z.array(z.string().min(1).max(50)).min(1).max(50) }).parse(i),
+  )
+  .handler(async ({ data }) => {
+    const set = new Set(data.countries);
+    const map: Record<string, number> = {};
+    for (const c of data.countries) map[c] = 0;
+    let from = 0;
+    const PAGE = 1000;
+    let total = 0;
+    while (true) {
+      const { data: rows, error } = await supabaseAdmin
+        .from("companies")
+        .select("other_countries")
+        .overlaps("other_countries", data.countries)
+        .range(from, from + PAGE - 1);
+      if (error) throw new Error(error.message);
+      if (!rows || rows.length === 0) break;
+      total += rows.length;
+      for (const r of rows) {
+        for (const c of (r.other_countries as string[]) ?? []) {
+          if (set.has(c)) map[c] = (map[c] ?? 0) + 1;
+        }
+      }
+      if (rows.length < PAGE) break;
+      from += PAGE;
+    }
+    return { total, counts: map };
+  });
+
 
 
 export const getCompany = createServerFn({ method: "POST" })

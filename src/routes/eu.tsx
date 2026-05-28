@@ -16,13 +16,14 @@ import {
   Settings,
   X,
 } from "lucide-react";
-import { ASEAN, SCALE, SCOLOR, flagOf, type Company } from "@/lib/koima-types";
-import { listCompanies, getStats } from "@/lib/companies.functions";
+import { EU, EU_NAMES, SCALE, SCOLOR, flagOf, type Company } from "@/lib/koima-types";
+import { listCompanies, getEuStats } from "@/lib/companies.functions";
 import { DetailModal } from "@/components/DetailModal";
 
-export const Route = createFileRoute("/importers")({
+export const Route = createFileRoute("/eu")({
   component: Index,
 });
+
 
 const PAGE_SIZE = 40;
 
@@ -30,7 +31,8 @@ type SortKey = "scale_desc" | "scale_asc" | "name_asc" | "countries_desc";
 
 function Index() {
   const listFn = useServerFn(listCompanies);
-  const statsFn = useServerFn(getStats);
+  const statsFn = useServerFn(getEuStats);
+
 
   const [country, setCountry] = useState<string | null>(null); // null = all
   const [q, setQ] = useState("");
@@ -56,12 +58,13 @@ function Index() {
   const scaleArr = useMemo(() => Array.from(scales), [scales]);
 
   const listQuery = useQuery({
-    queryKey: ["companies", { country, qDeb, scaleArr, mailOnly, sort, page }],
+    queryKey: ["eu-companies", { country, qDeb, scaleArr, mailOnly, sort, page }],
     queryFn: () =>
       listFn({
         data: {
           q: qDeb,
-          asean: country,
+          other: country,
+          otherIn: country ? [] : EU_NAMES,
           scales: scaleArr,
           hasEmail: mailOnly,
           sort,
@@ -73,8 +76,8 @@ function Index() {
   });
 
   const statsQuery = useQuery({
-    queryKey: ["stats"],
-    queryFn: () => statsFn(),
+    queryKey: ["eu-stats"],
+    queryFn: () => statsFn({ data: { countries: EU_NAMES } }),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -82,7 +85,7 @@ function Index() {
   const rows = listQuery.data?.rows ?? [];
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  const scopeName = country ?? "아세안 전체";
+  const scopeName = country ?? "EU 전체";
 
   const scrollToList = () => {
     setTimeout(() => dirRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
@@ -105,13 +108,15 @@ function Index() {
       "수입규모",
       "이메일",
       "전화번호",
-      "아세안거래국",
+      "EU거래국",
       "기타거래국",
+
     ];
     const res = await listFn({
       data: {
         q: qDeb,
-        asean: country,
+        other: country,
+        otherIn: country ? [] : EU_NAMES,
         scales: scaleArr,
         hasEmail: mailOnly,
         sort,
@@ -127,7 +132,8 @@ function Index() {
       const next = await listFn({
         data: {
           q: qDeb,
-          asean: country,
+          other: country,
+          otherIn: country ? [] : EU_NAMES,
           scales: scaleArr,
           hasEmail: mailOnly,
           sort,
@@ -139,6 +145,7 @@ function Index() {
       if (next.rows.length === 0) break;
       p++;
     }
+
     const esc = (v: unknown) => {
       const s = v == null ? "" : String(v);
       return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -158,7 +165,7 @@ function Index() {
       [head, ...rowsCsv].map((r) => r.map(esc).join(",")).join("\r\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a");
-    const scope = country ?? "아세안전체";
+    const scope = country ?? "EU전체";
     a.href = URL.createObjectURL(blob);
     a.download = `KOIMA_${scope}_수입업체_${new Date()
       .toISOString()
@@ -216,11 +223,12 @@ function Index() {
                 Directory
               </Link>
               <Link
-                to="/eu"
+                to="/importers"
                 className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur transition hover:bg-white/20"
               >
-                🇪🇺 <span className="hidden sm:inline">EU</span>
+                🌏 <span className="hidden sm:inline">아세안</span>
               </Link>
+
               <Link
                 to="/admin"
                 className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur transition hover:bg-white/20"
@@ -236,17 +244,17 @@ function Index() {
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 backdrop-blur">
               <Sparkles className="h-3 w-3 text-white/80" />
               <span className="text-[10px] uppercase tracking-[0.16em] text-white/80">
-                ASEAN · 아세안 10개국
+                EU · 유럽연합 27개국
               </span>
             </div>
             <h1 className="text-[24px] font-extrabold leading-tight tracking-tight sm:text-[34px]">
-              아세안 거래 한국 수입업체 디렉토리
+              EU 거래 한국 수입업체 디렉토리
               <span className="mt-2 block text-[14px] font-semibold text-white/70 sm:text-[17px]">
-                Korean Importers Sourcing from ASEAN
+                Korean Importers Sourcing from the European Union
               </span>
             </h1>
             <p className="mt-4 max-w-3xl text-[12.5px] leading-relaxed text-white/75">
-              아세안 10개국 제품을 수입 중인 한국 기업을 국가별로 확인하실 수 있습니다.
+              EU 27개국 제품을 수입 중인 한국 기업을 국가별로 확인하실 수 있습니다.
               아래에서 국가를 선택하면 해당국 거래 수입업체로 좁혀집니다.
             </p>
           </div>
@@ -265,11 +273,11 @@ function Index() {
                 }}
                 accent
               >
-                <span className="text-base leading-none">🌏</span>
-                아세안 전체
+                <span className="text-base leading-none">🇪🇺</span>
+                EU 전체
                 <Pill active={country === null}>{grandTotal.toLocaleString()}</Pill>
               </CountryChip>
-              {ASEAN.map((a) => {
+              {EU.map((a) => {
                 const on = country === a.kr;
                 const n = counts[a.kr] ?? 0;
                 return (
@@ -287,6 +295,7 @@ function Index() {
                   </CountryChip>
                 );
               })}
+
             </div>
           </div>
         </div>
