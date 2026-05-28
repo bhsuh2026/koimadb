@@ -140,12 +140,7 @@ function Index() {
                 Korea Importers Association
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              <Link
-                to="/"
-                className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur transition hover:bg-white/20"
-              >
-                <span className="hidden sm:inline">수입업체</span>
+                <span className="hidden sm:inline">{t("수입업체", "Importers")}</span>
                 Directory
               </Link>
               <Link
@@ -159,9 +154,13 @@ function Index() {
                 className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur transition hover:bg-white/20"
               >
                 <Settings className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">관리자</span>
-                Admin
+                <span className="hidden sm:inline">{t("관리자", "Admin")}</span>
               </Link>
+              <LangToggle className="inline-flex items-center gap-1 rounded-md border border-white/20 bg-white/10 px-2 py-1.5 text-[11px] font-bold text-white/90 backdrop-blur transition hover:bg-white/20" />
+            </div>
+          </div>
+
+          <div className="mx-auto max-w-[1300px] px-4 pb-5 pt-6 sm:px-6 sm:pb-6 sm:pt-7">
             </div>
           </div>
 
