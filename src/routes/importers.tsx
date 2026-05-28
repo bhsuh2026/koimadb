@@ -82,7 +82,11 @@ function Index() {
   const rows = listQuery.data?.rows ?? [];
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  const scopeName = country ?? "아세안 전체";
+  const scopeName = country
+    ? lang === "en"
+      ? (ASEAN.find((a) => a.kr === country)?.en ?? country)
+      : country
+    : t("아세안 전체", "All ASEAN");
 
   const scrollToList = () => {
     setTimeout(() => dirRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
