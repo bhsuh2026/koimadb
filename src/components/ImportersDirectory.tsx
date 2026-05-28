@@ -719,7 +719,7 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
           <div className="flex items-center gap-2">
             <Building2 className="size-3.5 shrink-0 text-muted-foreground" />
             <span className="truncate text-[15px] font-semibold sm:text-base">
-              {row.name_kr || row.name_en}
+              {displayCompanyName(row.name_kr) || row.name_en}
             </span>
             {row.rank_import != null && row.rank_import <= 100 && (
               <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
