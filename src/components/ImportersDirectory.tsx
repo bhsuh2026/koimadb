@@ -222,7 +222,7 @@ export function ImportersDirectory({
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="업체명 · 사업자번호 · 품목으로 검색"
-                className="w-full rounded-md border bg-card py-2 pl-9 pr-3 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
+                placeholder={t("업체명 · 사업자번호 · 품목으로 검색", "Search by name · biz no · items")}
               />
             </div>
             <div className="flex gap-2">
