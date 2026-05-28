@@ -373,7 +373,7 @@ function Index() {
           <GridSkeleton />
         ) : listQuery.error ? (
           <div className="mt-6 rounded-md border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
-            데이터를 불러오지 못했습니다 · {String(listQuery.error)}
+            데이터를 불러오지 못했습니다 · 잠시 후 다시 시도해 주세요.
           </div>
         ) : total === 0 ? (
           <div className="mt-4 rounded-xl border border-border bg-card px-6 py-16 text-center text-muted-foreground">
