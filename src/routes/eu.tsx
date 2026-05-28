@@ -115,7 +115,8 @@ function Index() {
     const res = await listFn({
       data: {
         q: qDeb,
-        asean: country,
+        other: country,
+        otherIn: country ? [] : EU_NAMES,
         scales: scaleArr,
         hasEmail: mailOnly,
         sort,
@@ -131,7 +132,8 @@ function Index() {
       const next = await listFn({
         data: {
           q: qDeb,
-          asean: country,
+          other: country,
+          otherIn: country ? [] : EU_NAMES,
           scales: scaleArr,
           hasEmail: mailOnly,
           sort,
@@ -143,6 +145,7 @@ function Index() {
       if (next.rows.length === 0) break;
       p++;
     }
+
     const esc = (v: unknown) => {
       const s = v == null ? "" : String(v);
       return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -162,7 +165,7 @@ function Index() {
       [head, ...rowsCsv].map((r) => r.map(esc).join(",")).join("\r\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a");
-    const scope = country ?? "아세안전체";
+    const scope = country ?? "EU전체";
     a.href = URL.createObjectURL(blob);
     a.download = `KOIMA_${scope}_수입업체_${new Date()
       .toISOString()
