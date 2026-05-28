@@ -381,7 +381,7 @@ function Index() {
         >
           <div className="max-h-[85vh] w-full overflow-y-auto rounded-t-2xl bg-card p-5">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-base font-bold text-foreground">필터</h3>
+              <h3 className="text-base font-bold text-foreground">{t("필터", "Filters")}</h3>
               <button
                 onClick={() => setFilterOpen(false)}
                 className="flex h-9 w-9 items-center justify-center rounded-md border border-border"
@@ -389,26 +389,26 @@ function Index() {
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <Label kr="옵션" />
+            <Label kr={t("옵션", "Options")} />
             <div className="mb-5 flex flex-wrap items-center gap-3">
               <Toggle on={mailOnly} onClick={() => setMailOnly((v) => !v)}>
-                이메일 보유만
+                {t("이메일 보유만", "With email only")}
               </Toggle>
             </div>
-            <Label kr="수입 규모대" />
+            <Label kr={t("수입 규모대", "Annual import scale")} />
             <ScaleChips scales={scales} setScales={setScales} />
             <div className="mt-6 flex gap-2">
               <button
                 onClick={reset}
                 className="flex-1 rounded-md border border-border px-4 py-2.5 text-[13px] font-semibold text-muted-foreground"
               >
-                초기화
+                {t("초기화", "Reset")}
               </button>
               <button
                 onClick={() => setFilterOpen(false)}
                 className="flex-1 rounded-md bg-primary px-4 py-2.5 text-[13px] font-semibold text-white"
               >
-                적용 · {total.toLocaleString()}개
+                {t(`적용 · ${total.toLocaleString()}개`, `Apply · ${total.toLocaleString()}`)}
               </button>
             </div>
           </div>
