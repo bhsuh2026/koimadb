@@ -15,6 +15,7 @@ import { Route as EuRouteImport } from './routes/eu'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as ApiGetKeyRouteImport } from './routes/api/get-key'
 import { Route as ApiCheckServiceRoleRouteImport } from './routes/api/check-service-role'
 import { Route as AdminMfaRouteImport } from './routes/admin.mfa'
 
@@ -48,6 +49,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiGetKeyRoute = ApiGetKeyRouteImport.update({
+  id: '/api/get-key',
+  path: '/api/get-key',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCheckServiceRoleRoute = ApiCheckServiceRoleRouteImport.update({
   id: '/api/check-service-role',
   path: '/api/check-service-role',
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
+  '/api/get-key': typeof ApiGetKeyRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
+  '/api/get-key': typeof ApiGetKeyRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
+  '/api/get-key': typeof ApiGetKeyRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/admin/mfa'
     | '/api/check-service-role'
+    | '/api/get-key'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/admin/mfa'
     | '/api/check-service-role'
+    | '/api/get-key'
     | '/admin'
   id:
     | '__root__'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/admin/mfa'
     | '/api/check-service-role'
+    | '/api/get-key'
     | '/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   ImportersRoute: typeof ImportersRoute
   LoginRoute: typeof LoginRoute
   ApiCheckServiceRoleRoute: typeof ApiCheckServiceRoleRoute
+  ApiGetKeyRoute: typeof ApiGetKeyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -174,6 +187,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/get-key': {
+      id: '/api/get-key'
+      path: '/api/get-key'
+      fullPath: '/api/get-key'
+      preLoaderRoute: typeof ApiGetKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/check-service-role': {
       id: '/api/check-service-role'
       path: '/api/check-service-role'
@@ -210,6 +230,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImportersRoute: ImportersRoute,
   LoginRoute: LoginRoute,
   ApiCheckServiceRoleRoute: ApiCheckServiceRoleRoute,
+  ApiGetKeyRoute: ApiGetKeyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
