@@ -929,8 +929,10 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
             </Row>
           )}
         </dl>
+        </div>
       </div>
     </div>
+
   );
 }
 
