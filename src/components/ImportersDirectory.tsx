@@ -798,41 +798,54 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="absolute inset-x-0 bottom-0 max-h-[90vh] overflow-y-auto rounded-t-2xl bg-background p-5 shadow-2xl sm:inset-y-8 sm:left-auto sm:right-8 sm:w-[520px] sm:rounded-2xl">
-        <div className="mb-4 flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h2 className="text-xl font-semibold">{displayCompanyName(row.name_kr) || row.name_en}</h2>
+      <div
+        className="absolute inset-x-0 bottom-0 flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl bg-background shadow-2xl sm:inset-y-8 sm:left-auto sm:right-8 sm:w-[520px] sm:max-w-[calc(100vw-2rem)] sm:rounded-2xl"
+        role="dialog"
+        aria-modal="true"
+      >
+        {/* mobile drag handle */}
+        <div className="flex justify-center pt-2 sm:hidden">
+          <div className="h-1.5 w-10 rounded-full bg-muted-foreground/30" />
+        </div>
+
+        <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4">
+          <div className="min-w-0 flex-1">
+            <h2 className="break-words text-base font-semibold leading-tight sm:text-xl">
+              {displayCompanyName(row.name_kr) || row.name_en}
+            </h2>
             {row.name_en && (
-              <p className="text-sm text-muted-foreground">{row.name_en}</p>
+              <p className="mt-0.5 break-words text-xs text-muted-foreground sm:text-sm">{row.name_en}</p>
             )}
-            <div className="mt-2 flex flex-wrap gap-2">
+            <div className="mt-2 flex flex-wrap gap-1.5">
               {row.scale_label && (
                 <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${scaleColor(row.scale_label)}`}
+                  className={`rounded-full px-2 py-0.5 text-[11px] font-medium sm:text-xs ${scaleColor(row.scale_label)}`}
                 >
                   {row.scale_label}
                 </span>
               )}
               {row.rank_import != null && (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
-                  수입액 순위 #{row.rank_import.toLocaleString()}
+                <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] sm:text-xs">
+                  수입액 #{row.rank_import.toLocaleString()}
                 </span>
               )}
               {row.rank_sales != null && (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
-                  매출액 순위 #{row.rank_sales.toLocaleString()}
+                <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] sm:text-xs">
+                  매출액 #{row.rank_sales.toLocaleString()}
                 </span>
               )}
             </div>
           </div>
           <button
             onClick={onClose}
-            className="rounded p-1 hover:bg-accent"
+            className="flex-shrink-0 rounded p-1.5 hover:bg-accent"
             aria-label="닫기"
           >
             <X className="size-5" />
           </button>
         </div>
+
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-5">
 
         <div className="mb-3 rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-200">
           개인정보 보호를 위해 사업자번호 · 연락처 · 이메일 · HS코드 · 품목은 일부가
@@ -916,8 +929,10 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
             </Row>
           )}
         </dl>
+        </div>
       </div>
     </div>
+
   );
 }
 
