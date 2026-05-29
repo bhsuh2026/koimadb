@@ -15,6 +15,7 @@ import { Route as EuRouteImport } from './routes/eu'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as ApiCheckServiceRoleRouteImport } from './routes/api/check-service-role'
 import { Route as AdminMfaRouteImport } from './routes/admin.mfa'
 
 const LoginRoute = LoginRouteImport.update({
@@ -47,6 +48,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiCheckServiceRoleRoute = ApiCheckServiceRoleRouteImport.update({
+  id: '/api/check-service-role',
+  path: '/api/check-service-role',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminMfaRoute = AdminMfaRouteImport.update({
   id: '/mfa',
   path: '/mfa',
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
   '/admin/mfa': typeof AdminMfaRoute
+  '/api/check-service-role': typeof ApiCheckServiceRoleRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
   '/admin/mfa': typeof AdminMfaRoute
+  '/api/check-service-role': typeof ApiCheckServiceRoleRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
   '/admin/mfa': typeof AdminMfaRoute
+  '/api/check-service-role': typeof ApiCheckServiceRoleRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -89,9 +98,17 @@ export interface FileRouteTypes {
     | '/importers'
     | '/login'
     | '/admin/mfa'
+    | '/api/check-service-role'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/eu' | '/importers' | '/login' | '/admin/mfa' | '/admin'
+  to:
+    | '/'
+    | '/eu'
+    | '/importers'
+    | '/login'
+    | '/admin/mfa'
+    | '/api/check-service-role'
+    | '/admin'
   id:
     | '__root__'
     | '/'
@@ -100,6 +117,7 @@ export interface FileRouteTypes {
     | '/importers'
     | '/login'
     | '/admin/mfa'
+    | '/api/check-service-role'
     | '/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -109,6 +127,7 @@ export interface RootRouteChildren {
   EuRoute: typeof EuRoute
   ImportersRoute: typeof ImportersRoute
   LoginRoute: typeof LoginRoute
+  ApiCheckServiceRoleRoute: typeof ApiCheckServiceRoleRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -155,6 +174,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/check-service-role': {
+      id: '/api/check-service-role'
+      path: '/api/check-service-role'
+      fullPath: '/api/check-service-role'
+      preLoaderRoute: typeof ApiCheckServiceRoleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/mfa': {
       id: '/admin/mfa'
       path: '/mfa'
@@ -183,6 +209,7 @@ const rootRouteChildren: RootRouteChildren = {
   EuRoute: EuRoute,
   ImportersRoute: ImportersRoute,
   LoginRoute: LoginRoute,
+  ApiCheckServiceRoleRoute: ApiCheckServiceRoleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
