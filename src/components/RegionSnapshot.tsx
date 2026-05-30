@@ -1,18 +1,26 @@
 import { Link } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { BarChart3, FileText, ExternalLink, Building2 } from "lucide-react";
+import { BarChart3, FileText, ExternalLink, Building2, Printer, Flag } from "lucide-react";
 import { flagOf, displayCountry } from "@/lib/koima-types";
 import { useLang } from "@/lib/i18n";
 
 export type RegionKey = "asean" | "eu" | "cis";
 
+type Counterpart = {
+  title_kr: string;
+  title_en: string;
+  category_kr: string;
+  category_en: string;
+  desc_kr: string;
+  desc_en: string;
+  href?: string;
+  hrefLabel?: string;
+};
+
 type Props = {
   regionKey: RegionKey;
-  /** Korean country names that belong to this region. */
   lockedCountries: string[];
-  /** Map of country (kr) → importer count, from facets. */
   countryCounts: Record<string, number>;
-  /** Region label, e.g. "🌏 ASEAN 10" */
   lockedLabel?: string;
 };
 
