@@ -62,6 +62,26 @@ export const EU_NAMES = EU.map((e) => e.kr);
 
 export const EU_FLAG = "🇪🇺";
 
+// CIS (Commonwealth of Independent States)
+export const CIS: { kr: string; en: string; flag: string }[] = [
+  { kr: "러시아", en: "Russia", flag: "🇷🇺" },
+  { kr: "카자흐스탄", en: "Kazakhstan", flag: "🇰🇿" },
+  { kr: "우즈베키스탄", en: "Uzbekistan", flag: "🇺🇿" },
+  { kr: "키르기스스탄", en: "Kyrgyzstan", flag: "🇰🇬" },
+  { kr: "타지키스탄", en: "Tajikistan", flag: "🇹🇯" },
+  { kr: "투르크메니스탄", en: "Turkmenistan", flag: "🇹🇲" },
+  { kr: "벨라루스", en: "Belarus", flag: "🇧🇾" },
+  { kr: "우크라이나", en: "Ukraine", flag: "🇺🇦" },
+  { kr: "몰도바", en: "Moldova", flag: "🇲🇩" },
+  { kr: "조지아", en: "Georgia", flag: "🇬🇪" },
+  { kr: "아르메니아", en: "Armenia", flag: "🇦🇲" },
+  { kr: "아제르바이잔", en: "Azerbaijan", flag: "🇦🇿" },
+];
+
+export const CIS_NAMES = CIS.map((c) => c.kr);
+
+export const CIS_FLAG = "🌍";
+
 
 // Korean country name -> ISO2 code. Covers every country appearing in KOIMA data.
 // Misspelled / outdated names are normalized to the official Korean name via NAME_FIX.

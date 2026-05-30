@@ -264,6 +264,14 @@ export function ImportersDirectory({
               >
                 🇪🇺
               </Link>
+              <Link
+                to="/cis"
+                title="CIS 거래 디렉토리"
+                aria-label="CIS 거래 디렉토리"
+                className="inline-flex items-center justify-center rounded-md border bg-card px-2 py-2 text-xl leading-none shadow-sm hover:bg-accent"
+              >
+                🌍
+              </Link>
 
             </div>
           </div>

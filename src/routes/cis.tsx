@@ -15,16 +15,15 @@ import {
   Settings,
   X,
 } from "lucide-react";
-import { EU, EU_NAMES, SCALE, SCOLOR, flagOf, displayCountry, type Company } from "@/lib/koima-types";
-import { listCompanies, getEuStats } from "@/lib/companies.functions";
+import { CIS, CIS_NAMES, SCALE, SCOLOR, flagOf, displayCountry, type Company } from "@/lib/koima-types";
+import { listCompanies, getCisStats } from "@/lib/companies.functions";
 import { DetailModal } from "@/components/DetailModal";
 import { RegionIntro } from "@/components/RegionIntro";
 import { LangToggle, useLang } from "@/lib/i18n";
 
-export const Route = createFileRoute("/eu")({
+export const Route = createFileRoute("/cis")({
   component: Index,
 });
-
 
 const PAGE_SIZE = 40;
 
@@ -33,10 +32,9 @@ type SortKey = "scale_desc" | "scale_asc" | "name_asc" | "countries_desc";
 function Index() {
   const { t, lang } = useLang();
   const listFn = useServerFn(listCompanies);
-  const statsFn = useServerFn(getEuStats);
+  const statsFn = useServerFn(getCisStats);
 
-
-  const [country, setCountry] = useState<string | null>(null); // null = all
+  const [country, setCountry] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const [qDeb, setQDeb] = useState("");
   const [scales, setScales] = useState<Set<number>>(new Set());
@@ -60,13 +58,13 @@ function Index() {
   const scaleArr = useMemo(() => Array.from(scales), [scales]);
 
   const listQuery = useQuery({
-    queryKey: ["eu-companies", { country, qDeb, scaleArr, mailOnly, sort, page }],
+    queryKey: ["cis-companies", { country, qDeb, scaleArr, mailOnly, sort, page }],
     queryFn: () =>
       listFn({
         data: {
           q: qDeb,
           other: country,
-          otherIn: country ? [] : EU_NAMES,
+          otherIn: country ? [] : CIS_NAMES,
           scales: scaleArr,
           hasEmail: mailOnly,
           sort,
@@ -78,8 +76,8 @@ function Index() {
   });
 
   const statsQuery = useQuery({
-    queryKey: ["eu-stats"],
-    queryFn: () => statsFn({ data: { countries: EU_NAMES } }),
+    queryKey: ["cis-stats"],
+    queryFn: () => statsFn({ data: { countries: CIS_NAMES } }),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -89,9 +87,9 @@ function Index() {
 
   const scopeName = country
     ? lang === "en"
-      ? (EU.find((a) => a.kr === country)?.en ?? country)
+      ? (CIS.find((a) => a.kr === country)?.en ?? country)
       : country
-    : t("EU 전체", "All EU");
+    : t("CIS 전체", "All CIS");
 
   const scrollToList = () => {
     setTimeout(() => dirRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
@@ -104,7 +102,6 @@ function Index() {
     setSort("scale_desc");
     setCountry(null);
   };
-
 
   const pagerNums = useMemo(() => {
     const nums: (number | "…")[] = [];
@@ -160,10 +157,10 @@ function Index() {
                 🌏 <span className="hidden sm:inline">{t("아세안", "ASEAN")}</span>
               </Link>
               <Link
-                to="/cis"
+                to="/eu"
                 className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur transition hover:bg-white/20"
               >
-                🌍 <span className="hidden sm:inline">CIS</span>
+                🇪🇺 <span className="hidden sm:inline">EU</span>
               </Link>
               <Link
                 to="/admin"
@@ -180,24 +177,24 @@ function Index() {
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 backdrop-blur">
               <Sparkles className="h-3 w-3 text-white/80" />
               <span className="text-[10px] uppercase tracking-[0.16em] text-white/80">
-                {t("EU · 유럽연합 27개국", "EU · 27 Member States")}
+                {t("CIS · 독립국가연합 12개국", "CIS · 12 Member States")}
               </span>
             </div>
             <h1 className="text-[24px] font-extrabold leading-tight tracking-tight sm:text-[34px]">
-              {t("EU 거래 한국 수입업체 디렉토리", "Korean Importers Sourcing from the European Union")}
+              {t("CIS 거래 한국 수입업체 디렉토리", "Korean Importers Sourcing from the CIS")}
               <span className="mt-2 block text-[14px] font-semibold text-white/70 sm:text-[17px]">
-                {t("Korean Importers Sourcing from the European Union", "EU 거래 한국 수입업체 디렉토리")}
+                {t("Korean Importers Sourcing from the Commonwealth of Independent States", "CIS 거래 한국 수입업체 디렉토리")}
               </span>
             </h1>
             <p className="mt-4 max-w-3xl text-[12.5px] leading-relaxed text-white/75">
               {t(
-                "EU 27개국 제품을 수입 중인 한국 기업을 국가별로 확인하실 수 있습니다. 아래에서 국가를 선택하면 해당국 거래 수입업체로 좁혀집니다.",
-                "Browse Korean companies importing from the 27 EU nations. Select a country below to narrow results to importers trading with that country.",
+                "CIS 12개국 제품을 수입 중인 한국 기업을 국가별로 확인하실 수 있습니다. 아래에서 국가를 선택하면 해당국 거래 수입업체로 좁혀집니다.",
+                "Browse Korean companies importing from the 12 CIS nations. Select a country below to narrow results to importers trading with that country.",
               )}
             </p>
           </div>
 
-          {/* COUNTRY TABS — horizontal scroll on mobile */}
+          {/* COUNTRY TABS */}
           <div className="mx-auto max-w-[1300px] px-4 pb-6 sm:px-6 sm:pb-7">
             <div className="pb-2 text-[10px] font-bold uppercase tracking-wider text-white/55">
               {t("국가 선택 · Select a Country", "Select a Country · 국가 선택")}
@@ -211,11 +208,11 @@ function Index() {
                 }}
                 accent
               >
-                <span className="text-base leading-none">🇪🇺</span>
-                {t("EU 전체", "All EU")}
+                <span className="text-base leading-none">🌍</span>
+                {t("CIS 전체", "All CIS")}
                 <Pill active={country === null}>{grandTotal.toLocaleString()}</Pill>
               </CountryChip>
-              {EU.map((a) => {
+              {CIS.map((a) => {
                 const on = country === a.kr;
                 const n = counts[a.kr] ?? 0;
                 return (
@@ -233,7 +230,6 @@ function Index() {
                   </CountryChip>
                 );
               })}
-
             </div>
           </div>
         </div>
@@ -241,10 +237,10 @@ function Index() {
 
       {/* ===== INTRO SECTIONS ===== */}
       <RegionIntro
-        region="eu"
+        region="cis"
         counts={counts}
         grandTotal={grandTotal}
-        countries={EU}
+        countries={CIS}
         onPickCountry={(kr) => {
           setCountry(kr);
           scrollToList();
@@ -427,7 +423,7 @@ function Index() {
                 onClick={() => setFilterOpen(false)}
                 className="flex-1 rounded-md bg-primary px-4 py-2.5 text-[13px] font-semibold text-white"
               >
-                {t(`적용 · ${total.toLocaleString()}개`, `Apply · ${total.toLocaleString()}`)}
+                {t("적용", "Apply")}
               </button>
             </div>
           </div>
@@ -437,30 +433,26 @@ function Index() {
   );
 }
 
-/* ============ Small UI ============ */
-
 function CountryChip({
+  children,
   active,
   onClick,
-  accent = false,
-  children,
+  accent,
 }: {
+  children: React.ReactNode;
   active: boolean;
   onClick: () => void;
   accent?: boolean;
-  children: React.ReactNode;
 }) {
   return (
     <button
       onClick={onClick}
-      className={`flex flex-shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition ${
+      className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12px] font-semibold transition ${
         active
-          ? accent
-            ? "border-[#ff5d6e] bg-[#ff5d6e] text-white"
-            : "border-white bg-white text-primary"
+          ? "border-primary bg-primary text-white shadow-sm"
           : accent
-            ? "border-[#ff5d6e]/40 bg-[#ff5d6e]/15 text-white/90"
-            : "border-white/15 bg-white/[0.08] text-white/85 hover:bg-white/[0.15]"
+            ? "border-white/20 bg-white/10 text-white/90 backdrop-blur hover:bg-white/20"
+            : "border-white/15 bg-white/5 text-white/80 backdrop-blur hover:bg-white/15"
       }`}
     >
       {children}
@@ -468,11 +460,11 @@ function CountryChip({
   );
 }
 
-function Pill({ children, active }: { children: React.ReactNode; active: boolean }) {
+function Pill({ children, active }: { children: React.ReactNode; active?: boolean }) {
   return (
     <span
-      className={`rounded-full px-1.5 py-px font-mono text-[10px] ${
-        active ? "bg-black/15" : "bg-black/20 text-white/85"
+      className={`ml-1 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+        active ? "bg-white/20 text-white" : "bg-white/10 text-white/70"
       }`}
     >
       {children}
@@ -498,18 +490,17 @@ function Toggle({
   children: React.ReactNode;
 }) {
   return (
-    <button onClick={onClick} className="flex items-center gap-2 text-[12px]">
+    <button
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition ${
+        on
+          ? "border-primary bg-primary/10 text-primary"
+          : "border-border bg-muted text-muted-foreground hover:border-primary/40"
+      }`}
+    >
       <span
-        className={`relative h-[20px] w-[36px] rounded-full transition ${
-          on ? "bg-emerald-600" : "bg-border"
-        }`}
-      >
-        <span
-          className={`absolute top-[2px] h-[16px] w-[16px] rounded-full bg-white shadow-sm transition ${
-            on ? "left-[18px]" : "left-[2px]"
-          }`}
-        />
-      </span>
+        className={`h-2 w-2 rounded-full ${on ? "bg-primary" : "bg-muted-foreground/30"}`}
+      />
       {children}
     </button>
   );
@@ -523,31 +514,128 @@ function ScaleChips({
   setScales: React.Dispatch<React.SetStateAction<Set<number>>>;
 }) {
   return (
-    <div className="flex flex-wrap gap-1.5">
-      {[15, 14, 13, 12, 11, 10, 9, 8, 7, 6].map((code) => {
-        const on = scales.has(code);
-        const lbl = SCALE[code][0];
+    <div className="flex flex-wrap gap-2">
+      {Object.entries(SCALE).map(([code, labels]) => {
+        const c = Number(code);
+        const on = scales.has(c);
+        const [kr, en] = labels;
+        const [bg] = SCOLOR[c];
         return (
           <button
             key={code}
             onClick={() =>
               setScales((prev) => {
                 const next = new Set(prev);
-                if (next.has(code)) next.delete(code);
-                else next.add(code);
+                if (next.has(c)) next.delete(c);
+                else next.add(c);
                 return next;
               })
             }
-            className={`whitespace-nowrap rounded-md border px-2.5 py-1.5 font-mono text-[10.5px] transition ${
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] transition ${
               on
-                ? "border-primary bg-primary text-white"
-                : "border-border bg-background text-muted-foreground hover:border-primary"
+                ? "border-primary bg-primary/10 font-semibold text-primary"
+                : "border-border bg-muted text-muted-foreground hover:border-primary/30"
             }`}
+            title={en}
           >
-            {lbl}
+            <span
+              className="h-2 w-2 rounded-full"
+              style={{ backgroundColor: bg }}
+            />
+            {kr}
           </button>
         );
       })}
+    </div>
+  );
+}
+
+function CompanyCard({
+  company,
+  onOpen,
+}: {
+  company: Company;
+  onOpen: () => void;
+}) {
+  const { lang } = useLang();
+  const scale = SCALE[company.scale_code];
+  const [scaleKr, scaleEn] = scale ?? ["", ""];
+  const [color] = SCOLOR[company.scale_code] ?? ["#999", "#eee"];
+
+  const countries = [...(company.asean_countries ?? []), ...(company.other_countries ?? [])];
+  const deduped = Array.from(new Set(countries.map(displayCountry)));
+
+  return (
+    <button
+      onClick={onOpen}
+      className="group relative rounded-xl border border-border bg-card p-4 text-left shadow-sm transition hover:border-primary/40 hover:shadow-md sm:p-5"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-[13px] font-extrabold leading-snug text-foreground">
+            {displayCompanyName(company.name_kr)}
+          </div>
+          <div className="mt-0.5 text-[11.5px] font-semibold text-muted-foreground">
+            {company.name_en}
+          </div>
+        </div>
+        <span
+          className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold"
+          style={{ backgroundColor: color + "22", color }}
+        >
+          {lang === "en" ? scaleEn : scaleKr}
+        </span>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-1">
+        {deduped.slice(0, 6).map((c) => (
+          <span
+            key={c}
+            className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/60 px-1.5 py-0.5 text-[10px] text-muted-foreground"
+          >
+            <span className="text-xs leading-none">{flagOf(c)}</span>
+            <span className="truncate">{c}</span>
+          </span>
+        ))}
+        {deduped.length > 6 && (
+          <span className="inline-flex items-center rounded-md bg-muted/40 px-1.5 py-0.5 text-[10px] text-muted-foreground">
+            +{deduped.length - 6}
+          </span>
+        )}
+      </div>
+
+      <div className="mt-3 flex items-center gap-3 text-[11px] text-muted-foreground">
+        {company.phone && (
+          <span className="inline-flex items-center gap-1">
+            <Phone className="h-3 w-3" />
+            {company.phone}
+          </span>
+        )}
+        {company.email && (
+          <span className="inline-flex items-center gap-1">
+            <Mail className="h-3 w-3" />
+            {company.email}
+          </span>
+        )}
+      </div>
+    </button>
+  );
+}
+
+function displayCompanyName(name: string | null | undefined): string {
+  if (!name) return "";
+  return name.trim();
+}
+
+function GridSkeleton() {
+  return (
+    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      {Array.from({ length: 9 }).map((_, i) => (
+        <div
+          key={i}
+          className="h-[140px] animate-pulse rounded-xl border border-border bg-muted"
+        />
+      ))}
     </div>
   );
 }
@@ -567,103 +655,13 @@ function PagerBtn({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`flex h-9 min-w-[36px] items-center justify-center rounded-md border px-2 font-mono text-[12px] transition ${
+      className={`flex h-8 min-w-[32px] items-center justify-center rounded-md border px-2 text-[12px] font-semibold transition ${
         active
           ? "border-primary bg-primary text-white"
-          : "border-border bg-card text-foreground hover:border-primary"
-      } disabled:cursor-not-allowed disabled:opacity-40`}
+          : "border-border bg-card text-foreground hover:border-primary hover:text-primary"
+      } ${disabled ? "cursor-not-allowed opacity-40" : ""}`}
     >
       {children}
-    </button>
-  );
-}
-
-function GridSkeleton() {
-  return (
-    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-      {Array.from({ length: 9 }).map((_, i) => (
-        <div
-          key={i}
-          className="h-[150px] animate-pulse rounded-xl border border-border bg-card"
-        />
-      ))}
-    </div>
-  );
-}
-
-function CompanyCard({
-  company,
-  onOpen,
-}: {
-  company: Company;
-  onOpen: () => void;
-}) {
-  const sc = SCALE[company.scale_code] ?? SCALE[6];
-  const col = SCOLOR[company.scale_code] ?? SCOLOR[6];
-  return (
-    <button
-      onClick={onOpen}
-      className="group flex flex-col gap-2.5 rounded-xl border border-border bg-card p-4 text-left transition hover:-translate-y-[1px] hover:border-primary hover:shadow-lg hover:shadow-primary/5"
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="truncate text-[14.5px] font-bold leading-tight text-foreground group-hover:text-primary">
-            {company.name_kr || "(상호 미상)"}
-          </div>
-          {company.name_en && (
-            <div className="mt-0.5 truncate font-mono text-[10.5px] text-muted-foreground">
-              {company.name_en}
-            </div>
-          )}
-        </div>
-        <span
-          className="flex-shrink-0 whitespace-nowrap rounded-md px-2 py-1 font-mono text-[9.5px] font-semibold"
-          style={{ color: col[0], background: col[1] }}
-        >
-          {sc[1]}
-        </span>
-      </div>
-      <div className="flex flex-wrap gap-1">
-        {company.asean_countries.slice(0, 6).map((n) => (
-          <span
-            key={n}
-            className="inline-flex items-center gap-1 rounded-md border border-accent/20 bg-accent-soft px-1.5 py-0.5 text-[10px] font-semibold text-accent"
-          >
-            <span className="text-[11px] leading-none">{flagOf(n)}</span>
-            {displayCountry(n)}
-          </span>
-        ))}
-        {company.asean_countries.length > 6 && (
-          <span className="rounded-md bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">
-            +{company.asean_countries.length - 6}
-          </span>
-        )}
-      </div>
-      <div className="flex flex-wrap gap-1.5">
-        {company.email ? (
-          <span className="inline-flex items-center gap-1 rounded-md border border-accent/15 bg-accent-soft px-2 py-0.5 text-[10.5px] text-accent">
-            <Mail className="h-3 w-3" />
-            <span className="max-w-[180px] truncate">{company.email}</span>
-          </span>
-        ) : (
-          <span className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary px-2 py-0.5 text-[10.5px] text-muted-foreground/50">
-            <Mail className="h-3 w-3" />
-            이메일 미등록
-          </span>
-        )}
-        {company.phone && (
-          <span className="inline-flex items-center gap-1 rounded-md border border-border bg-paper px-2 py-0.5 text-[10.5px] text-muted-foreground">
-            <Phone className="h-3 w-3" />
-            {company.phone}
-          </span>
-        )}
-      </div>
-      <div className="flex gap-4 border-t border-border pt-2 text-[11px] text-muted-foreground">
-        <span className="font-mono">{company.biz_no || "—"}</span>
-        <span className="ml-auto">
-          거래국 {company.asean_countries.length + company.other_countries.length}
-        </span>
-      </div>
     </button>
   );
 }
