@@ -64,18 +64,18 @@ export const EU_FLAG = "🇪🇺";
 
 // CIS (Commonwealth of Independent States)
 export const CIS: { kr: string; en: string; flag: string }[] = [
-  { kr: "러시아", en: "Russia", flag: "🇷🇺" },
-  { kr: "카자흐스탄", en: "Kazakhstan", flag: "🇰🇿" },
-  { kr: "우즈베키스탄", en: "Uzbekistan", flag: "🇺🇿" },
-  { kr: "키르기스스탄", en: "Kyrgyzstan", flag: "🇰🇬" },
-  { kr: "타지키스탄", en: "Tajikistan", flag: "🇹🇯" },
-  { kr: "투르크메니스탄", en: "Turkmenistan", flag: "🇹🇲" },
-  { kr: "벨라루스", en: "Belarus", flag: "🇧🇾" },
-  { kr: "우크라이나", en: "Ukraine", flag: "🇺🇦" },
-  { kr: "몰도바", en: "Moldova", flag: "🇲🇩" },
-  { kr: "조지아", en: "Georgia", flag: "🇬🇪" },
-  { kr: "아르메니아", en: "Armenia", flag: "🇦🇲" },
-  { kr: "아제르바이잔", en: "Azerbaijan", flag: "🇦🇿" },
+  { kr: "러시아", en: "Russia", flag: "CIS" },
+  { kr: "카자흐스탄", en: "Kazakhstan", flag: "CIS" },
+  { kr: "우즈베키스탄", en: "Uzbekistan", flag: "CIS" },
+  { kr: "키르기스스탄", en: "Kyrgyzstan", flag: "CIS" },
+  { kr: "타지키스탄", en: "Tajikistan", flag: "CIS" },
+  { kr: "투르크메니스탄", en: "Turkmenistan", flag: "CIS" },
+  { kr: "벨라루스", en: "Belarus", flag: "CIS" },
+  { kr: "우크라이나", en: "Ukraine", flag: "CIS" },
+  { kr: "몰도바", en: "Moldova", flag: "CIS" },
+  { kr: "조지아", en: "Georgia", flag: "CIS" },
+  { kr: "아르메니아", en: "Armenia", flag: "CIS" },
+  { kr: "아제르바이잔", en: "Azerbaijan", flag: "CIS" },
 ];
 
 export const CIS_NAMES = CIS.map((c) => c.kr);
