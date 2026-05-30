@@ -29,6 +29,8 @@ function ImportersPage() {
       title="아세안 거래 한국 수입업체 디렉토리"
       lockedCountries={ASEAN_NAMES}
       lockedLabel="🌏 ASEAN 10"
+      regionKey="asean"
     />
+
   );
 }
