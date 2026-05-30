@@ -18,6 +18,7 @@ import {
 import { ASEAN, SCALE, SCOLOR, flagOf, displayCountry, type Company } from "@/lib/koima-types";
 import { listCompanies, getStats } from "@/lib/companies.functions";
 import { DetailModal } from "@/components/DetailModal";
+import { RegionIntro } from "@/components/RegionIntro";
 import { LangToggle, useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/importers")({
