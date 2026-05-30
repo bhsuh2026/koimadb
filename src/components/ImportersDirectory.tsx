@@ -510,6 +510,8 @@ function FilterPanel(props: {
   allCountries: string[];
   scalesAvailable: string[];
   scaleCounts: Record<string, number>;
+  countryCounts: Record<string, number>;
+
   additionalCountries: string[];
   setAdditionalCountries: (c: string[]) => void;
   scales: Set<string>;
