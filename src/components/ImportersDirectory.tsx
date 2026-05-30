@@ -176,13 +176,7 @@ export function ImportersDirectory({
       <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-3">
-              <img
-                src={koimaLogo}
-                alt="KOIMA 한국수입업협회"
-                className="h-9 w-auto shrink-0 sm:h-10"
-              />
-              <div className="min-w-0">
+            <div className="min-w-0">
                 <h1 className="truncate text-lg font-semibold sm:text-xl">
                   {scopeBadge && (
                     <span className="mr-1.5">{scopeBadge}</span>
@@ -195,8 +189,6 @@ export function ImportersDirectory({
                   {t("개 업체", " companies")}
                 </p>
               </div>
-
-            </div>
             <div className="flex items-center gap-2">
               <LangToggle />
               <button
@@ -447,7 +439,14 @@ export function ImportersDirectory({
       {/* Footer */}
       <footer className="border-t bg-card">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-          <div className="flex flex-col items-center gap-3 text-center text-xs text-muted-foreground sm:flex-row sm:justify-between">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <img
+              src={koimaLogo}
+              alt="KOIMA 한국수입업협회"
+              className="h-9 w-auto shrink-0 sm:h-10"
+            />
+          </div>
+          <div className="mt-4 flex flex-col items-center gap-3 text-center text-xs text-muted-foreground sm:flex-row sm:justify-between">
             <p>
               출처 · Source: 2025 관세청 수입실적 / Korea Customs Service · 데이터 갱신 2026.05
             </p>

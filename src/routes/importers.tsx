@@ -131,16 +131,9 @@ function Index() {
         />
         <div className="relative">
           <div className="mx-auto flex max-w-[1300px] items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-6 sm:py-3.5">
-            <div className="flex min-w-0 items-center gap-2.5">
-              <img
-                src={koimaLogo}
-                alt="KOIMA 한국수입업협회"
-                className="h-7 w-auto rounded bg-white/95 px-1.5 py-1"
-              />
-              <span className="hidden text-[9px] uppercase tracking-[0.2em] text-white/60 sm:inline">
-                Korea Importers Association
-              </span>
-            </div>
+            <span className="hidden text-[9px] uppercase tracking-[0.2em] text-white/60 sm:inline">
+              Korea Importers Association
+            </span>
             <div className="flex items-center gap-2">
               <Link
                 to="/"
@@ -424,6 +417,11 @@ function Index() {
         )}
 
         <footer className="mt-10 border-t border-border pt-6 text-center text-[11px] leading-relaxed text-muted-foreground">
+          <img
+            src={koimaLogo}
+            alt="KOIMA 한국수입업협회"
+            className="mx-auto mb-3 h-7 w-auto rounded bg-foreground/5 px-1.5 py-1"
+          />
           {t("출처 · 관세청 수입실적 / KOIMA · 문의:", "Source · Korea Customs / KOIMA · Contact:")}{" "}
           <a href="mailto:seobh@koima.or.kr" className="text-accent hover:underline">
             seobh@koima.or.kr
