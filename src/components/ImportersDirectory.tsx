@@ -142,8 +142,8 @@ export function ImportersDirectory({
     const m = facets.data?.countries ?? {};
     return Object.keys(m)
       .filter((k) => k !== lockedCountry)
-      .sort((a, b) => a.localeCompare(b, "ko"));
-  }, [facets.data, lockedCountry]);
+      .sort((a, b) => displayCountry(a, lang).localeCompare(displayCountry(b, lang), lang));
+  }, [facets.data, lockedCountry, lang]);
 
   const total = list.data?.total ?? 0;
   const rows = list.data?.rows ?? [];
