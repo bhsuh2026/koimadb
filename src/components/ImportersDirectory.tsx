@@ -263,22 +263,13 @@ export function ImportersDirectory({
               </select>
               <div className="inline-flex flex-1 items-center justify-around gap-1 rounded-lg border bg-card p-1 shadow-sm sm:flex-none sm:justify-start">
                 <Link
-                  to="/usa"
-                  title="USA Importers Directory"
-                  aria-label="USA Importers Directory"
+                  to="/"
+                  title={t("전체 디렉토리", "All importers")}
+                  aria-label={t("전체 디렉토리", "All importers")}
                   className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
                 >
-                  <span className="text-base leading-none">🇺🇸</span>
-                  <span className="hidden sm:inline">USA</span>
-                </Link>
-                <Link
-                  to="/china"
-                  title="중국 거래 디렉토리 · China"
-                  aria-label="China importers directory"
-                  className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
-                >
-                  <span className="text-base leading-none">🇨🇳</span>
-                  <span className="hidden sm:inline">China</span>
+                  <span className="text-base leading-none">🌐</span>
+                  <span className="hidden sm:inline">{t("전체", "All")}</span>
                 </Link>
                 <Link
                   to="/eu"
@@ -298,7 +289,6 @@ export function ImportersDirectory({
                   <span className="text-base leading-none">🌍</span>
                   <span className="hidden sm:inline">CIS</span>
                 </Link>
-
                 <Link
                   to="/importers"
                   title="아세안 거래 디렉토리"
