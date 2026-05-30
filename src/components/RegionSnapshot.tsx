@@ -73,7 +73,38 @@ const REGION_INFO: Record<
     portals: [
       { label_kr: "FTA 포털 · 수입세율 조회", label_en: "FTA Portal · Tariff lookup", href: "https://www.customs.go.kr/ftaportalkor/main.do" },
       { label_kr: "관세청 UNI-PASS · 통관", label_en: "Korea Customs UNI-PASS", href: "https://unipass.customs.go.kr/" },
+      { label_kr: "관세청 · 관세법령정보", label_en: "Korea Customs · Law Portal", href: "https://unipass.customs.go.kr/clip/index.do" },
       { label_kr: "KOTRA · 아세안 시장정보", label_en: "KOTRA · ASEAN Market Info", href: "https://news.kotra.or.kr/" },
+    ],
+    counterparts: [
+      {
+        title_kr: "한-아세안센터",
+        title_en: "ASEAN-Korea Centre",
+        category_kr: "권역 협력 · ASEAN-Korea",
+        category_en: "Regional cooperation",
+        desc_kr: "서울 소재 · 한-아세안 무역·투자·문화 협력 기관",
+        desc_en: "Seoul-based intergovernmental body for ASEAN–Korea trade, investment & culture.",
+        href: "https://www.aseankorea.org/",
+        hrefLabel: "aseankorea.org",
+      },
+      {
+        title_kr: "아세안 각국 주한 대사관",
+        title_en: "ASEAN Embassies in Korea",
+        category_kr: "주한 대사관 · Embassies",
+        category_en: "Diplomatic missions",
+        desc_kr: "국가별 대사관 — 선택국에 따라 정보 갱신 예정",
+        desc_en: "Per-country embassies — directory pending update.",
+      },
+      {
+        title_kr: "KOTRA 아세안 무역관",
+        title_en: "KOTRA ASEAN Trade Offices",
+        category_kr: "KOTRA 무역관 · ASEAN",
+        category_en: "Trade promotion",
+        desc_kr: "하노이·방콕·자카르타·싱가포르·마닐라 등",
+        desc_en: "Hanoi · Bangkok · Jakarta · Singapore · Manila and more.",
+        href: "https://www.kotra.or.kr/",
+        hrefLabel: "kotra.or.kr",
+      },
     ],
   },
   eu: {
