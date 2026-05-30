@@ -328,22 +328,6 @@ export function RegionSnapshot({ regionKey, lockedCountries, countryCounts, lock
             </p>
           </div>
         </div>
-        <div className="mb-4 flex items-start gap-2">
-          <div className="rounded-md bg-primary/10 p-1.5 text-primary">
-            <FileText className="size-4" />
-          </div>
-          <div className="min-w-0">
-            <h2 className="text-sm font-semibold">
-              {t(info.ftaTitleKr, info.ftaTitleEn)}
-            </h2>
-            <p className="text-[11px] text-muted-foreground">
-              {t(
-                "세율은 공식 포털에서 직접 조회하시기 바랍니다.",
-                "Verify tariffs on official portals.",
-              )}
-            </p>
-          </div>
-        </div>
 
         <div className="space-y-2">
           {info.ftas.map((f) => (
@@ -363,23 +347,90 @@ export function RegionSnapshot({ regionKey, lockedCountries, countryCounts, lock
             </div>
           ))}
         </div>
-
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {info.portals.map((p) => (
-            <a
-              key={p.href}
-              href={p.href}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 rounded-md border bg-background px-2 py-1 text-[11px] text-foreground/80 transition hover:border-primary hover:text-primary"
-            >
-              <Building2 className="size-3" />
-              {t(p.label_kr, p.label_en)}
-              <ExternalLink className="size-2.5" />
-            </a>
-          ))}
-        </div>
       </div>
     </section>
+
+    {/* Tariff lookup section */}
+    <section className="mb-6 rounded-xl border bg-card p-5 shadow-sm">
+      <div className="mb-3 flex items-start gap-2">
+        <div className="rounded-md bg-primary/10 p-1.5 text-primary">
+          <Printer className="size-4" />
+        </div>
+        <div className="min-w-0">
+          <h2 className="text-sm font-semibold">
+            {t("품목별 관세율 · 원산지 · 통관 확인", "Tariff, Origin & Customs — Official Lookup")}
+            <span className="ml-2 text-[10px] font-normal text-muted-foreground">
+              {t("실시간 세율은 아래 공식 포털에서 조회", "Live rates via official portals below")}
+            </span>
+          </h2>
+          <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+            {t(
+              "정확한 품목별(HS코드) 관세율과 원산지결정기준은 협정·국가별로 다르고 수시로 변동되므로, 아래 관세청 공식 포털에서 직접 조회하시기 바랍니다. 본 페이지는 안내 목적이며 세율 수치를 직접 제공하지 않습니다.",
+              "HS-code tariffs and origin rules vary by agreement and country and change frequently. Use the official Korea Customs portals below; this page is informational and does not provide tariff figures.",
+            )}
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {info.portals.map((p) => (
+          <a
+            key={p.href}
+            href={p.href}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 rounded-md border bg-background px-2.5 py-1.5 text-[11px] text-foreground/80 transition hover:border-primary hover:text-primary"
+          >
+            <Building2 className="size-3" />
+            {t(p.label_kr, p.label_en)}
+            <ExternalLink className="size-2.5" />
+          </a>
+        ))}
+      </div>
+    </section>
+
+    {/* Counterpart institutions */}
+    <section className="mb-6 rounded-xl border bg-card p-5 shadow-sm">
+      <div className="mb-3 flex items-start gap-2">
+        <div className="rounded-md bg-primary/10 p-1.5 text-primary">
+          <Flag className="size-4" />
+        </div>
+        <div className="min-w-0">
+          <h2 className="text-sm font-semibold">
+            {t("카운터파트 · 협력 기관", "Counterpart Institutions & Contacts")}
+            <span className="ml-2 text-[10px] font-normal text-muted-foreground">
+              {t("대사관별 정보는 확인 후 갱신 예정", "Embassy details pending update")}
+            </span>
+          </h2>
+        </div>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {info.counterparts.map((c) => (
+          <div
+            key={c.title_kr}
+            className="flex flex-col rounded-lg border border-border/60 bg-background/60 p-3"
+          >
+            <div className="text-[10px] font-medium uppercase tracking-wide text-primary/80">
+              {t(c.category_kr, c.category_en)}
+            </div>
+            <div className="mt-0.5 text-xs font-semibold">{t(c.title_kr, c.title_en)}</div>
+            <p className="mt-1 flex-1 text-[11px] leading-relaxed text-muted-foreground">
+              {t(c.desc_kr, c.desc_en)}
+            </p>
+            {c.href && (
+              <a
+                href={c.href}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
+              >
+                {c.hrefLabel ?? c.href}
+                <ExternalLink className="size-2.5" />
+              </a>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+    </>
   );
 }
