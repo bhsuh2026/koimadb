@@ -283,6 +283,16 @@ export function ImportersDirectory({
                   <span className="hidden sm:inline">EU</span>
                 </Link>
                 <Link
+                  to="/cis"
+                  title="CIS 거래 디렉토리"
+                  aria-label="CIS 거래 디렉토리"
+                  className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
+                >
+                  <span className="text-base leading-none">🌍</span>
+                  <span className="hidden sm:inline">CIS</span>
+                </Link>
+
+                <Link
                   to="/importers"
                   title="아세안 거래 디렉토리"
                   aria-label="아세안 거래 디렉토리"
@@ -541,15 +551,28 @@ function FilterPanel(props: {
             {t("전체", "All")}
           </FilterChip>
           {props.topCountries.map((c) => (
-            <FilterChip
-              key={c}
-              active={props.additionalCountries.includes(c)}
-              onClick={() => toggleCountry(c)}
-            >
-              <span className="mr-1">{flagOf(c)}</span>
-              {displayCountry(c, lang)}
-            </FilterChip>
+            <span key={c} className="inline-flex items-center gap-0.5">
+              <FilterChip
+                active={props.additionalCountries.includes(c)}
+                onClick={() => toggleCountry(c)}
+              >
+                <span className="mr-1">{flagOf(c)}</span>
+                {displayCountry(c, lang)}
+              </FilterChip>
+              {props.isLocked && (
+                <Link
+                  to="/c/$country"
+                  params={{ country: encodeURIComponent(c) }}
+                  title={t(`${displayCountry(c, lang)} 전용 페이지 열기`, `Open ${displayCountry(c, lang)} page`)}
+                  aria-label={t(`${displayCountry(c, lang)} 전용 페이지`, `${displayCountry(c, lang)} page`)}
+                  className="ml-0.5 inline-flex items-center rounded-md border border-border bg-card px-1.5 py-1 text-[10px] font-medium text-muted-foreground transition hover:border-primary hover:bg-primary/5 hover:text-primary"
+                >
+                  {t("상세 ↗", "Detail ↗")}
+                </Link>
+              )}
+            </span>
           ))}
+
         </div>
 
         {/* Selected summary */}

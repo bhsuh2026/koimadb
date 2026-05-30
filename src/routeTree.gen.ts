@@ -13,10 +13,12 @@ import { Route as UsaRouteImport } from './routes/usa'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ImportersRouteImport } from './routes/importers'
 import { Route as EuRouteImport } from './routes/eu'
+import { Route as CisRouteImport } from './routes/cis'
 import { Route as ChinaRouteImport } from './routes/china'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as CCountryRouteImport } from './routes/c.$country'
 import { Route as ApiGetKeyRouteImport } from './routes/api/get-key'
 import { Route as ApiCheckServiceRoleRouteImport } from './routes/api/check-service-role'
 import { Route as AdminMfaRouteImport } from './routes/admin.mfa'
@@ -41,6 +43,11 @@ const EuRoute = EuRouteImport.update({
   path: '/eu',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CisRoute = CisRouteImport.update({
+  id: '/cis',
+  path: '/cis',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChinaRoute = ChinaRouteImport.update({
   id: '/china',
   path: '/china',
@@ -60,6 +67,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const CCountryRoute = CCountryRouteImport.update({
+  id: '/c/$country',
+  path: '/c/$country',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGetKeyRoute = ApiGetKeyRouteImport.update({
   id: '/api/get-key',
@@ -81,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/china': typeof ChinaRoute
+  '/cis': typeof CisRoute
   '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
@@ -88,11 +101,13 @@ export interface FileRoutesByFullPath {
   '/admin/mfa': typeof AdminMfaRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
   '/api/get-key': typeof ApiGetKeyRoute
+  '/c/$country': typeof CCountryRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/china': typeof ChinaRoute
+  '/cis': typeof CisRoute
   '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
@@ -100,6 +115,7 @@ export interface FileRoutesByTo {
   '/admin/mfa': typeof AdminMfaRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
   '/api/get-key': typeof ApiGetKeyRoute
+  '/c/$country': typeof CCountryRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
@@ -107,6 +123,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/china': typeof ChinaRoute
+  '/cis': typeof CisRoute
   '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
@@ -114,6 +131,7 @@ export interface FileRoutesById {
   '/admin/mfa': typeof AdminMfaRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
   '/api/get-key': typeof ApiGetKeyRoute
+  '/c/$country': typeof CCountryRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -122,6 +140,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/china'
+    | '/cis'
     | '/eu'
     | '/importers'
     | '/login'
@@ -129,11 +148,13 @@ export interface FileRouteTypes {
     | '/admin/mfa'
     | '/api/check-service-role'
     | '/api/get-key'
+    | '/c/$country'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/china'
+    | '/cis'
     | '/eu'
     | '/importers'
     | '/login'
@@ -141,12 +162,14 @@ export interface FileRouteTypes {
     | '/admin/mfa'
     | '/api/check-service-role'
     | '/api/get-key'
+    | '/c/$country'
     | '/admin'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/china'
+    | '/cis'
     | '/eu'
     | '/importers'
     | '/login'
@@ -154,6 +177,7 @@ export interface FileRouteTypes {
     | '/admin/mfa'
     | '/api/check-service-role'
     | '/api/get-key'
+    | '/c/$country'
     | '/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -161,12 +185,14 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   ChinaRoute: typeof ChinaRoute
+  CisRoute: typeof CisRoute
   EuRoute: typeof EuRoute
   ImportersRoute: typeof ImportersRoute
   LoginRoute: typeof LoginRoute
   UsaRoute: typeof UsaRoute
   ApiCheckServiceRoleRoute: typeof ApiCheckServiceRoleRoute
   ApiGetKeyRoute: typeof ApiGetKeyRoute
+  CCountryRoute: typeof CCountryRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -199,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EuRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cis': {
+      id: '/cis'
+      path: '/cis'
+      fullPath: '/cis'
+      preLoaderRoute: typeof CisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/china': {
       id: '/china'
       path: '/china'
@@ -226,6 +259,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/c/$country': {
+      id: '/c/$country'
+      path: '/c/$country'
+      fullPath: '/c/$country'
+      preLoaderRoute: typeof CCountryRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/get-key': {
       id: '/api/get-key'
@@ -267,23 +307,15 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   ChinaRoute: ChinaRoute,
+  CisRoute: CisRoute,
   EuRoute: EuRoute,
   ImportersRoute: ImportersRoute,
   LoginRoute: LoginRoute,
   UsaRoute: UsaRoute,
   ApiCheckServiceRoleRoute: ApiCheckServiceRoleRoute,
   ApiGetKeyRoute: ApiGetKeyRoute,
+  CCountryRoute: CCountryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
