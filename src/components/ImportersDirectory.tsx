@@ -841,6 +841,7 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
 }
 
 function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
+  const { t, lang } = useLang();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -849,6 +850,10 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
 
   const emails = [row.email, row.email_extra].filter(Boolean).join(", ");
   const phones = [row.phone, row.phone_extra].filter(Boolean).join(" / ");
+  const primaryName = lang === "ko"
+    ? (displayCompanyName(row.name_kr) || row.name_en)
+    : (row.name_en || displayCompanyName(row.name_kr));
+  const secondaryName = lang === "ko" ? row.name_en : displayCompanyName(row.name_kr);
 
   return (
     <div className="fixed inset-0 z-50">
@@ -866,27 +871,27 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
         <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4">
           <div className="min-w-0 flex-1">
             <h2 className="break-words text-base font-semibold leading-tight sm:text-xl">
-              {displayCompanyName(row.name_kr) || row.name_en}
+              {primaryName}
             </h2>
-            {row.name_en && (
-              <p className="mt-0.5 break-words text-xs text-muted-foreground sm:text-sm">{row.name_en}</p>
+            {secondaryName && (
+              <p className="mt-0.5 break-words text-xs text-muted-foreground sm:text-sm">{secondaryName}</p>
             )}
             <div className="mt-2 flex flex-wrap gap-1.5">
               {row.scale_label && (
                 <span
                   className={`rounded-full px-2 py-0.5 text-[11px] font-medium sm:text-xs ${scaleColor(row.scale_label)}`}
                 >
-                  {row.scale_label}
+                  {scaleLabel(row.scale_label, lang)}
                 </span>
               )}
               {row.rank_import != null && (
                 <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] sm:text-xs">
-                  수입액 #{row.rank_import.toLocaleString()}
+                  {t("수입액", "Imports")} #{row.rank_import.toLocaleString()}
                 </span>
               )}
               {row.rank_sales != null && (
                 <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] sm:text-xs">
-                  매출액 #{row.rank_sales.toLocaleString()}
+                  {t("매출액", "Revenue")} #{row.rank_sales.toLocaleString()}
                 </span>
               )}
             </div>
@@ -894,7 +899,7 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
           <button
             onClick={onClose}
             className="flex-shrink-0 rounded p-1.5 hover:bg-accent"
-            aria-label="닫기"
+            aria-label={t("닫기", "Close")}
           >
             <X className="size-5" />
           </button>
@@ -903,17 +908,19 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
         <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-5">
 
         <div className="mb-3 rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-200">
-          개인정보 보호를 위해 사업자번호 · 연락처 · 이메일 · HS코드 · 품목은 일부가
-          마스킹되어 표시됩니다.
+          {t(
+            "개인정보 보호를 위해 사업자번호 · 연락처 · 이메일 · HS코드 · 품목은 일부가 마스킹되어 표시됩니다.",
+            "For privacy, business numbers, contacts, emails, HS codes, and items are partially masked.",
+          )}
         </div>
         <dl className="space-y-3 text-sm">
           {row.biz_no && (
-            <Row label="사업자번호">
+            <Row label={t("사업자번호", "Business no.")}>
               <span className="font-mono tabular-nums">{maskBizNo(row.biz_no)}</span>
             </Row>
           )}
           {emails && (
-            <Row label="이메일">
+            <Row label={t("이메일", "Email")}>
               <div className="flex flex-wrap gap-2 font-mono text-xs">
                 {emails.split(",").map((e, i) => {
                   const v = e.trim();
@@ -928,7 +935,7 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
             </Row>
           )}
           {phones && (
-            <Row label="전화">
+            <Row label={t("전화", "Phone")}>
               <div className="flex flex-wrap gap-2 font-mono text-xs">
                 {phones.split("/").map((p, i) => {
                   const v = p.trim();
@@ -944,21 +951,21 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
           )}
 
           {row.countries.length > 0 && (
-            <Row label={`수입국가 (${row.countries.length})`}>
+            <Row label={t(`수입국가 (${row.countries.length})`, `Import countries (${row.countries.length})`)}>
               <div className="flex flex-wrap gap-1">
                 {row.countries.map((c) => (
                   <span
                     key={c}
                     className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs"
                   >
-                    <span>{flagOf(c)}</span> {displayCountry(c)}
+                    <span>{flagOf(c)}</span> {displayCountry(c, lang)}
                   </span>
                 ))}
               </div>
             </Row>
           )}
           {row.hs_codes.length > 0 && (
-            <Row label="HS코드">
+            <Row label={t("HS코드", "HS codes")}>
               <div className="flex flex-wrap gap-1 font-mono text-xs">
                 {row.hs_codes.map((h) => (
                   <span
@@ -971,12 +978,27 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
               </div>
             </Row>
           )}
-          {row.items_kr && (
-            <Row label="취급 품목">
-              <p className="whitespace-pre-wrap leading-relaxed">{row.items_kr}</p>
+          {lang === "ko"
+            ? row.items_kr && (
+                <Row label="취급 품목">
+                  <p className="whitespace-pre-wrap leading-relaxed">{row.items_kr}</p>
+                </Row>
+              )
+            : (row.items_en || row.items_kr) && (
+                <Row label="Items">
+                  <p className="whitespace-pre-wrap leading-relaxed">
+                    {row.items_en || row.items_kr}
+                  </p>
+                </Row>
+              )}
+          {lang !== "ko" && row.items_en && row.items_kr && (
+            <Row label="품목 (KR)">
+              <p className="whitespace-pre-wrap leading-relaxed text-muted-foreground">
+                {row.items_kr}
+              </p>
             </Row>
           )}
-          {row.items_en && (
+          {lang === "ko" && row.items_en && (
             <Row label="Items (EN)">
               <p className="whitespace-pre-wrap leading-relaxed text-muted-foreground">
                 {row.items_en}
