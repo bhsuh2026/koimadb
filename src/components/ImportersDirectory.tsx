@@ -316,7 +316,20 @@ export function ImportersDirectory({
         </div>
       </header>
 
+      {/* Region snapshot (asean/eu/cis only) */}
+      {regionKey && isLocked && (facets.data?.countries ?? null) && (
+        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
+          <RegionSnapshot
+            regionKey={regionKey}
+            lockedCountries={lockedCountries}
+            countryCounts={facets.data!.countries}
+            lockedLabel={lockedLabel}
+          />
+        </div>
+      )}
+
       <div className="mx-auto flex max-w-7xl gap-6 px-4 py-6 sm:px-6">
+
         {/* Sidebar (desktop) */}
         <aside className="hidden w-64 shrink-0 lg:block">
           <FilterPanel
