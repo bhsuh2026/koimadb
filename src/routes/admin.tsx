@@ -75,7 +75,7 @@ function AdminLayout() {
     try {
       const r = await testFn();
       toast.success(
-        `DB OK · ${r.elapsedMs}ms · companies ${r.companies.toLocaleString()} · importers ${r.importers.toLocaleString()}`,
+        `DB OK · ${r.elapsedMs}ms · importers ${r.importers.toLocaleString()}`,
       );
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
