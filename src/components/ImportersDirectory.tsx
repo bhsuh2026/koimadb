@@ -439,7 +439,14 @@ export function ImportersDirectory({
       {/* Footer */}
       <footer className="border-t bg-card">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-          <div className="flex flex-col items-center gap-3 text-center text-xs text-muted-foreground sm:flex-row sm:justify-between">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <img
+              src={koimaLogo}
+              alt="KOIMA 한국수입업협회"
+              className="h-9 w-auto shrink-0 sm:h-10"
+            />
+          </div>
+          <div className="mt-4 flex flex-col items-center gap-3 text-center text-xs text-muted-foreground sm:flex-row sm:justify-between">
             <p>
               출처 · Source: 2025 관세청 수입실적 / Korea Customs Service · 데이터 갱신 2026.05
             </p>
