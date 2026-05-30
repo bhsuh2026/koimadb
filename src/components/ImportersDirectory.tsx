@@ -176,13 +176,7 @@ export function ImportersDirectory({
       <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-3">
-              <img
-                src={koimaLogo}
-                alt="KOIMA 한국수입업협회"
-                className="h-9 w-auto shrink-0 sm:h-10"
-              />
-              <div className="min-w-0">
+            <div className="min-w-0">
                 <h1 className="truncate text-lg font-semibold sm:text-xl">
                   {scopeBadge && (
                     <span className="mr-1.5">{scopeBadge}</span>
