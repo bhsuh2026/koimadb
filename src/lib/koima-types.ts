@@ -64,12 +64,12 @@ export const EU_FLAG = "🇪🇺";
 
 // CIS (Commonwealth of Independent States)
 export const CIS: { kr: string; en: string; flag: string }[] = [
-  { kr: "러시아", en: "Russia", flag: "CIS" },
+  { kr: "러시아연방", en: "Russia", flag: "CIS" },
   { kr: "카자흐스탄", en: "Kazakhstan", flag: "CIS" },
   { kr: "우즈베키스탄", en: "Uzbekistan", flag: "CIS" },
   { kr: "키르기스스탄", en: "Kyrgyzstan", flag: "CIS" },
   { kr: "타지키스탄", en: "Tajikistan", flag: "CIS" },
-  { kr: "투르크메니스탄", en: "Turkmenistan", flag: "CIS" },
+  { kr: "투르크멘", en: "Turkmenistan", flag: "CIS" },
   { kr: "벨라루스", en: "Belarus", flag: "CIS" },
   { kr: "우크라이나", en: "Ukraine", flag: "CIS" },
   { kr: "몰도바", en: "Moldova", flag: "CIS" },
