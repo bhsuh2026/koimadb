@@ -75,7 +75,9 @@ export function ImportersDirectory({
   lockedLabel,
   title,
   scopeBadge,
+  regionKey,
 }: ImportersDirectoryProps) {
+
   const lockedCountries = useMemo(
     () => lockedCountriesProp ?? [],
     [lockedCountriesProp],
