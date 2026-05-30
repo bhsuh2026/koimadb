@@ -24,6 +24,8 @@ function CisPage() {
       title="CIS 거래 한국 수입업체 디렉토리"
       lockedCountries={CIS_NAMES}
       lockedLabel="🌍 CIS"
+      regionKey="cis"
     />
   );
+
 }

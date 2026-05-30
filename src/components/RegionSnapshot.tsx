@@ -1,0 +1,259 @@
+import { Link } from "@tanstack/react-router";
+import { useMemo } from "react";
+import { BarChart3, FileText, ExternalLink, Building2 } from "lucide-react";
+import { flagOf, displayCountry } from "@/lib/koima-types";
+import { useLang } from "@/lib/i18n";
+
+export type RegionKey = "asean" | "eu" | "cis";
+
+type Props = {
+  regionKey: RegionKey;
+  /** Korean country names that belong to this region. */
+  lockedCountries: string[];
+  /** Map of country (kr) → importer count, from facets. */
+  countryCounts: Record<string, number>;
+  /** Region label, e.g. "🌏 ASEAN 10" */
+  lockedLabel?: string;
+};
+
+const REGION_INFO: Record<
+  RegionKey,
+  {
+    snapshotTitleKr: string;
+    snapshotTitleEn: string;
+    ftaTitleKr: string;
+    ftaTitleEn: string;
+    ftas: { name: string; desc_kr: string; desc_en: string; status_kr: string; status_en: string }[];
+    portals: { label_kr: string; label_en: string; href: string }[];
+  }
+> = {
+  asean: {
+    snapshotTitleKr: "한-아세안 교역 스냅샷",
+    snapshotTitleEn: "Korea–ASEAN Trade Snapshot",
+    ftaTitleKr: "적용 가능 FTA · 특혜관세",
+    ftaTitleEn: "Applicable FTAs & Preferential Tariffs",
+    ftas: [
+      {
+        name: "한-아세안 FTA (AKFTA)",
+        desc_kr: "아세안 10개국 공통 적용 · 상호대응세율 제도 운영",
+        desc_en: "Applies across all 10 ASEAN members; mutual response tariff system.",
+        status_kr: "발효 중",
+        status_en: "In force",
+      },
+      {
+        name: "RCEP",
+        desc_kr: "아세안 10개국 포함 · 누적 원산지 기준 활용 가능",
+        desc_en: "Includes ASEAN 10; supports cumulative rules of origin.",
+        status_kr: "발효 중",
+        status_en: "In force",
+      },
+      {
+        name: "양자 FTA",
+        desc_kr: "한-베트남 FTA(VKFTA), 한-싱가포르 FTA 등 개별국 협정 별도 적용",
+        desc_en: "Bilateral deals such as VKFTA and KSFTA apply per country.",
+        status_kr: "국가별",
+        status_en: "Per country",
+      },
+    ],
+    portals: [
+      { label_kr: "FTA 포털 · 수입세율 조회", label_en: "FTA Portal · Tariff lookup", href: "https://www.customs.go.kr/ftaportalkor/main.do" },
+      { label_kr: "관세청 UNI-PASS · 통관", label_en: "Korea Customs UNI-PASS", href: "https://unipass.customs.go.kr/" },
+      { label_kr: "KOTRA · 아세안 시장정보", label_en: "KOTRA · ASEAN Market Info", href: "https://news.kotra.or.kr/" },
+    ],
+  },
+  eu: {
+    snapshotTitleKr: "한-EU 교역 스냅샷",
+    snapshotTitleEn: "Korea–EU Trade Snapshot",
+    ftaTitleKr: "적용 가능 FTA · 특혜관세",
+    ftaTitleEn: "Applicable FTAs & Preferential Tariffs",
+    ftas: [
+      {
+        name: "한-EU FTA",
+        desc_kr: "EU 27개 회원국 전체에 동일 적용 · 자율 원산지 인증제 운영",
+        desc_en: "Applies uniformly across all 27 EU member states; approved exporter system.",
+        status_kr: "발효 중",
+        status_en: "In force",
+      },
+      {
+        name: "한-EFTA FTA (참고)",
+        desc_kr: "스위스·노르웨이·아이슬란드·리히텐슈타인 (EU 외)",
+        desc_en: "Covers EFTA states outside the EU.",
+        status_kr: "참고",
+        status_en: "Reference",
+      },
+    ],
+    portals: [
+      { label_kr: "FTA 포털 · 수입세율 조회", label_en: "FTA Portal · Tariff lookup", href: "https://www.customs.go.kr/ftaportalkor/main.do" },
+      { label_kr: "관세청 UNI-PASS · 통관", label_en: "Korea Customs UNI-PASS", href: "https://unipass.customs.go.kr/" },
+      { label_kr: "KOTRA · 유럽 시장정보", label_en: "KOTRA · Europe Market Info", href: "https://news.kotra.or.kr/" },
+    ],
+  },
+  cis: {
+    snapshotTitleKr: "한-CIS 교역 스냅샷",
+    snapshotTitleEn: "Korea–CIS Trade Snapshot",
+    ftaTitleKr: "적용 가능 협정 · 특혜관세",
+    ftaTitleEn: "Applicable Agreements & Preferential Tariffs",
+    ftas: [
+      {
+        name: "EAEU 관세동맹 (참고)",
+        desc_kr: "러시아·카자흐스탄·벨라루스·키르기스스탄·아르메니아 공통 관세",
+        desc_en: "Customs union covering Russia, Kazakhstan, Belarus, Kyrgyzstan, Armenia.",
+        status_kr: "참고",
+        status_en: "Reference",
+      },
+      {
+        name: "CIS 자유무역지대",
+        desc_kr: "CIS 회원국 간 상호 관세 인하 및 통상 편의화 협정",
+        desc_en: "Intra-CIS preferential tariff and trade facilitation arrangements.",
+        status_kr: "참고",
+        status_en: "Reference",
+      },
+      {
+        name: "양자 협정",
+        desc_kr: "한-CIS 간 FTA는 미발효 · 품목별 양자 협정 또는 일반 관세 적용",
+        desc_en: "No Korea–CIS FTA in force; bilateral or MFN tariffs apply by item.",
+        status_kr: "국가별",
+        status_en: "Per country",
+      },
+    ],
+    portals: [
+      { label_kr: "관세청 UNI-PASS · 통관", label_en: "Korea Customs UNI-PASS", href: "https://unipass.customs.go.kr/" },
+      { label_kr: "KOTRA · 러시아·CIS 시장정보", label_en: "KOTRA · Russia & CIS Market Info", href: "https://news.kotra.or.kr/" },
+      { label_kr: "관세청 · 관세법령정보", label_en: "Korea Customs · Law Portal", href: "https://unipass.customs.go.kr/clip/index.do" },
+    ],
+  },
+};
+
+export function RegionSnapshot({ regionKey, lockedCountries, countryCounts, lockedLabel }: Props) {
+  const { t, lang } = useLang();
+  const info = REGION_INFO[regionKey];
+
+  const rows = useMemo(() => {
+    const list = lockedCountries
+      .map((c) => ({ name: c, count: countryCounts[c] ?? 0 }))
+      .sort((a, b) => b.count - a.count);
+    return list;
+  }, [lockedCountries, countryCounts]);
+
+  const max = rows[0]?.count ?? 0;
+  const total = rows.reduce((s, r) => s + r.count, 0);
+
+  return (
+    <section className="mb-6 grid gap-4 lg:grid-cols-2">
+      {/* Trade snapshot bar chart */}
+      <div className="rounded-xl border bg-card p-5 shadow-sm">
+        <div className="mb-4 flex items-start gap-2">
+          <div className="rounded-md bg-primary/10 p-1.5 text-primary">
+            <BarChart3 className="size-4" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold">
+              {t(info.snapshotTitleKr, info.snapshotTitleEn)}
+            </h2>
+            <p className="text-[11px] text-muted-foreground">
+              {lockedLabel && <span className="mr-1">{lockedLabel}</span>}
+              {t("총", "Total")}{" "}
+              <span className="font-semibold text-foreground">
+                {total.toLocaleString()}
+              </span>
+              {t("개 거래업체", " importers")}
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          {rows.map((r) => {
+            const pct = max > 0 ? (r.count / max) * 100 : 0;
+            return (
+              <Link
+                key={r.name}
+                to="/c/$country"
+                params={{ country: encodeURIComponent(r.name) }}
+                className="group grid grid-cols-[88px_1fr_60px] items-center gap-2 rounded px-1.5 py-1 text-xs transition hover:bg-accent"
+                title={t(`${displayCountry(r.name, lang)} 전용 페이지`, `${displayCountry(r.name, lang)} page`)}
+              >
+                <span className="flex items-center gap-1.5 truncate">
+                  <span>{flagOf(r.name)}</span>
+                  <span className="truncate font-medium text-foreground group-hover:text-primary">
+                    {displayCountry(r.name, lang)}
+                  </span>
+                </span>
+                <span className="relative h-2.5 overflow-hidden rounded-full bg-muted">
+                  <span
+                    className="absolute inset-y-0 left-0 rounded-full bg-primary/70 transition-all group-hover:bg-primary"
+                    style={{ width: `${pct}%` }}
+                  />
+                </span>
+                <span className="text-right tabular-nums text-muted-foreground group-hover:text-foreground">
+                  {r.count.toLocaleString()}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+
+        <p className="mt-3 text-[11px] text-muted-foreground">
+          {t(
+            "막대를 클릭하면 해당 국가 디렉토리로 이동합니다.",
+            "Click a bar to open the country directory.",
+          )}
+        </p>
+      </div>
+
+      {/* FTA & customs */}
+      <div className="rounded-xl border bg-card p-5 shadow-sm">
+        <div className="mb-4 flex items-start gap-2">
+          <div className="rounded-md bg-primary/10 p-1.5 text-primary">
+            <FileText className="size-4" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold">
+              {t(info.ftaTitleKr, info.ftaTitleEn)}
+            </h2>
+            <p className="text-[11px] text-muted-foreground">
+              {t(
+                "세율은 공식 포털에서 직접 조회하시기 바랍니다.",
+                "Verify tariffs on official portals.",
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          {info.ftas.map((f) => (
+            <div
+              key={f.name}
+              className="flex items-start justify-between gap-3 rounded-lg border border-border/60 bg-background/60 px-3 py-2.5"
+            >
+              <div className="min-w-0">
+                <div className="text-xs font-semibold">{f.name}</div>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  {t(f.desc_kr, f.desc_en)}
+                </p>
+              </div>
+              <span className="shrink-0 rounded-md border border-primary/30 bg-primary/5 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                {t(f.status_kr, f.status_en)}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {info.portals.map((p) => (
+            <a
+              key={p.href}
+              href={p.href}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 rounded-md border bg-background px-2 py-1 text-[11px] text-foreground/80 transition hover:border-primary hover:text-primary"
+            >
+              <Building2 className="size-3" />
+              {t(p.label_kr, p.label_en)}
+              <ExternalLink className="size-2.5" />
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

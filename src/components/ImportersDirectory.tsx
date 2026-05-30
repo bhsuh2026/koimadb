@@ -22,7 +22,9 @@ import {
 } from "@/lib/importers.functions";
 import { flagOf, displayCountry, displayCompanyName, scaleLabel } from "@/lib/koima-types";
 import { AseanFlag } from "@/components/AseanFlag";
+import { RegionSnapshot } from "@/components/RegionSnapshot";
 import { LangToggle, useLang } from "@/lib/i18n";
+
 
 const PAGE_SIZE = 50;
 
@@ -65,14 +67,19 @@ export type ImportersDirectoryProps = {
   title: string;
   /** Small subtitle shown above title. */
   scopeBadge?: string;
+  /** When set, renders RegionSnapshot above results (asean/eu/cis). */
+  regionKey?: import("@/components/RegionSnapshot").RegionKey;
 };
+
 
 export function ImportersDirectory({
   lockedCountries: lockedCountriesProp,
   lockedLabel,
   title,
   scopeBadge,
+  regionKey,
 }: ImportersDirectoryProps) {
+
   const lockedCountries = useMemo(
     () => lockedCountriesProp ?? [],
     [lockedCountriesProp],
@@ -309,7 +316,20 @@ export function ImportersDirectory({
         </div>
       </header>
 
+      {/* Region snapshot (asean/eu/cis only) */}
+      {regionKey && isLocked && (facets.data?.countries ?? null) && (
+        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
+          <RegionSnapshot
+            regionKey={regionKey}
+            lockedCountries={lockedCountries}
+            countryCounts={facets.data!.countries}
+            lockedLabel={lockedLabel}
+          />
+        </div>
+      )}
+
       <div className="mx-auto flex max-w-7xl gap-6 px-4 py-6 sm:px-6">
+
         {/* Sidebar (desktop) */}
         <aside className="hidden w-64 shrink-0 lg:block">
           <FilterPanel
@@ -319,6 +339,8 @@ export function ImportersDirectory({
             allCountries={allCountries}
             scalesAvailable={SCALE_ORDER}
             scaleCounts={facets.data?.scales ?? {}}
+            countryCounts={facets.data?.countries ?? {}}
+
             additionalCountries={additionalCountries}
             setAdditionalCountries={(next) => setCountries(next)}
             scales={scales}
@@ -428,6 +450,8 @@ export function ImportersDirectory({
               allCountries={allCountries}
               scalesAvailable={SCALE_ORDER}
               scaleCounts={facets.data?.scales ?? {}}
+              countryCounts={facets.data?.countries ?? {}}
+
               additionalCountries={additionalCountries}
               setAdditionalCountries={(next) => setCountries(next)}
               scales={scales}
@@ -486,6 +510,8 @@ function FilterPanel(props: {
   allCountries: string[];
   scalesAvailable: string[];
   scaleCounts: Record<string, number>;
+  countryCounts: Record<string, number>;
+
   additionalCountries: string[];
   setAdditionalCountries: (c: string[]) => void;
   scales: Set<string>;
@@ -558,7 +584,13 @@ function FilterPanel(props: {
               >
                 <span className="mr-1">{flagOf(c)}</span>
                 {displayCountry(c, lang)}
+                {props.countryCounts[c] != null && (
+                  <span className="ml-1.5 rounded-full bg-foreground/10 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-foreground/70">
+                    {props.countryCounts[c].toLocaleString()}
+                  </span>
+                )}
               </FilterChip>
+
               {props.isLocked && (
                 <Link
                   to="/c/$country"
