@@ -247,10 +247,15 @@ export function RegionIntro({ region, counts, grandTotal, countries, onPickCount
                   "아세안 교역에는 한-아세안 FTA와 RCEP이 공통 적용되며, 베트남·싱가포르는 양자 FTA도 함께 적용됩니다. 수입자는 품목별로 더 유리한 특혜세율을 선택할 수 있습니다.",
                   "Both AKFTA and RCEP apply to ASEAN trade; VN and SG also have bilateral FTAs. Importers may select the more favourable preferential tariff per item.",
                 )
-              : t(
-                  "EU 교역에는 한-EU FTA가 공통 적용되며, 스위스·노르웨이는 한-EFTA, 영국은 한-영국 FTA가 별도 적용됩니다. 수입자는 품목별로 가장 유리한 협정을 선택할 수 있습니다.",
-                  "The KOREU FTA covers all 27 EU members; KR–EFTA covers CH/NO/IS/LI and KR–UK FTA covers the UK. Importers may select the most favourable agreement per item.",
-                )}
+              : isEu
+                ? t(
+                    "EU 교역에는 한-EU FTA가 공통 적용되며, 스위스·노르웨이는 한-EFTA, 영국은 한-영국 FTA가 별도 적용됩니다. 수입자는 품목별로 가장 유리한 협정을 선택할 수 있습니다.",
+                    "The KOREU FTA covers all 27 EU members; KR–EFTA covers CH/NO/IS/LI and KR–UK FTA covers the UK. Importers may select the most favourable agreement per item.",
+                  )
+                : t(
+                    "CIS 교역에는 CIS 자유무역지대와 EAEU 관세동맹 협정이 적용되며, 국가별 양자 협정도 별도 존재합니다. 수입자는 품목별로 가장 유리한 협정을 선택할 수 있습니다.",
+                    "CIS trade benefits from the CIS Free Trade Zone and EAEU customs union agreements, with additional bilateral deals by country. Importers may select the most favourable agreement per item.",
+                  )}
           </p>
           <div className="mt-4 space-y-2.5">
             {ftas.map((f) => (
