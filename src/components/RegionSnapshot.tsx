@@ -112,6 +112,40 @@ const REGION_INFO: Record<
     snapshotTitleEn: "Korea–EU Trade Snapshot",
     ftaTitleKr: "적용 가능 FTA · 특혜관세",
     ftaTitleEn: "Applicable FTAs & Preferential Tariffs",
+    intro_kr:
+      "한-EU FTA가 EU 27개 회원국 전체에 동일하게 적용되며, EFTA 국가는 별도 협정을 따릅니다. 자율 원산지 인증제(Approved Exporter)를 활용해 특혜세율을 적용할 수 있습니다.",
+    intro_en:
+      "The Korea–EU FTA applies uniformly across all 27 EU member states; EFTA countries fall under a separate agreement. Approved exporters can claim preferential rates.",
+    counterparts: [
+      {
+        title_kr: "주한 EU 대표부",
+        title_en: "EU Delegation to Korea",
+        category_kr: "권역 협력 · EU",
+        category_en: "Regional cooperation",
+        desc_kr: "서울 소재 · 한-EU 통상·정치 대화 창구",
+        desc_en: "Seoul-based mission for Korea–EU trade and political dialogue.",
+        href: "https://www.eeas.europa.eu/delegations/republic-korea_en",
+        hrefLabel: "eeas.europa.eu",
+      },
+      {
+        title_kr: "EU 회원국 주한 대사관",
+        title_en: "EU Member State Embassies",
+        category_kr: "주한 대사관 · Embassies",
+        category_en: "Diplomatic missions",
+        desc_kr: "국가별 대사관 — 선택국에 따라 정보 갱신 예정",
+        desc_en: "Per-country embassies — directory pending update.",
+      },
+      {
+        title_kr: "KOTRA 유럽 무역관",
+        title_en: "KOTRA Europe Trade Offices",
+        category_kr: "KOTRA 무역관 · Europe",
+        category_en: "Trade promotion",
+        desc_kr: "프랑크푸르트·파리·암스테르담·밀라노·마드리드 등",
+        desc_en: "Frankfurt · Paris · Amsterdam · Milan · Madrid and more.",
+        href: "https://www.kotra.or.kr/",
+        hrefLabel: "kotra.or.kr",
+      },
+    ],
     ftas: [
       {
         name: "한-EU FTA",
