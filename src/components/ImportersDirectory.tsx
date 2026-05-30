@@ -84,9 +84,7 @@ export function ImportersDirectory({
   const facetsFn = useServerFn(getImporterFacets);
   const [q, setQ] = useState("");
   const [qDeb, setQDeb] = useState("");
-  const [countries, setCountries] = useState<string[]>(
-    lockedCountry ? [lockedCountry] : [],
-  );
+  const [countries, setCountries] = useState<string[]>([]);
   const [scales, setScales] = useState<Set<string>>(new Set());
   const [hs, setHs] = useState("");
   const [hasEmail, setHasEmail] = useState(false);
