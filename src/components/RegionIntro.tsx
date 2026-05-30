@@ -346,7 +346,7 @@ export function RegionIntro({ region, counts, grandTotal, countries, onPickCount
           </div>
           <p className="mt-4 rounded-lg border border-dashed border-border bg-muted/40 p-3 text-[11.5px] leading-relaxed text-muted-foreground">
             {t(
-              `본 디렉토리는 KOIMA와 ${isAsean ? "아세안" : "EU"} 각국 주한 대사관·협력기관의 공동 운영으로 발전시켜 나갑니다. 각 대사관은 자국 수출기업에 공식 채널을 제공하고, KOIMA는 검증된 한국 바이어 네트워크를 연결합니다.`,
+              `본 디렉토리는 KOIMA와 ${isAsean ? "아세안" : isEu ? "EU" : "CIS"} 각국 주한 대사관·협력기관의 공동 운영으로 발전시켜 나갑니다. 각 대사관은 자국 수출기업에 공식 채널을 제공하고, KOIMA는 검증된 한국 바이어 네트워크를 연결합니다.`,
               `This directory is jointly developed with embassies and partner agencies. Each embassy provides an official channel for its exporters; KOIMA connects them to verified Korean buyer networks.`,
             )}
           </p>
