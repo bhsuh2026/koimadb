@@ -21,6 +21,7 @@ export function RegionIntro({ region, counts, grandTotal, countries, onPickCount
   const max = Math.max(1, ...ranked.map((r) => r.n));
 
   const isAsean = region === "asean";
+  const isEu = region === "eu";
 
   // 지역별 FTA / 링크 / 기관 데이터
   const ftas = isAsean
@@ -44,26 +45,47 @@ export function RegionIntro({ region, counts, grandTotal, countries, onPickCount
           tone: "muted" as const,
         },
       ]
-    : [
-        {
-          title: "한-EU FTA (KOREU FTA)",
-          desc: t("EU 27개국 공통 적용 · 사실상 모든 공산품 무관세", "Applies across all 27 EU members · zero tariff on most industrial goods"),
-          tag: t("발효 중", "In force"),
-          tone: "ok" as const,
-        },
-        {
-          title: t("원산지 자율증명", "Approved Exporter / REX"),
-          desc: t("인증수출자 또는 REX 시스템 기반 원산지 자율증명 활용", "Self-certification via Approved Exporter or REX system"),
-          tag: t("운영 중", "Active"),
-          tone: "ok" as const,
-        },
-        {
-          title: t("부가 협정", "Adjacent Agreements"),
-          desc: t("한-EFTA FTA(스위스·노르웨이 등), 한-영국 FTA 별도 적용", "KR–EFTA (CH, NO, IS, LI) and KR–UK FTA apply separately"),
-          tag: t("별도 적용", "Separate"),
-          tone: "muted" as const,
-        },
-      ];
+    : isEu
+      ? [
+          {
+            title: "한-EU FTA (KOREU FTA)",
+            desc: t("EU 27개국 공통 적용 · 사실상 모든 공산품 무관세", "Applies across all 27 EU members · zero tariff on most industrial goods"),
+            tag: t("발효 중", "In force"),
+            tone: "ok" as const,
+          },
+          {
+            title: t("원산지 자율증명", "Approved Exporter / REX"),
+            desc: t("인증수출자 또는 REX 시스템 기반 원산지 자율증명 활용", "Self-certification via Approved Exporter or REX system"),
+            tag: t("운영 중", "Active"),
+            tone: "ok" as const,
+          },
+          {
+            title: t("부가 협정", "Adjacent Agreements"),
+            desc: t("한-EFTA FTA(스위스·노르웨이 등), 한-영국 FTA 별도 적용", "KR–EFTA (CH, NO, IS, LI) and KR–UK FTA apply separately"),
+            tag: t("별도 적용", "Separate"),
+            tone: "muted" as const,
+          },
+        ]
+      : [
+          {
+            title: t("CIS 자유무역지대", "CIS Free Trade Zone"),
+            desc: t("CIS 회원국 간 상호 관세 인하 및 통상 편의화 협정", "Intra-CIS preferential tariff and trade facilitation agreements"),
+            tag: t("운영 중", "Active"),
+            tone: "ok" as const,
+          },
+          {
+            title: t("한-러시아 협력", "KR–Russia Cooperation"),
+            desc: t("한-러시아 경제·과학기술 협력 및 투자 보호 조약", "Economic, S&T cooperation and investment protection treaties"),
+            tag: t("운영 중", "Active"),
+            tone: "ok" as const,
+          },
+          {
+            title: t("양자 FTA", "Bilateral FTA"),
+            desc: t("국가별 양자 협정 별도 적용 · 협정 세부사항은 공식 포털 확인", "Separate bilateral agreements by country · consult official portals"),
+            tag: t("국가별", "By country"),
+            tone: "muted" as const,
+          },
+        ];
 
   const lookups = isAsean
     ? [
@@ -72,12 +94,19 @@ export function RegionIntro({ region, counts, grandTotal, countries, onPickCount
         { label: t("관세청 · 관세법령정보", "KCS · Customs Law Info"), href: "https://www.customs.go.kr/" },
         { label: t("KOTRA · 아세안 시장정보", "KOTRA · ASEAN Market Info"), href: "https://news.kotra.or.kr/" },
       ]
-    : [
-        { label: t("FTA 포털 · 수입세율 조회", "FTA Portal · Import Tariffs"), href: "https://www.customs.go.kr/ftaportalkor/main.do" },
-        { label: t("관세청 UNI-PASS · 통관", "KCS UNI-PASS · Customs"), href: "https://unipass.customs.go.kr/" },
-        { label: t("EU TARIC · 품목별 관세", "EU TARIC · Tariff Database"), href: "https://taric.ec.europa.eu/" },
-        { label: t("KOTRA · EU 시장정보", "KOTRA · EU Market Info"), href: "https://news.kotra.or.kr/" },
-      ];
+    : isEu
+      ? [
+          { label: t("FTA 포털 · 수입세율 조회", "FTA Portal · Import Tariffs"), href: "https://www.customs.go.kr/ftaportalkor/main.do" },
+          { label: t("관세청 UNI-PASS · 통관", "KCS UNI-PASS · Customs"), href: "https://unipass.customs.go.kr/" },
+          { label: t("EU TARIC · 품목별 관세", "EU TARIC · Tariff Database"), href: "https://taric.ec.europa.eu/" },
+          { label: t("KOTRA · EU 시장정보", "KOTRA · EU Market Info"), href: "https://news.kotra.or.kr/" },
+        ]
+      : [
+          { label: t("FTA 포털 · 수입세율 조회", "FTA Portal · Import Tariffs"), href: "https://www.customs.go.kr/ftaportalkor/main.do" },
+          { label: t("관세청 UNI-PASS · 통관", "KCS UNI-PASS · Customs"), href: "https://unipass.customs.go.kr/" },
+          { label: t("EAEU 관세동맹 포털", "EAEU Customs Union Portal"), href: "https://www.eaeunion.org/" },
+          { label: t("KOTRA · 러시아·CIS 시장정보", "KOTRA · Russia & CIS Market Info"), href: "https://news.kotra.or.kr/" },
+        ];
 
   const partners = isAsean
     ? [
@@ -100,37 +129,63 @@ export function RegionIntro({ region, counts, grandTotal, countries, onPickCount
           href: "https://www.kotra.or.kr/",
         },
       ]
-    : [
-        {
-          tag: t("권역 협력 · EU-Korea", "Regional · EU-Korea"),
-          name: t("주한 EU 대표부", "Delegation of the EU to Korea"),
-          desc: t("서울 소재 · 한-EU 통상·정책 협력 채널", "Seoul-based · EU trade and policy liaison"),
-          href: "https://www.eeas.europa.eu/delegations/republic-korea_en",
-        },
-        {
-          tag: t("주한 대사관 · Embassies", "Embassies in Korea"),
-          name: t("EU 회원국 주한 대사관", "EU Member-State Embassies in Seoul"),
-          desc: t("국가별 대사관 — 공식 채널을 통한 바이어 매칭 지원", "Country embassies — buyer matching via official channels"),
-          href: null,
-        },
-        {
-          tag: t("KOTRA 무역관 · EU", "KOTRA · EU"),
-          name: t("KOTRA 유럽 무역관", "KOTRA Europe Trade Offices"),
-          desc: t("프랑크푸르트·파리·밀라노·암스테르담·바르샤바 등", "Frankfurt · Paris · Milan · Amsterdam · Warsaw, etc."),
-          href: "https://www.kotra.or.kr/",
-        },
-      ];
+    : isEu
+      ? [
+          {
+            tag: t("권역 협력 · EU-Korea", "Regional · EU-Korea"),
+            name: t("주한 EU 대표부", "Delegation of the EU to Korea"),
+            desc: t("서울 소재 · 한-EU 통상·정책 협력 채널", "Seoul-based · EU trade and policy liaison"),
+            href: "https://www.eeas.europa.eu/delegations/republic-korea_en",
+          },
+          {
+            tag: t("주한 대사관 · Embassies", "Embassies in Korea"),
+            name: t("EU 회원국 주한 대사관", "EU Member-State Embassies in Seoul"),
+            desc: t("국가별 대사관 — 공식 채널을 통한 바이어 매칭 지원", "Country embassies — buyer matching via official channels"),
+            href: null,
+          },
+          {
+            tag: t("KOTRA 무역관 · EU", "KOTRA · EU"),
+            name: t("KOTRA 유럽 무역관", "KOTRA Europe Trade Offices"),
+            desc: t("프랑크푸르트·파리·밀라노·암스테르담·바르샤바 등", "Frankfurt · Paris · Milan · Amsterdam · Warsaw, etc."),
+            href: "https://www.kotra.or.kr/",
+          },
+        ]
+      : [
+          {
+            tag: t("권역 협력 · EAEU", "Regional · EAEU"),
+            name: t("유라시아경제연합(EAEU)", "Eurasian Economic Union (EAEU)"),
+            desc: t("러시아·카자흐스탄·벨라루스 등 관세동맹 및 경제통합 기구", "Customs union and economic integration body covering RU, KZ, BY and others"),
+            href: "https://www.eaeunion.org/",
+          },
+          {
+            tag: t("주한 대사관 · Embassies", "Embassies in Korea"),
+            name: t("CIS 각국 주한 대사관", "CIS Embassies in Seoul"),
+            desc: t("국가별 대사관 — 공식 채널을 통한 바이어 매칭 지원", "Country embassies — buyer matching via official channels"),
+            href: null,
+          },
+          {
+            tag: t("KOTRA 무역관 · CIS", "KOTRA · CIS"),
+            name: t("KOTRA 러시아·CIS 무역관", "KOTRA Russia & CIS Trade Offices"),
+            desc: t("모스크바·알마티·타슈켄트·키예프·타슈켄트 등", "Moscow · Almaty · Tashkent · Kyiv, etc."),
+            href: "https://www.kotra.or.kr/",
+          },
+        ];
 
-  const regionLabel = isAsean ? t("아세안", "ASEAN") : t("EU", "EU");
+  const regionLabel = isAsean ? t("아세안", "ASEAN") : isEu ? t("EU", "EU") : t("CIS", "CIS");
   const tradeNote = isAsean
     ? t(
         "아세안은 한국의 핵심 교역 권역으로, 전 회원국과 거래하는 한국 수입업체가 폭넓게 분포합니다.",
         "ASEAN is a core trade region for Korea, with importers active across all member states.",
       )
-    : t(
-        "EU는 한-EU FTA 발효 이후 한국의 최대 선진 시장 중 하나로, 27개 회원국과 폭넓은 수입 거래가 이루어지고 있습니다.",
-        "Since the KOREU FTA, the EU has been one of Korea's largest advanced markets, with trade across all 27 members.",
-      );
+    : isEu
+      ? t(
+          "EU는 한-EU FTA 발효 이후 한국의 최대 선진 시장 중 하나로, 27개 회원국과 폭넓은 수입 거래가 이루어지고 있습니다.",
+          "Since the KOREU FTA, the EU has been one of Korea's largest advanced markets, with trade across all 27 members.",
+        )
+      : t(
+          "CIS는 풍부한 자원과 성장 잠재력을 가진 한국의 중요 교역 권역으로, 러시아·카자흐스탄 중심으로 수입 거래가 활발합니다.",
+          "The CIS is an important trade region for Korea rich in resources and growth potential, with active imports centered on Russia and Kazakhstan.",
+        );
 
   return (
     <section className="mx-auto max-w-[1300px] px-4 pt-8 sm:px-6 sm:pt-10">
