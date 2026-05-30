@@ -136,10 +136,15 @@ export const listImporters = createServerFn({ method: "POST" })
     if (data.hasEmail) query = query.neq("email", "");
     if (data.hs) query = query.contains("hs_codes", [data.hs.trim()]);
     if (data.q) {
-      const q = data.q.replace(/[%,]/g, " ").trim();
-      query = query.or(
-        `name_kr.ilike.%${q}%,name_en.ilike.%${q}%,biz_no.ilike.%${q}%,items_kr.ilike.%${q}%,items_en.ilike.%${q}%`,
-      );
+      const tokens = data.q
+        .replace(/[%,()"\\*]/g, " ")
+        .split(/\s+/)
+        .filter(Boolean);
+      for (const t of tokens) {
+        query = query.or(
+          `name_kr.ilike.%${t}%,name_en.ilike.%${t}%,biz_no.ilike.%${t}%,items_kr.ilike.%${t}%,items_en.ilike.%${t}%`,
+        );
+      }
     }
 
     switch (data.sort) {
@@ -236,10 +241,15 @@ export const adminListImporters = createServerFn({ method: "POST" })
       .from("importers")
       .select("*", { count: "exact" });
     if (data.q) {
-      const q = data.q.replace(/[%,]/g, " ").trim();
-      query = query.or(
-        `name_kr.ilike.%${q}%,name_en.ilike.%${q}%,biz_no.ilike.%${q}%,items_kr.ilike.%${q}%`,
-      );
+      const tokens = data.q
+        .replace(/[%,()"\\*]/g, " ")
+        .split(/\s+/)
+        .filter(Boolean);
+      for (const t of tokens) {
+        query = query.or(
+          `name_kr.ilike.%${t}%,name_en.ilike.%${t}%,biz_no.ilike.%${t}%,items_kr.ilike.%${t}%`,
+        );
+      }
     }
     query = query.order("rank_import", { ascending: true, nullsFirst: false });
     const from = (data.page - 1) * data.pageSize;
