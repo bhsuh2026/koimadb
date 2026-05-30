@@ -584,7 +584,13 @@ function FilterPanel(props: {
               >
                 <span className="mr-1">{flagOf(c)}</span>
                 {displayCountry(c, lang)}
+                {props.countryCounts[c] != null && (
+                  <span className="ml-1.5 rounded-full bg-foreground/10 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-foreground/70">
+                    {props.countryCounts[c].toLocaleString()}
+                  </span>
+                )}
               </FilterChip>
+
               {props.isLocked && (
                 <Link
                   to="/c/$country"
