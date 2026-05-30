@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { BarChart3, FileText, ExternalLink, Building2, Printer, Flag } from "lucide-react";
+import { BarChart3, ExternalLink, Building2, Printer, Flag } from "lucide-react";
 import { flagOf, displayCountry } from "@/lib/koima-types";
 import { useLang } from "@/lib/i18n";
 
