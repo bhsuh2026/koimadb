@@ -123,23 +123,52 @@ const ListInput = z.object({
   pageSize: z.number().int().min(1).max(100).default(50),
 });
 
+const SEARCH_STOP_WORDS = new Set([
+  "주",
+  "주식회사",
+  "유한회사",
+  "합자회사",
+  "합명회사",
+  "법인",
+  "inc",
+  "co",
+  "ltd",
+  "corp",
+  "llc",
+]);
+
+function getSearchTokens(input: string): string[] {
+  return Array.from(
+    new Set(
+      input
+        .replace(/㈜/g, " ")
+        .replace(/[%,()"\\*]/g, " ")
+        .split(/\s+/)
+        .map((token) => token.trim())
+        .map((token) => token.replace(/[._/-]+/g, ""))
+        .filter((token) => {
+          if (!token) return false;
+          if (/^\d+$/.test(token)) return token.length >= 2;
+          return token.length >= 2 && !SEARCH_STOP_WORDS.has(token.toLowerCase());
+        }),
+    ),
+  ).slice(0, 5);
+}
+
 export const listImporters = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => ListInput.parse(i))
   .handler(async ({ data }) => {
+    const tokens = getSearchTokens(data.q);
     let query = supabaseAdmin
       .from("importers")
-      .select("*", { count: "exact" });
+      .select("*", { count: tokens.length > 0 ? "planned" : "exact" });
 
     if (data.countries.length > 0)
       query = query.overlaps("countries", data.countries);
     if (data.scales.length) query = query.in("scale_label", data.scales);
     if (data.hasEmail) query = query.neq("email", "");
     if (data.hs) query = query.contains("hs_codes", [data.hs.trim()]);
-    if (data.q) {
-      const tokens = data.q
-        .replace(/[%,()"\\*]/g, " ")
-        .split(/\s+/)
-        .filter(Boolean);
+    if (tokens.length > 0) {
       for (const t of tokens) {
         query = query.or(
           `name_kr.ilike.%${t}%,name_en.ilike.%${t}%,biz_no.ilike.%${t}%,items_kr.ilike.%${t}%,items_en.ilike.%${t}%`,
@@ -237,14 +266,11 @@ export const adminListImporters = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data }) => {
+    const tokens = getSearchTokens(data.q);
     let query = supabaseAdmin
       .from("importers")
-      .select("*", { count: "exact" });
-    if (data.q) {
-      const tokens = data.q
-        .replace(/[%,()"\\*]/g, " ")
-        .split(/\s+/)
-        .filter(Boolean);
+      .select("*", { count: tokens.length > 0 ? "planned" : "exact" });
+    if (tokens.length > 0) {
       for (const t of tokens) {
         query = query.or(
           `name_kr.ilike.%${t}%,name_en.ilike.%${t}%,biz_no.ilike.%${t}%,items_kr.ilike.%${t}%`,
