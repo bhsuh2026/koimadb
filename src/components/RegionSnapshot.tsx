@@ -31,8 +31,11 @@ const REGION_INFO: Record<
     snapshotTitleEn: string;
     ftaTitleKr: string;
     ftaTitleEn: string;
+    intro_kr: string;
+    intro_en: string;
     ftas: { name: string; desc_kr: string; desc_en: string; status_kr: string; status_en: string }[];
     portals: { label_kr: string; label_en: string; href: string }[];
+    counterparts: Counterpart[];
   }
 > = {
   asean: {
@@ -40,6 +43,10 @@ const REGION_INFO: Record<
     snapshotTitleEn: "Korea–ASEAN Trade Snapshot",
     ftaTitleKr: "적용 가능 FTA · 특혜관세",
     ftaTitleEn: "Applicable FTAs & Preferential Tariffs",
+    intro_kr:
+      "아세안 교역에는 한-아세안 FTA와 RCEP이 공통 적용되며, 베트남·싱가포르는 양자 FTA도 함께 적용됩니다. 수입자는 품목별로 더 유리한 특혜세율을 선택할 수 있습니다.",
+    intro_en:
+      "Korea–ASEAN trade is covered by AKFTA and RCEP, with bilateral FTAs additionally applying to Vietnam and Singapore. Importers may apply the most favourable preferential rate per item.",
     ftas: [
       {
         name: "한-아세안 FTA (AKFTA)",
