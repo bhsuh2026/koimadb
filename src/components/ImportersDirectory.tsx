@@ -217,7 +217,7 @@ export function ImportersDirectory({
                 className="w-full rounded-md border bg-card py-2 pl-9 pr-3 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <input
                 value={hs}
                 onChange={(e) => {
