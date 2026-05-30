@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ImportersRouteImport } from './routes/importers'
 import { Route as EuRouteImport } from './routes/eu'
+import { Route as CisRouteImport } from './routes/cis'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -32,6 +33,11 @@ const ImportersRoute = ImportersRouteImport.update({
 const EuRoute = EuRouteImport.update({
   id: '/eu',
   path: '/eu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CisRoute = CisRouteImport.update({
+  id: '/cis',
+  path: '/cis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -68,6 +74,7 @@ const AdminMfaRoute = AdminMfaRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/cis': typeof CisRoute
   '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cis': typeof CisRoute
   '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
@@ -90,6 +98,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/cis': typeof CisRoute
   '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/cis'
     | '/eu'
     | '/importers'
     | '/login'
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/cis'
     | '/eu'
     | '/importers'
     | '/login'
@@ -124,6 +135,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/cis'
     | '/eu'
     | '/importers'
     | '/login'
@@ -136,6 +148,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  CisRoute: typeof CisRoute
   EuRoute: typeof EuRoute
   ImportersRoute: typeof ImportersRoute
   LoginRoute: typeof LoginRoute
@@ -164,6 +177,13 @@ declare module '@tanstack/react-router' {
       path: '/eu'
       fullPath: '/eu'
       preLoaderRoute: typeof EuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cis': {
+      id: '/cis'
+      path: '/cis'
+      fullPath: '/cis'
+      preLoaderRoute: typeof CisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -226,6 +246,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  CisRoute: CisRoute,
   EuRoute: EuRoute,
   ImportersRoute: ImportersRoute,
   LoginRoute: LoginRoute,
@@ -235,3 +256,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
