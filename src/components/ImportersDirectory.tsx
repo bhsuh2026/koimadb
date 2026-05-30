@@ -57,8 +57,10 @@ function scaleColor(label: string): string {
 }
 
 export type ImportersDirectoryProps = {
-  /** When set, country filter is locked to this country (e.g. "중국", "미국"). */
-  lockedCountry?: string;
+  /** Lock query to these countries (1+ for region pages). Empty = no lock. */
+  lockedCountries?: string[];
+  /** Display label for the locked region (e.g. "🇪🇺 EU", "🇨🇳 중국"). */
+  lockedLabel?: string;
   /** Header title (h1). */
   title: string;
   /** Small subtitle shown above title. */
@@ -66,10 +68,17 @@ export type ImportersDirectoryProps = {
 };
 
 export function ImportersDirectory({
-  lockedCountry,
+  lockedCountries: lockedCountriesProp,
+  lockedLabel,
   title,
   scopeBadge,
 }: ImportersDirectoryProps) {
+  const lockedCountries = useMemo(
+    () => lockedCountriesProp ?? [],
+    [lockedCountriesProp],
+  );
+  const lockedSet = useMemo(() => new Set(lockedCountries), [lockedCountries]);
+  const isLocked = lockedCountries.length > 0;
   const { t, lang } = useLang();
   const listFn = useServerFn(listImporters);
   const facetsFn = useServerFn(getImporterFacets);
