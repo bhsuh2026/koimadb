@@ -248,38 +248,53 @@ export function ImportersDirectory({
                 <option value="rank_sales_asc">{t("매출액 순", "By revenue")}</option>
                 <option value="name_asc">{t("업체명 가나다순", "Name A–Z")}</option>
               </select>
-              <Link
-                to="/importers"
-                title="아세안 거래 디렉토리"
-                aria-label="아세안 거래 디렉토리"
-                className="inline-flex items-center justify-center rounded-md border bg-card px-2 py-2 shadow-sm hover:bg-accent"
-              >
-                <AseanFlag className="h-5 w-auto" />
-              </Link>
-              <Link
-                to="/eu"
-                title="EU 거래 디렉토리"
-                aria-label="EU 거래 디렉토리"
-                className="inline-flex items-center justify-center rounded-md border bg-card px-2 py-2 text-xl leading-none shadow-sm hover:bg-accent"
-              >
-                🇪🇺
-              </Link>
-              <Link
-                to="/cis"
-                title="CIS 거래 디렉토리"
-                aria-label="CIS 거래 디렉토리"
-                className="inline-flex items-center justify-center rounded-md border bg-card px-2 py-2 text-xl leading-none shadow-sm hover:bg-accent"
-              >
-                🌍
-              </Link>
-              <Link
-                to="/china"
-                title="중국 거래 디렉토리 · China"
-                aria-label="China importers directory"
-                className="inline-flex items-center justify-center rounded-md border bg-card px-2 py-2 text-xl leading-none shadow-sm hover:bg-accent"
-              >
-                🇨🇳
-              </Link>
+              <div className="inline-flex items-center gap-1 rounded-lg border bg-card p-1 shadow-sm">
+                <Link
+                  to="/usa"
+                  title="USA Importers Directory"
+                  aria-label="USA Importers Directory"
+                  className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
+                >
+                  <span className="text-base leading-none">🇺🇸</span>
+                  <span className="hidden sm:inline">USA</span>
+                </Link>
+                <Link
+                  to="/china"
+                  title="중국 거래 디렉토리 · China"
+                  aria-label="China importers directory"
+                  className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
+                >
+                  <span className="text-base leading-none">🇨🇳</span>
+                  <span className="hidden sm:inline">China</span>
+                </Link>
+                <Link
+                  to="/eu"
+                  title="EU 거래 디렉토리"
+                  aria-label="EU 거래 디렉토리"
+                  className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
+                >
+                  <span className="text-base leading-none">🇪🇺</span>
+                  <span className="hidden sm:inline">EU</span>
+                </Link>
+                <Link
+                  to="/cis"
+                  title="CIS 거래 디렉토리"
+                  aria-label="CIS 거래 디렉토리"
+                  className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
+                >
+                  <span className="text-base leading-none">🌍</span>
+                  <span className="hidden sm:inline">CIS</span>
+                </Link>
+                <Link
+                  to="/importers"
+                  title="아세안 거래 디렉토리"
+                  aria-label="아세안 거래 디렉토리"
+                  className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
+                >
+                  <AseanFlag className="h-4 w-auto" />
+                  <span className="hidden sm:inline">ASEAN</span>
+                </Link>
+              </div>
 
 
             </div>
