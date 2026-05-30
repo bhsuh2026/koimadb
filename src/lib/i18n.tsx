@@ -5,8 +5,8 @@ export type Lang = "ko" | "en" | "zh";
 type Ctx = {
   lang: Lang;
   setLang: (l: Lang) => void;
-  /** 2-arg translate: ko / en. For zh, falls back to en. */
-  t: (ko: string, en: string) => string;
+  /** 2-arg translate: ko / en. Optional 3rd arg is ignored (lets USA page reuse China page strings). */
+  t: (ko: string, en: string, _zh?: string) => string;
   /** 3-arg translate: ko / en / zh. Use on the China page. */
   tt: (ko: string, en: string, zh: string) => string;
 };

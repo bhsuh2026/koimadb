@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UsaRouteImport } from './routes/usa'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ImportersRouteImport } from './routes/importers'
 import { Route as EuRouteImport } from './routes/eu'
@@ -21,6 +22,11 @@ import { Route as ApiGetKeyRouteImport } from './routes/api/get-key'
 import { Route as ApiCheckServiceRoleRouteImport } from './routes/api/check-service-role'
 import { Route as AdminMfaRouteImport } from './routes/admin.mfa'
 
+const UsaRoute = UsaRouteImport.update({
+  id: '/usa',
+  path: '/usa',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
+  '/usa': typeof UsaRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
   '/api/get-key': typeof ApiGetKeyRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
+  '/usa': typeof UsaRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
   '/api/get-key': typeof ApiGetKeyRoute
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
+  '/usa': typeof UsaRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
   '/api/get-key': typeof ApiGetKeyRoute
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/eu'
     | '/importers'
     | '/login'
+    | '/usa'
     | '/admin/mfa'
     | '/api/check-service-role'
     | '/api/get-key'
@@ -138,6 +148,7 @@ export interface FileRouteTypes {
     | '/eu'
     | '/importers'
     | '/login'
+    | '/usa'
     | '/admin/mfa'
     | '/api/check-service-role'
     | '/api/get-key'
@@ -151,6 +162,7 @@ export interface FileRouteTypes {
     | '/eu'
     | '/importers'
     | '/login'
+    | '/usa'
     | '/admin/mfa'
     | '/api/check-service-role'
     | '/api/get-key'
@@ -165,12 +177,20 @@ export interface RootRouteChildren {
   EuRoute: typeof EuRoute
   ImportersRoute: typeof ImportersRoute
   LoginRoute: typeof LoginRoute
+  UsaRoute: typeof UsaRoute
   ApiCheckServiceRoleRoute: typeof ApiCheckServiceRoleRoute
   ApiGetKeyRoute: typeof ApiGetKeyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/usa': {
+      id: '/usa'
+      path: '/usa'
+      fullPath: '/usa'
+      preLoaderRoute: typeof UsaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -271,9 +291,20 @@ const rootRouteChildren: RootRouteChildren = {
   EuRoute: EuRoute,
   ImportersRoute: ImportersRoute,
   LoginRoute: LoginRoute,
+  UsaRoute: UsaRoute,
   ApiCheckServiceRoleRoute: ApiCheckServiceRoleRoute,
   ApiGetKeyRoute: ApiGetKeyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
