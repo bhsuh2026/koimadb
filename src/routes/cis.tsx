@@ -574,7 +574,7 @@ function CompanyCard({
   const [color] = SCOLOR[company.scale_code] ?? ["#999", "#eee"];
 
   const countries = [...(company.asean_countries ?? []), ...(company.other_countries ?? [])];
-  const deduped = Array.from(new Set(countries.map(displayCountry)));
+  const deduped = Array.from(new Set(countries.map((c) => displayCountry(c))));
 
   return (
     <button
