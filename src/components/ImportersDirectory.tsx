@@ -283,15 +283,6 @@ export function ImportersDirectory({
                   <span className="hidden sm:inline">EU</span>
                 </Link>
                 <Link
-                  to="/cis"
-                  title="CIS 거래 디렉토리"
-                  aria-label="CIS 거래 디렉토리"
-                  className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
-                >
-                  <span className="text-base leading-none">🌍</span>
-                  <span className="hidden sm:inline">CIS</span>
-                </Link>
-                <Link
                   to="/importers"
                   title="아세안 거래 디렉토리"
                   aria-label="아세안 거래 디렉토리"
