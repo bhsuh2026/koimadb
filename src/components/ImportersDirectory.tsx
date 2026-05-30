@@ -70,7 +70,7 @@ export function ImportersDirectory({
   title,
   scopeBadge,
 }: ImportersDirectoryProps) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const listFn = useServerFn(listImporters);
   const facetsFn = useServerFn(getImporterFacets);
   const [q, setQ] = useState("");
