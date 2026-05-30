@@ -514,14 +514,16 @@ function FilterPanel(props: {
       <div>
         <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           <Globe2 className="size-3.5" />
-          {props.lockedCountry ? "추가 수입국가 (AND)" : "주요 수입국가"}
+          {props.lockedCountry
+            ? t("추가 수입국가 (AND)", "Additional countries (AND)")
+            : t("주요 수입국가", "Top import countries")}
         </div>
 
         {props.lockedCountry && (
           <div className="mb-2 inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
             <span>{flagOf(props.lockedCountry)}</span>
-            {displayCountry(props.lockedCountry)}
-            <span className="ml-1 text-[10px] font-normal text-primary/70">고정</span>
+            {displayCountry(props.lockedCountry, lang)}
+            <span className="ml-1 text-[10px] font-normal text-primary/70">{t("고정", "Locked")}</span>
           </div>
         )}
 
@@ -534,7 +536,7 @@ function FilterPanel(props: {
                 props.onFilterChange();
               }}
             >
-              전체
+              {t("전체", "All")}
             </FilterChip>
           )}
           {props.topCountries.map((c) => (
@@ -544,7 +546,7 @@ function FilterPanel(props: {
               onClick={() => toggleCountry(c)}
             >
               <span className="mr-1">{flagOf(c)}</span>
-              {displayCountry(c)}
+              {displayCountry(c, lang)}
             </FilterChip>
           ))}
         </div>
@@ -558,11 +560,11 @@ function FilterPanel(props: {
                 className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
               >
                 <span>{flagOf(c)}</span>
-                {displayCountry(c)}
+                {displayCountry(c, lang)}
                 <button
                   onClick={() => toggleCountry(c)}
                   className="ml-0.5 rounded hover:text-destructive"
-                  aria-label={`${displayCountry(c)} 제거`}
+                  aria-label={t(`${displayCountry(c, lang)} 제거`, `Remove ${displayCountry(c, lang)}`)}
                 >
                   <X className="size-3" />
                 </button>
@@ -575,7 +577,7 @@ function FilterPanel(props: {
               }}
               className="text-[11px] text-muted-foreground underline hover:text-foreground"
             >
-              초기화
+              {t("초기화", "Reset")}
             </button>
           </div>
         )}
@@ -586,7 +588,7 @@ function FilterPanel(props: {
           <input
             value={countryQ}
             onChange={(e) => setCountryQ(e.target.value)}
-            placeholder="국가 검색…"
+            placeholder={t("국가 검색…", "Search countries…")}
             className="w-full rounded-md border bg-card py-1.5 pl-7 pr-2 text-xs shadow-sm outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
@@ -602,8 +604,8 @@ function FilterPanel(props: {
                 className="flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-xs hover:bg-accent"
               >
                 <span className="text-sm">{flagOf(c)}</span>
-                <span className="flex-1">{displayCountry(c)}</span>
-                <span className="text-[10px] text-muted-foreground">선택</span>
+                <span className="flex-1">{displayCountry(c, lang)}</span>
+                <span className="text-[10px] text-muted-foreground">{t("선택", "Select")}</span>
               </button>
             ))}
           </div>
@@ -615,7 +617,12 @@ function FilterPanel(props: {
             onClick={() => setShowAll((v) => !v)}
             className="mt-1.5 text-xs text-muted-foreground underline hover:text-foreground"
           >
-            {showAll ? "접기" : `전체 국가 보기 (${props.allCountries.length}개)`}
+            {showAll
+              ? t("접기", "Collapse")
+              : t(
+                  `전체 국가 보기 (${props.allCountries.length}개)`,
+                  `View all countries (${props.allCountries.length})`,
+                )}
           </button>
         )}
         {showAll && (
@@ -632,7 +639,7 @@ function FilterPanel(props: {
                   }`}
                 >
                   <span className="mr-0.5">{flagOf(c)}</span>
-                  {displayCountry(c)}
+                  {displayCountry(c, lang)}
                 </button>
               ))}
             </div>
@@ -642,7 +649,7 @@ function FilterPanel(props: {
 
       <div>
         <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          <TrendingUp className="size-3.5" /> 수입액 구간
+          <TrendingUp className="size-3.5" /> {t("수입액 구간", "Import scale")}
         </div>
         <div className="space-y-1">
           {props.scalesAvailable.map((s) => (
@@ -657,7 +664,7 @@ function FilterPanel(props: {
                   onChange={() => toggleScale(s)}
                   className="accent-primary"
                 />
-                <span>{s}</span>
+                <span>{scaleLabel(s, lang)}</span>
               </span>
               <span className="text-xs tabular-nums text-muted-foreground">
                 {(props.scaleCounts[s] ?? 0).toLocaleString()}
@@ -678,7 +685,7 @@ function FilterPanel(props: {
             }}
             className="accent-primary"
           />
-          이메일 보유 업체만
+          {t("이메일 보유 업체만", "With email only")}
         </label>
       </div>
 
@@ -686,7 +693,7 @@ function FilterPanel(props: {
         onClick={props.clearAll}
         className="w-full rounded-md border bg-card px-3 py-2 text-xs hover:bg-accent"
       >
-        필터 초기화
+        {t("필터 초기화", "Clear filters")}
       </button>
     </div>
   );
