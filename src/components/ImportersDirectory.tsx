@@ -240,7 +240,7 @@ export function ImportersDirectory({
                 <option value="rank_sales_asc">{t("매출액 순", "By revenue")}</option>
                 <option value="name_asc">{t("업체명 가나다순", "Name A–Z")}</option>
               </select>
-              <div className="inline-flex items-center gap-1 rounded-lg border bg-card p-1 shadow-sm">
+              <div className="inline-flex flex-1 items-center justify-around gap-1 rounded-lg border bg-card p-1 shadow-sm sm:flex-none sm:justify-start">
                 <Link
                   to="/usa"
                   title="USA Importers Directory"
