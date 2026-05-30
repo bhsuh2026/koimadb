@@ -65,7 +65,10 @@ export type ImportersDirectoryProps = {
   title: string;
   /** Small subtitle shown above title. */
   scopeBadge?: string;
+  /** When set, renders RegionSnapshot above results (asean/eu/cis). */
+  regionKey?: import("@/components/RegionSnapshot").RegionKey;
 };
+
 
 export function ImportersDirectory({
   lockedCountries: lockedCountriesProp,
