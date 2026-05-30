@@ -251,6 +251,7 @@ export function RegionSnapshot({ regionKey, lockedCountries, countryCounts, lock
   const total = rows.reduce((s, r) => s + r.count, 0);
 
   return (
+    <>
     <section className="mb-6 grid gap-4 lg:grid-cols-2">
       {/* Trade snapshot bar chart */}
       <div className="rounded-xl border bg-card p-5 shadow-sm">
