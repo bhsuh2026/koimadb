@@ -198,7 +198,7 @@ export function RegionIntro({ region, counts, grandTotal, countries, onPickCount
             en={t(`Korea–${regionLabel} Trade Snapshot`, `한-${regionLabel} 교역 스냅샷`)}
           />
           <div className="mt-4 space-y-2">
-            {ranked.slice(0, isAsean ? 10 : 12).map((r) => {
+            {ranked.slice(0, isAsean ? 10 : isEu ? 12 : 12).map((r) => {
               const w = (r.n / max) * 100;
               return (
                 <button
