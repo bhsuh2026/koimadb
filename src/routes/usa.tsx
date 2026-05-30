@@ -23,35 +23,35 @@ import {
 import { SCALE, SCOLOR, flagOf, displayCountry, type Company } from "@/lib/koima-types";
 import { listCompanies } from "@/lib/companies.functions";
 import { DetailModal } from "@/components/DetailModal";
-import { LangToggle3, useLang } from "@/lib/i18n";
+import { LangToggle, useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/usa")({
-  component: ChinaPage,
+  component: UsaPage,
   head: () => ({
     meta: [
-      { title: "China · Korean Importers Directory | KOIMA · 中国 · 韩国进口商" },
+      { title: "USA · Korean Importers Directory | KOIMA · 미국 · 韓國進口商" },
       {
         name: "description",
         content:
-          "Korean importers actively trading with China — 中国相关韩国进口商名录 · 중국 거래 한국 수입업체 디렉토리.",
+          "Korean importers actively trading with the USA — 미국 거래 한국 수입업체 디렉토리.",
       },
-      { property: "og:title", content: "China · Korean Importers Directory | KOIMA" },
+      { property: "og:title", content: "USA · Korean Importers Directory | KOIMA" },
       {
         property: "og:description",
         content:
-          "20,000+ Korean importers sourcing from China. Browse by import scale and contact.",
+          "11,000+ Korean importers sourcing from the USA. Browse by import scale and contact.",
       },
     ],
   }),
 });
 
 const PAGE_SIZE = 40;
-const CHINA_KR = "중국";
+const USA_KR = "미국";
 
 type SortKey = "scale_desc" | "scale_asc" | "name_asc";
 
-function ChinaPage() {
-  const { tt, lang } = useLang();
+function UsaPage() {
+  const { t, lang } = useLang();
   const listFn = useServerFn(listCompanies);
 
   const [q, setQ] = useState("");
@@ -77,12 +77,12 @@ function ChinaPage() {
   const scaleArr = useMemo(() => Array.from(scales), [scales]);
 
   const listQuery = useQuery({
-    queryKey: ["china-companies", { qDeb, scaleArr, mailOnly, sort, page }],
+    queryKey: ["usa-companies", { qDeb, scaleArr, mailOnly, sort, page }],
     queryFn: () =>
       listFn({
         data: {
           q: qDeb,
-          other: CHINA_KR,
+          other: USA_KR,
           scales: scaleArr,
           hasEmail: mailOnly,
           sort,
@@ -95,10 +95,10 @@ function ChinaPage() {
 
   // grand total (no filters) — used for hero stat
   const totalQuery = useQuery({
-    queryKey: ["china-total"],
+    queryKey: ["usa-total"],
     queryFn: () =>
       listFn({
-        data: { other: CHINA_KR, page: 1, pageSize: 1 },
+        data: { other: USA_KR, page: 1, pageSize: 1 },
       }),
     staleTime: 5 * 60 * 1000,
   });
@@ -133,7 +133,7 @@ function ChinaPage() {
     <div className="min-h-screen bg-background text-foreground">
       {/* ===== HERO ===== */}
       <header className="relative overflow-hidden text-white">
-        <div className="absolute inset-0 bg-gradient-to-br from-red-700 via-red-600 to-red-800" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-800 via-blue-700 to-slate-900" />
         <div
           className="absolute inset-0 opacity-[0.08]"
           style={{
@@ -183,9 +183,9 @@ function ChinaPage() {
                 className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur transition hover:bg-white/20"
               >
                 <Settings className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{tt("관리자", "Admin", "管理")}</span>
+                <span className="hidden sm:inline">{t("관리자", "Admin", "管理")}</span>
               </Link>
-              <LangToggle3 className="inline-flex items-center gap-0.5 rounded-md border border-white/20 bg-white/10 px-1 py-1 text-[11px] font-bold text-white/90 backdrop-blur" />
+              <LangToggle className="inline-flex items-center gap-0.5 rounded-md border border-white/20 bg-white/10 px-1 py-1 text-[11px] font-bold text-white/90 backdrop-blur" />
             </div>
           </div>
 
@@ -193,22 +193,22 @@ function ChinaPage() {
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 backdrop-blur">
               <Sparkles className="h-3 w-3 text-white/80" />
               <span className="text-[10px] uppercase tracking-[0.16em] text-white/80">
-                {tt("중국 · 단일 국가", "China · Single Country", "中国 · 单一国家")}
+                {t("미국 · 단일 국가", "USA · Single Country", "中国 · 单一国家")}
               </span>
             </div>
             <h1 className="flex flex-wrap items-end gap-x-3 gap-y-1 text-[26px] font-extrabold leading-tight tracking-tight sm:text-[36px]">
-              <span className="text-[36px] leading-none sm:text-[44px]">🇨🇳</span>
-              {tt(
-                "중국 거래 한국 수입업체 디렉토리",
-                "Korean Importers Sourcing from China",
-                "中国相关韩国进口商名录",
+              <span className="text-[36px] leading-none sm:text-[44px]">🇺🇸</span>
+              {t(
+                "미국 거래 한국 수입업체 디렉토리",
+                "Korean Importers Sourcing from the United States",
+                "中国相关韩国Importer Directory",
               )}
             </h1>
             <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-white/80">
-              {tt(
-                "중국에서 제품을 수입 중인 한국 기업을 한 곳에서 확인하실 수 있습니다. 수입 규모대와 이메일 보유 여부로 좁혀 검색할 수 있습니다.",
-                "Browse Korean companies importing from China. Filter by annual import scale and email availability.",
-                "在此查阅与中国进行进口贸易的韩国企业。可按进口规模和是否有邮箱进行筛选。",
+              {t(
+                "미국에서 제품을 수입 중인 한국 기업을 한 곳에서 확인하실 수 있습니다. 수입 규모대와 이메일 보유 여부로 좁혀 검색할 수 있습니다.",
+                "Browse Korean companies importing from the United States. Filter by annual import scale and email availability.",
+                "Browse Korean companies importing from the United States. Filter by annual import scale and email availability.",
               )}
             </p>
 
@@ -223,13 +223,13 @@ function ChinaPage() {
                 kr="권역"
                 en="Region"
                 zh="区域"
-                value={tt("동북아", "Northeast Asia", "东北亚")}
+                value={t("북미", "North America", "东北亚")}
               />
               <Stat
                 kr="협정"
                 en="Agreement"
                 zh="协定"
-                value={tt("한-중 FTA", "KR–CN FTA", "中韩 FTA")}
+                value={t("한-미 FTA", "KORUS FTA", "中韩 FTA")}
               />
             </div>
           </div>
@@ -242,55 +242,55 @@ function ChinaPage() {
           <Card>
             <CardHead
               icon={<BarChart3 className="h-3.5 w-3.5" />}
-              title={tt("한-중 교역 개요", "Korea–China Trade Overview", "中韩贸易概览")}
+              title={t("한-미 교역 개요", "Korea–U.S. Trade Overview", "Korea–U.S. Trade Overview")}
             />
             <p className="mt-3 text-[12.5px] leading-relaxed text-foreground/80">
-              {tt(
-                "중국은 한국 최대 교역상대국 중 하나로, 전자·기계·화학·소비재 등 광범위한 품목군에서 한국 수입업체와 거래가 이루어집니다.",
-                "China is one of Korea's largest trading partners, with Korean importers active across electronics, machinery, chemicals and consumer goods.",
-                "中国是韩国最大贸易伙伴之一,韩国进口商在电子、机械、化工及消费品等众多领域均有活跃业务。",
+              {t(
+                "미국은 한국의 주요 교역상대국으로, 기계·화학·농산물·소비재 등 다양한 품목에서 한국 수입업체와 활발한 거래가 이루어집니다.",
+                "The United States is one of Korea's key trading partners, with Korean importers active across machinery, chemicals, agricultural products and consumer goods.",
+                "The United States is one of Korea's key trading partners, with Korean importers active across machinery, chemicals, agricultural products and consumer goods.",
               )}
             </p>
             <ul className="mt-3 space-y-1.5 text-[12px] text-foreground/80">
-              <li>· {tt("총 수입업체 수", "Total importers", "进口商总数")}: <b className="font-mono">{grandTotal.toLocaleString()}</b></li>
-              <li>· {tt("수입 규모 6~15단계", "Import scale tier 6–15", "进口规模 6–15 级")}</li>
-              <li>· {tt("출처: 관세청 수입실적 / KOIMA", "Source: Korea Customs / KOIMA", "数据来源:韩国关税厅/KOIMA")}</li>
+              <li>· {t("총 수입업체 수", "Total importers", "进口商总数")}: <b className="font-mono">{grandTotal.toLocaleString()}</b></li>
+              <li>· {t("수입 규모 6~15단계", "Import scale tier 6–15", "Import scale tier 6–15")}</li>
+              <li>· {t("출처: 관세청 수입실적 / KOIMA", "Source: Korea Customs / KOIMA", "数据来源:韩国关税厅/KOIMA")}</li>
             </ul>
           </Card>
 
           <Card>
             <CardHead
               icon={<FileText className="h-3.5 w-3.5" />}
-              title={tt("적용 협정 · 특혜관세", "Applicable Agreements · Tariffs", "适用协定 · 优惠关税")}
-              sub={tt("세율은 공식 포털 확인", "Check official portals", "请于官方门户查询")}
+              title={t("적용 협정 · 특혜관세", "Applicable Agreements · Tariffs", "Applicable Agreements · Tariffs")}
+              sub={t("세율은 공식 포털 확인", "Check official portals", "Check official portals")}
             />
             <div className="mt-3 space-y-2.5">
               <AgreementRow
-                title={tt("한-중 FTA", "KR–CN FTA", "中韩自由贸易协定")}
-                desc={tt(
-                  "2015년 발효 · 단계별 관세 인하 진행 중",
-                  "In force since 2015 · phased tariff reduction",
-                  "2015年生效 · 分阶段降税",
+                title={t("한-미 FTA", "KORUS FTA", "KORUS FTA")}
+                desc={t(
+                  "2012년 발효 · 대부분 품목 관세 철폐",
+                  "In force since 2012 · tariff elimination on most items",
+                  "In force since 2012 · tariff elimination on most items",
                 )}
-                tag={tt("발효 중", "In force", "已生效")}
+                tag={t("발효 중", "In force", "已生效")}
               />
               <AgreementRow
                 title="RCEP"
-                desc={tt(
-                  "중국 포함 · 누적 원산지 활용 가능",
-                  "Includes China · cumulative rules of origin",
-                  "包括中国 · 可使用累积原产地规则",
+                desc={t(
+                  "미국 포함 · 누적 원산지 활용 가능",
+                  "Includes the U.S. · cumulative rules of origin",
+                  "Includes the U.S. · cumulative rules of origin",
                 )}
-                tag={tt("발효 중", "In force", "已生效")}
+                tag={t("발효 중", "In force", "已生效")}
               />
               <AgreementRow
-                title={tt("원산지증명", "Certificate of Origin", "原产地证明")}
-                desc={tt(
+                title={t("원산지증명", "Certificate of Origin", "Certificate of Origin")}
+                desc={t(
                   "FTA 특혜세율 적용 시 원산지증명 필수",
                   "Required to claim FTA preferential rates",
-                  "申请FTA优惠税率时需提交",
+                  "Required to claim FTA preferential rates",
                 )}
-                tag={tt("필수", "Required", "必需")}
+                tag={t("필수", "Required", "必需")}
                 muted
               />
             </div>
@@ -299,25 +299,25 @@ function ChinaPage() {
           <Card>
             <CardHead
               icon={<Scale className="h-3.5 w-3.5" />}
-              title={tt("관세율 · 통관 조회", "Tariff & Customs Lookup", "关税与通关查询")}
-              sub={tt("공식 포털 직접 조회", "Consult official portals", "请直接查询官方门户")}
+              title={t("관세율 · 통관 조회", "Tariff & Customs Lookup", "Tariff & Customs Lookup")}
+              sub={t("공식 포털 직접 조회", "Consult official portals", "Consult official portals")}
             />
             <div className="mt-3 flex flex-wrap gap-2">
               {[
                 {
-                  label: tt("FTA 포털 · 수입세율", "FTA Portal · Tariffs", "FTA门户·进口税率"),
+                  label: t("FTA 포털 · 수입세율", "FTA Portal · Tariffs", "FTA门户·进口税率"),
                   href: "https://www.customs.go.kr/ftaportalkor/main.do",
                 },
                 {
-                  label: tt("관세청 UNI-PASS", "KCS UNI-PASS", "韩国关税厅 UNI-PASS"),
+                  label: t("관세청 UNI-PASS", "KCS UNI-PASS", "韩国关税厅 UNI-PASS"),
                   href: "https://unipass.customs.go.kr/",
                 },
                 {
-                  label: tt("중국 해관 총서", "China Customs (GACC)", "中国海关总署"),
-                  href: "http://www.customs.gov.cn/",
+                  label: t("미국 관세국경보호국 (CBP)", "U.S. CBP", "U.S. Customs and Border Protection"),
+                  href: "https://www.cbp.gov/",
                 },
                 {
-                  label: tt("KOTRA · 중국 시장정보", "KOTRA · China Market Info", "KOTRA·中国市场资讯"),
+                  label: t("KOTRA · 미국 시장정보", "KOTRA · U.S. Market Info", "KOTRA · U.S. Market Info"),
                   href: "https://news.kotra.or.kr/",
                 },
               ].map((l) => (
@@ -338,34 +338,34 @@ function ChinaPage() {
           <Card>
             <CardHead
               icon={<Building2 className="h-3.5 w-3.5" />}
-              title={tt("카운터파트 · 협력 기관", "Counterpart Institutions", "对口机构 · 合作单位")}
+              title={t("카운터파트 · 협력 기관", "Counterpart Institutions", "Counterpart Institutions")}
             />
             <div className="mt-3 grid gap-2.5">
               <PartnerRow
-                tag={tt("주한 대사관", "Embassy in Korea", "驻韩使馆")}
-                name={tt("주한 중국 대사관", "Embassy of China in Korea", "中华人民共和国驻大韩民国大使馆")}
-                desc={tt("서울 소재 · 비자·통상 채널", "Seoul · visa and trade liaison", "首尔 · 签证及贸易联系")}
-                href="http://kr.china-embassy.gov.cn/"
+                tag={t("주한 대사관", "Embassy in Korea", "驻韩使馆")}
+                name={t("주한 미국 대사관", "U.S. Embassy in Korea", "U.S. Embassy in Korea")}
+                desc={t("서울 소재 · 비자·통상 채널", "Seoul · visa and trade liaison", "Seoul · visa and trade liaison")}
+                href="https://kr.usembassy.gov/"
               />
               <PartnerRow
-                tag={tt("무역 진흥", "Trade Promotion", "贸易促进")}
-                name={tt("KOTRA 중국 무역관", "KOTRA China Trade Offices", "KOTRA中国贸易馆")}
-                desc={tt(
-                  "베이징·상하이·광저우·청두 등",
-                  "Beijing · Shanghai · Guangzhou · Chengdu, etc.",
-                  "北京·上海·广州·成都等",
+                tag={t("무역 진흥", "Trade Promotion", "贸易促进")}
+                name={t("KOTRA 미국 무역관", "KOTRA U.S. Trade Offices", "KOTRA U.S. Trade Offices")}
+                desc={t(
+                  "워싱턴·뉴욕·로스앤젤레스·시카고 등",
+                  "Washington · New York · Los Angeles · Chicago, etc.",
+                  "Washington · New York · Los Angeles · Chicago, etc.",
                 )}
                 href="https://www.kotra.or.kr/"
               />
               <PartnerRow
-                tag={tt("상공회의소", "Chamber of Commerce", "商会")}
-                name={tt("중국 한국상회", "Korea Chamber of Commerce in China", "中国韩国商会")}
-                desc={tt(
-                  "현지 진출 한국기업 협력 네트워크",
-                  "Network for Korean firms in China",
-                  "在华韩企合作网络",
+                tag={t("상공회의소", "Chamber of Commerce", "商会")}
+                name={t("암참 코리아 (AmCham Korea)", "American Chamber of Commerce in Korea", "American Chamber of Commerce in Korea")}
+                desc={t(
+                  "미국 기업 및 양국 교역 협력 네트워크",
+                  "Network for U.S.–Korea trade and business cooperation",
+                  "Network for U.S.–Korea trade and business cooperation",
                 )}
-                href="http://www.korcham-china.net/"
+                href="https://www.amchamkorea.org/"
               />
             </div>
           </Card>
@@ -379,7 +379,7 @@ function ChinaPage() {
       >
         <div className="mb-3 flex items-end justify-between">
           <h2 className="text-[18px] font-bold tracking-tight text-foreground sm:text-[20px]">
-            {tt("수입업체 디렉토리", "Importer Directory", "进口商名录")}
+            {t("수입업체 디렉토리", "Importer Directory", "Importer Directory")}
           </h2>
           <button
             onClick={scrollToList}
@@ -397,10 +397,10 @@ function ChinaPage() {
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder={tt(
+                placeholder={t(
                   "업체명·사업자번호 검색",
                   "Search company name or biz no.",
-                  "搜索公司名称或营业执照号",
+                  "Search company name or biz no.",
                 )}
                 className="h-11 w-full rounded-lg border border-border bg-card px-3 pl-9 text-sm focus:border-primary focus:outline-none"
               />
@@ -410,7 +410,7 @@ function ChinaPage() {
               className="relative inline-flex h-11 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-[12px] font-semibold text-foreground transition hover:border-primary md:hidden"
             >
               <SlidersHorizontal className="h-4 w-4" />
-              {tt("필터", "Filters", "筛选")}
+              {t("필터", "Filters", "Filters")}
               {activeFilters > 0 && (
                 <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground">
                   {activeFilters}
@@ -423,22 +423,22 @@ function ChinaPage() {
         {/* Desktop filter panel */}
         <div className="mt-4 hidden gap-4 rounded-xl border border-border bg-card p-4 md:grid md:grid-cols-[1fr_2fr]">
           <div>
-            <Label kr={tt("옵션", "Options", "选项")} />
+            <Label kr={t("옵션", "Options", "Options")} />
             <div className="flex flex-wrap items-center gap-3">
               <Toggle on={mailOnly} onClick={() => setMailOnly((v) => !v)}>
-                {tt("이메일 보유만", "With email only", "仅显示有邮箱")}
+                {t("이메일 보유만", "With email only", "With email only")}
               </Toggle>
               <button
                 onClick={reset}
                 className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-[11px] text-muted-foreground transition hover:border-destructive hover:text-destructive"
               >
                 <RotateCcw className="h-3 w-3" />
-                {tt("초기화", "Reset", "重置")}
+                {t("초기화", "Reset", "Reset")}
               </button>
             </div>
           </div>
           <div>
-            <Label kr={tt("수입 규모대", "Annual import scale", "年进口规模")} />
+            <Label kr={t("수입 규모대", "Annual import scale", "Annual import scale")} />
             <ScaleChips scales={scales} setScales={setScales} />
           </div>
         </div>
@@ -449,9 +449,9 @@ function ChinaPage() {
             <b className="font-mono text-[18px] font-bold text-primary">
               {total.toLocaleString()}
             </b>{" "}
-            {tt("개사", "companies", "家公司")} ·{" "}
+            {t("개사", "companies", "companies")} ·{" "}
             <span className="font-semibold text-foreground">
-              {tt("중국", "China", "中国")}
+              {t("미국", "USA", "中国")}
             </span>
           </div>
           <div className="ml-auto flex gap-2">
@@ -460,9 +460,9 @@ function ChinaPage() {
               onChange={(e) => setSort(e.target.value as SortKey)}
               className="h-9 cursor-pointer rounded-md border border-border bg-card px-2.5 text-[12px]"
             >
-              <option value="scale_desc">{tt("수입규모 ↓", "Import size ↓", "进口规模 ↓")}</option>
-              <option value="scale_asc">{tt("수입규모 ↑", "Import size ↑", "进口规模 ↑")}</option>
-              <option value="name_asc">{tt("업체명 A–Z", "Name A–Z", "公司名 A–Z")}</option>
+              <option value="scale_desc">{t("수입규모 ↓", "Import size ↓", "Import size ↓")}</option>
+              <option value="scale_asc">{t("수입규모 ↑", "Import size ↑", "Import size ↑")}</option>
+              <option value="name_asc">{t("업체명 A–Z", "Name A–Z", "Name A–Z")}</option>
             </select>
           </div>
         </div>
@@ -472,16 +472,16 @@ function ChinaPage() {
           <GridSkeleton />
         ) : listQuery.error ? (
           <div className="mt-6 rounded-md border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
-            {tt(
+            {t(
               "데이터를 불러오지 못했습니다.",
               "Could not load data.",
-              "数据加载失败。",
+              "Could not load data.",
             )}
           </div>
         ) : total === 0 ? (
           <div className="mt-4 rounded-xl border border-border bg-card px-6 py-16 text-center text-muted-foreground">
             <div className="text-[15px] font-semibold text-foreground/70">
-              {tt("검색 결과가 없습니다", "No results", "无搜索结果")}
+              {t("검색 결과가 없습니다", "No results", "无搜索结果")}
             </div>
           </div>
         ) : (
@@ -523,10 +523,10 @@ function ChinaPage() {
         )}
 
         <footer className="mt-10 border-t border-border pt-6 text-center text-[11px] leading-relaxed text-muted-foreground">
-          {tt(
+          {t(
             "출처 · 관세청 수입실적 / KOIMA · 문의:",
             "Source · Korea Customs / KOIMA · Contact:",
-            "来源 · 韩国关税厅/KOIMA · 联系:",
+            "Source · Korea Customs / KOIMA · Contact:",
           )}{" "}
           <a href="mailto:seobh@koima.or.kr" className="text-accent hover:underline">
             seobh@koima.or.kr
@@ -545,7 +545,7 @@ function ChinaPage() {
           <div className="max-h-[85vh] w-full overflow-y-auto rounded-t-2xl bg-card p-5">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-base font-bold text-foreground">
-                {tt("필터", "Filters", "筛选")}
+                {t("필터", "Filters", "Filters")}
               </h3>
               <button
                 onClick={() => setFilterOpen(false)}
@@ -554,26 +554,26 @@ function ChinaPage() {
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <Label kr={tt("옵션", "Options", "选项")} />
+            <Label kr={t("옵션", "Options", "Options")} />
             <div className="mb-5 flex flex-wrap items-center gap-3">
               <Toggle on={mailOnly} onClick={() => setMailOnly((v) => !v)}>
-                {tt("이메일 보유만", "With email only", "仅显示有邮箱")}
+                {t("이메일 보유만", "With email only", "With email only")}
               </Toggle>
             </div>
-            <Label kr={tt("수입 규모대", "Annual import scale", "年进口规模")} />
+            <Label kr={t("수입 규모대", "Annual import scale", "Annual import scale")} />
             <ScaleChips scales={scales} setScales={setScales} />
             <div className="mt-6 flex gap-2">
               <button
                 onClick={reset}
                 className="flex-1 rounded-md border border-border px-4 py-2.5 text-[13px] font-semibold text-muted-foreground"
               >
-                {tt("초기화", "Reset", "重置")}
+                {t("초기화", "Reset", "Reset")}
               </button>
               <button
                 onClick={() => setFilterOpen(false)}
                 className="flex-1 rounded-md bg-primary px-4 py-2.5 text-[13px] font-semibold text-white"
               >
-                {tt("적용", "Apply", "应用")}
+                {t("적용", "Apply", "应用")}
               </button>
             </div>
           </div>
@@ -589,11 +589,11 @@ function ChinaPage() {
 /* ---------- Small UI bits ---------- */
 
 function Stat({ kr, en, zh, value }: { kr: string; en: string; zh: string; value: string }) {
-  const { tt } = useLang();
+  const { t } = useLang();
   return (
     <div className="rounded-lg border border-white/15 bg-white/10 px-3 py-2 backdrop-blur">
       <div className="text-[9px] font-bold uppercase tracking-wider text-white/60">
-        {tt(kr, en, zh)}
+        {t(kr, en, zh)}
       </div>
       <div className="mt-0.5 font-mono text-[15px] font-bold text-white">{value}</div>
     </div>
@@ -667,7 +667,7 @@ function PartnerRow({
   desc: string;
   href: string;
 }) {
-  const { tt } = useLang();
+  const { t } = useLang();
   return (
     <div className="rounded-lg border border-border bg-background/60 p-3">
       <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
@@ -681,7 +681,7 @@ function PartnerRow({
         rel="noreferrer"
         className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-semibold text-accent hover:underline"
       >
-        {tt("바로가기", "Visit", "前往")} <ExternalLink className="h-3 w-3" />
+        {t("바로가기", "Visit", "Visit")} <ExternalLink className="h-3 w-3" />
       </a>
     </div>
   );
