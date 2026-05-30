@@ -752,8 +752,10 @@ function maskHS(h: string) {
 }
 
 function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
+  const { t, lang } = useLang();
   const countries = row.countries.slice(0, 6);
   const extra = Math.max(0, row.countries.length - countries.length);
+  const items = lang === "ko" ? row.items_kr : (row.items_en || row.items_kr);
   return (
     <button
       onClick={onOpen}
@@ -764,7 +766,9 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
           <div className="flex items-center gap-2">
             <Building2 className="size-3.5 shrink-0 text-muted-foreground" />
             <span className="truncate text-[15px] font-semibold sm:text-base">
-              {displayCompanyName(row.name_kr) || row.name_en}
+              {lang === "ko"
+                ? (displayCompanyName(row.name_kr) || row.name_en)
+                : (row.name_en || displayCompanyName(row.name_kr))}
             </span>
             {row.rank_import != null && row.rank_import <= 100 && (
               <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
@@ -772,17 +776,21 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
               </span>
             )}
           </div>
-          {row.name_en && (
-            <div className="truncate text-xs text-muted-foreground">
-              {row.name_en}
-            </div>
-          )}
+          {lang === "ko"
+            ? row.name_en && (
+                <div className="truncate text-xs text-muted-foreground">{row.name_en}</div>
+              )
+            : displayCompanyName(row.name_kr) && (
+                <div className="truncate text-xs text-muted-foreground">
+                  {displayCompanyName(row.name_kr)}
+                </div>
+              )}
         </div>
         {row.scale_label && (
           <span
             className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${scaleColor(row.scale_label)}`}
           >
-            {row.scale_label}
+            {scaleLabel(row.scale_label, lang)}
           </span>
         )}
       </div>
@@ -794,7 +802,7 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
               key={c}
               className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px]"
             >
-              <span>{flagOf(c)}</span> {displayCountry(c)}
+              <span>{flagOf(c)}</span> {displayCountry(c, lang)}
             </span>
           ))}
           {extra > 0 && (
@@ -807,7 +815,9 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
 
       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
         {row.biz_no && (
-          <span className="font-mono tabular-nums">사업자 {maskBizNo(row.biz_no)}</span>
+          <span className="font-mono tabular-nums">
+            {t("사업자", "Biz no")} {maskBizNo(row.biz_no)}
+          </span>
         )}
         {row.email && (
           <span className="inline-flex items-center gap-1">
@@ -821,9 +831,9 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
         )}
       </div>
 
-      {row.items_kr && (
+      {items && (
         <div className="mt-2 line-clamp-2 text-xs text-muted-foreground/90">
-          {row.items_kr}
+          {items}
         </div>
       )}
     </button>
