@@ -481,6 +481,7 @@ function FilterPanel(props: {
   clearAll: () => void;
   onFilterChange: () => void;
 }) {
+  const { t, lang } = useLang();
   const [countryQ, setCountryQ] = useState("");
   const [showAll, setShowAll] = useState(false);
 
