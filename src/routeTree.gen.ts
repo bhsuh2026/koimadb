@@ -13,6 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ImportersRouteImport } from './routes/importers'
 import { Route as EuRouteImport } from './routes/eu'
 import { Route as CisRouteImport } from './routes/cis'
+import { Route as ChinaRouteImport } from './routes/china'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -38,6 +39,11 @@ const EuRoute = EuRouteImport.update({
 const CisRoute = CisRouteImport.update({
   id: '/cis',
   path: '/cis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChinaRoute = ChinaRouteImport.update({
+  id: '/china',
+  path: '/china',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -74,6 +80,7 @@ const AdminMfaRoute = AdminMfaRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/china': typeof ChinaRoute
   '/cis': typeof CisRoute
   '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/china': typeof ChinaRoute
   '/cis': typeof CisRoute
   '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/china': typeof ChinaRoute
   '/cis': typeof CisRoute
   '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/china'
     | '/cis'
     | '/eu'
     | '/importers'
@@ -123,6 +133,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/china'
     | '/cis'
     | '/eu'
     | '/importers'
@@ -135,6 +146,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/china'
     | '/cis'
     | '/eu'
     | '/importers'
@@ -148,6 +160,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  ChinaRoute: typeof ChinaRoute
   CisRoute: typeof CisRoute
   EuRoute: typeof EuRoute
   ImportersRoute: typeof ImportersRoute
@@ -184,6 +197,13 @@ declare module '@tanstack/react-router' {
       path: '/cis'
       fullPath: '/cis'
       preLoaderRoute: typeof CisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/china': {
+      id: '/china'
+      path: '/china'
+      fullPath: '/china'
+      preLoaderRoute: typeof ChinaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -246,6 +266,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  ChinaRoute: ChinaRoute,
   CisRoute: CisRoute,
   EuRoute: EuRoute,
   ImportersRoute: ImportersRoute,
