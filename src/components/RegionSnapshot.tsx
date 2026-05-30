@@ -314,6 +314,20 @@ export function RegionSnapshot({ regionKey, lockedCountries, countryCounts, lock
 
       {/* FTA & customs */}
       <div className="rounded-xl border bg-card p-5 shadow-sm">
+        <div className="mb-3 flex items-start gap-2">
+          <div className="rounded-md bg-primary/10 p-1.5 text-primary">§</div>
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold">
+              {t(info.ftaTitleKr, info.ftaTitleEn)}
+              <span className="ml-2 text-[10px] font-normal text-muted-foreground">
+                {t("정보 안내용 · 세율은 공식 포털 확인", "Informational · verify on official portals")}
+              </span>
+            </h2>
+            <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+              {t(info.intro_kr, info.intro_en)}
+            </p>
+          </div>
+        </div>
         <div className="mb-4 flex items-start gap-2">
           <div className="rounded-md bg-primary/10 p-1.5 text-primary">
             <FileText className="size-4" />
