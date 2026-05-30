@@ -55,7 +55,7 @@ export const EU: { kr: string; en: string; flag: string }[] = [
   { kr: "에스토니아", en: "Estonia", flag: "🇪🇺" },
   { kr: "몰타", en: "Malta", flag: "🇪🇺" },
   { kr: "룩셈부르그", en: "Luxembourg", flag: "🇪🇺" },
-  { kr: "키프로스", en: "Cyprus", flag: "🇪🇺" },
+  { kr: "사이프러스", en: "Cyprus", flag: "🇪🇺" },
 ];
 
 export const EU_NAMES = EU.map((e) => e.kr);
