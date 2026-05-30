@@ -360,10 +360,18 @@ export function ImportersDirectory({
 
         {/* Results */}
         <main className="min-w-0 flex-1">
+          {list.isFetching && (
+            <div className="mb-3 h-1 w-full overflow-hidden rounded-full bg-muted">
+              <div className="h-full animate-[loading-slide_1.5s_ease-in-out_infinite] rounded-full bg-primary" style={{ width: '40%' }} />
+            </div>
+          )}
           <div className="mb-3 flex items-center justify-between text-sm text-muted-foreground">
             <div>
-              {list.isLoading ? (
-                t("검색 중…", "Searching…")
+              {list.isFetching ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="inline-block size-3.5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  {t("검색 중…", "Searching…")}
+                </span>
               ) : (
                 <>
                   <span className="font-semibold text-foreground">
