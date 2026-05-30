@@ -18,6 +18,7 @@ import {
 import { EU, EU_NAMES, SCALE, SCOLOR, flagOf, displayCountry, type Company } from "@/lib/koima-types";
 import { listCompanies, getEuStats } from "@/lib/companies.functions";
 import { DetailModal } from "@/components/DetailModal";
+import { RegionIntro } from "@/components/RegionIntro";
 import { LangToggle, useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/eu")({
@@ -231,6 +232,18 @@ function Index() {
           </div>
         </div>
       </header>
+
+      {/* ===== INTRO SECTIONS ===== */}
+      <RegionIntro
+        region="eu"
+        counts={counts}
+        grandTotal={grandTotal}
+        countries={EU}
+        onPickCountry={(kr) => {
+          setCountry(kr);
+          scrollToList();
+        }}
+      />
 
       {/* ===== DIRECTORY ===== */}
       <div
