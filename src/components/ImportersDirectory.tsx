@@ -355,7 +355,7 @@ export function ImportersDirectory({
                   />
                 ))
               : rows.map((r) => (
-                  <ImporterCard key={r.id} row={r} onOpen={() => setOpened(r)} lang={lang} t={t} />
+                  <ImporterCard key={r.id} row={r} onOpen={() => setOpened(r)} />
                 ))}
             {!list.isLoading && rows.length === 0 && (
               <div className="rounded-lg border bg-card p-10 text-center text-muted-foreground">
