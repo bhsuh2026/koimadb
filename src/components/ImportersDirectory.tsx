@@ -398,11 +398,11 @@ export function ImportersDirectory({
           />
           <div className="absolute inset-y-0 right-0 w-[88%] max-w-sm overflow-y-auto bg-background p-4 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
-              <div className="font-semibold">필터</div>
+              <div className="font-semibold">{t("필터", "Filters")}</div>
               <button
                 onClick={() => setFilterOpen(false)}
                 className="rounded p-1 hover:bg-accent"
-                aria-label="닫기"
+                aria-label={t("닫기", "Close")}
               >
                 <X className="size-5" />
               </button>
@@ -428,7 +428,7 @@ export function ImportersDirectory({
               onClick={() => setFilterOpen(false)}
               className="mt-6 w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow"
             >
-              {total.toLocaleString()}개 결과 보기
+              {t(`${total.toLocaleString()}개 결과 보기`, `View ${total.toLocaleString()} results`)}
             </button>
           </div>
         </div>
@@ -442,16 +442,22 @@ export function ImportersDirectory({
           <div className="flex flex-col items-center gap-3 text-center">
             <img
               src={koimaLogo}
-              alt="KOIMA 한국수입업협회"
+              alt="KOIMA"
               className="h-9 w-auto shrink-0 sm:h-10"
             />
           </div>
           <div className="mt-4 flex flex-col items-center gap-3 text-center text-xs text-muted-foreground sm:flex-row sm:justify-between">
             <p>
-              출처 · Source: 2025 관세청 수입실적 / Korea Customs Service · 데이터 갱신 2026.05
+              {t(
+                "출처 · 2025 관세청 수입실적 · 데이터 갱신 2026.05",
+                "Source · 2025 Korea Customs Service import records · Updated 2026.05",
+              )}
             </p>
             <p>
-              KOIMA 품목별 수입업체 검색 · 바이어 매칭 서비스 | 문의: seobh@koima.or.kr
+              {t(
+                "KOIMA 품목별 수입업체 검색 · 바이어 매칭 서비스 | 문의: seobh@koima.or.kr",
+                "KOIMA Korean importers directory · Buyer matching | Contact: seobh@koima.or.kr",
+              )}
             </p>
           </div>
         </div>
