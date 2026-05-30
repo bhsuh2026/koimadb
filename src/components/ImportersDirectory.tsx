@@ -109,11 +109,12 @@ export function ImportersDirectory({
     staleTime: 5 * 60_000,
   });
 
-  // Effective countries: when locked, always inject the locked country
+  // Effective countries: when locked, fall back to the full locked set when
+  // the user hasn't picked any additional countries.
   const effectiveCountries = useMemo(() => {
-    if (!lockedCountry) return countries;
-    return countries.includes(lockedCountry) ? countries : [lockedCountry, ...countries];
-  }, [countries, lockedCountry]);
+    if (countries.length > 0) return countries;
+    return lockedCountries;
+  }, [countries, lockedCountries]);
 
   const list = useQuery({
     queryKey: [
@@ -138,41 +139,47 @@ export function ImportersDirectory({
 
   const topCountries = useMemo(() => {
     const m = facets.data?.countries ?? {};
-    return Object.entries(m)
-      .filter(([k]) => k !== lockedCountry)
+    let entries = Object.entries(m);
+    if (isLocked) entries = entries.filter(([k]) => lockedSet.has(k));
+    return entries
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 16)
+      .slice(0, isLocked ? 50 : 16)
       .map(([k]) => k);
-  }, [facets.data, lockedCountry]);
+  }, [facets.data, isLocked, lockedSet]);
 
   const allCountries = useMemo(() => {
     const m = facets.data?.countries ?? {};
-    return Object.keys(m)
-      .filter((k) => k !== lockedCountry)
-      .sort((a, b) => displayCountry(a, lang).localeCompare(displayCountry(b, lang), lang));
-  }, [facets.data, lockedCountry, lang]);
+    let keys = Object.keys(m);
+    if (isLocked) keys = keys.filter((k) => lockedSet.has(k));
+    return keys.sort((a, b) =>
+      displayCountry(a, lang).localeCompare(displayCountry(b, lang), lang),
+    );
+  }, [facets.data, isLocked, lockedSet, lang]);
 
   const total = list.data?.total ?? 0;
   const rows = list.data?.rows ?? [];
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  const lockedCount = lockedCountry
-    ? (facets.data?.countries?.[lockedCountry] ?? null)
-    : null;
+  // Sum of importers across all locked countries (approx — may double-count
+  // importers that trade with multiple locked countries).
+  const lockedCount = useMemo(() => {
+    if (!isLocked) return null;
+    const m = facets.data?.countries ?? {};
+    let sum = 0;
+    for (const c of lockedCountries) sum += m[c] ?? 0;
+    return sum || null;
+  }, [isLocked, lockedCountries, facets.data]);
 
   const clearAll = () => {
     setQ("");
-    setCountries(lockedCountry ? [lockedCountry] : []);
+    setCountries([]);
     setScales(new Set());
     setHs("");
     setHasEmail(false);
     setPage(1);
   };
 
-  const additionalCountries = useMemo(
-    () => countries.filter((c) => c !== lockedCountry),
-    [countries, lockedCountry],
-  );
+  const additionalCountries = countries;
 
   const activeFilterCount =
     additionalCountries.length + scales.size + (hs ? 1 : 0) + (hasEmail ? 1 : 0);
@@ -192,7 +199,7 @@ export function ImportersDirectory({
                 </h1>
                 <p className="hidden text-xs text-muted-foreground sm:block">
                   {t("2025 관세청 기준 ·", "2025 Korea Customs ·")}{" "}
-                  {(lockedCount ?? facets.data?.total ?? 118353).toLocaleString()}
+                  {(lockedCount ?? facets.data?.total ?? 0).toLocaleString()}
                   {t("개 업체", " companies")}
                 </p>
               </div>
@@ -305,15 +312,14 @@ export function ImportersDirectory({
         {/* Sidebar (desktop) */}
         <aside className="hidden w-64 shrink-0 lg:block">
           <FilterPanel
-            lockedCountry={lockedCountry}
+            lockedLabel={lockedLabel}
+            isLocked={isLocked}
             topCountries={topCountries}
             allCountries={allCountries}
             scalesAvailable={SCALE_ORDER}
             scaleCounts={facets.data?.scales ?? {}}
             additionalCountries={additionalCountries}
-            setAdditionalCountries={(next) =>
-              setCountries(lockedCountry ? [lockedCountry, ...next] : next)
-            }
+            setAdditionalCountries={(next) => setCountries(next)}
             scales={scales}
             setScales={setScales}
             hasEmail={hasEmail}
@@ -335,9 +341,9 @@ export function ImportersDirectory({
                     {total.toLocaleString()}
                   </span>{" "}
                   {t("개 결과", "results")}
-                  {lockedCountry && (
+                  {isLocked && (
                     <span className="ml-1 text-xs">
-                      · {flagOf(lockedCountry)} {displayCountry(lockedCountry, lang)} {t("거래", "trade")}
+                      · {lockedLabel ?? t("선택 지역", "Selected region")} {t("거래", "trade")}
                     </span>
                   )}
                 </>
@@ -415,15 +421,14 @@ export function ImportersDirectory({
               </button>
             </div>
             <FilterPanel
-              lockedCountry={lockedCountry}
+              lockedLabel={lockedLabel}
+              isLocked={isLocked}
               topCountries={topCountries}
               allCountries={allCountries}
               scalesAvailable={SCALE_ORDER}
               scaleCounts={facets.data?.scales ?? {}}
               additionalCountries={additionalCountries}
-              setAdditionalCountries={(next) =>
-                setCountries(lockedCountry ? [lockedCountry, ...next] : next)
-              }
+              setAdditionalCountries={(next) => setCountries(next)}
               scales={scales}
               setScales={setScales}
               hasEmail={hasEmail}
@@ -474,7 +479,8 @@ export function ImportersDirectory({
 }
 
 function FilterPanel(props: {
-  lockedCountry?: string;
+  lockedLabel?: string;
+  isLocked: boolean;
   topCountries: string[];
   allCountries: string[];
   scalesAvailable: string[];
@@ -521,31 +527,28 @@ function FilterPanel(props: {
       <div>
         <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           <Globe2 className="size-3.5" />
-          {props.lockedCountry
-            ? t("추가 수입국가 (AND)", "Additional countries (AND)")
+          {props.isLocked
+            ? t("지역 내 국가 필터", "Filter within region")
             : t("주요 수입국가", "Top import countries")}
         </div>
 
-        {props.lockedCountry && (
+        {props.isLocked && props.lockedLabel && (
           <div className="mb-2 inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
-            <span>{flagOf(props.lockedCountry)}</span>
-            {displayCountry(props.lockedCountry, lang)}
+            {props.lockedLabel}
             <span className="ml-1 text-[10px] font-normal text-primary/70">{t("고정", "Locked")}</span>
           </div>
         )}
 
         <div className="flex flex-wrap gap-1.5">
-          {!props.lockedCountry && (
-            <FilterChip
-              active={props.additionalCountries.length === 0}
-              onClick={() => {
-                props.setAdditionalCountries([]);
-                props.onFilterChange();
-              }}
-            >
-              {t("전체", "All")}
-            </FilterChip>
-          )}
+          <FilterChip
+            active={props.additionalCountries.length === 0}
+            onClick={() => {
+              props.setAdditionalCountries([]);
+              props.onFilterChange();
+            }}
+          >
+            {t("전체", "All")}
+          </FilterChip>
           {props.topCountries.map((c) => (
             <FilterChip
               key={c}

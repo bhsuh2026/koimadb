@@ -1,16 +1,6 @@
-export type Company = {
-  id: string;
-  biz_no: string | null;
-  name_kr: string;
-  name_en: string;
-  email: string;
-  phone: string;
-  scale_code: number;
-  asean_countries: string[];
-  other_countries: string[];
-};
+// Company/CompanyInput types removed — the project now uses the
+// importers table exclusively. See src/lib/importers.functions.ts.
 
-export type CompanyInput = Omit<Company, "id">;
 
 export const ASEAN: { kr: string; en: string; flag: string }[] = [
   { kr: "베트남", en: "Vietnam", flag: "🇻🇳" },
