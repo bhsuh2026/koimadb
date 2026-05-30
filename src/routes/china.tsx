@@ -179,6 +179,12 @@ function ChinaPage() {
                 <span className="hidden sm:inline">CIS</span>
               </Link>
               <Link
+                to="/usa"
+                className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur transition hover:bg-white/20"
+              >
+                🇺🇸 <span className="hidden sm:inline">USA</span>
+              </Link>
+              <Link
                 to="/admin"
                 className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur transition hover:bg-white/20"
               >
