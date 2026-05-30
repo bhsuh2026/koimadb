@@ -189,8 +189,6 @@ export function ImportersDirectory({
                   {t("개 업체", " companies")}
                 </p>
               </div>
-
-            </div>
             <div className="flex items-center gap-2">
               <LangToggle />
               <button
