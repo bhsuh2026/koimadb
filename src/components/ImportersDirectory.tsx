@@ -229,15 +229,31 @@ export function ImportersDirectory({
 
           {/* Search */}
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder={t("업체명 · 사업자번호 · 품목으로 검색", "Search by name · biz no · items")}
-                className="w-full rounded-md border bg-card py-2 pl-9 pr-3 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
-              />
-            </div>
+            <form
+              className="flex flex-1 gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                setQDeb(q.trim());
+                setPage(1);
+              }}
+            >
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder={t("업체명 · 사업자번호 · 품목으로 검색", "Search by name · biz no · items")}
+                  className="w-full rounded-md border bg-card py-2 pl-9 pr-3 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+              <button
+                type="submit"
+                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
+              >
+                <Search className="size-4" />
+                {t("검색", "Search")}
+              </button>
+            </form>
             <div className="flex flex-wrap gap-2">
               <input
                 value={hs}
