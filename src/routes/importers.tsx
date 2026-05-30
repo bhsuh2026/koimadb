@@ -244,6 +244,39 @@ function Index() {
               })}
             </div>
           </div>
+
+          {/* Cross-region quick links */}
+          <div className="mx-auto max-w-[1300px] px-4 pb-6 sm:px-6 sm:pb-7">
+            <div className="pb-2 text-[10px] font-bold uppercase tracking-wider text-white/55">
+              {t("다른 지역 디렉토리", "Other Region Directories")}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                to="/usa"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-4 py-2.5 text-[13px] font-semibold text-white/95 backdrop-blur transition hover:bg-white/20"
+              >
+                🇺🇸 {t("미국", "USA")}
+              </Link>
+              <Link
+                to="/china"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-4 py-2.5 text-[13px] font-semibold text-white/95 backdrop-blur transition hover:bg-white/20"
+              >
+                🇨🇳 {t("중국", "China")}
+              </Link>
+              <Link
+                to="/cis"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-4 py-2.5 text-[13px] font-semibold text-white/95 backdrop-blur transition hover:bg-white/20"
+              >
+                🌍 {t("CIS", "CIS")}
+              </Link>
+              <Link
+                to="/eu"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-4 py-2.5 text-[13px] font-semibold text-white/95 backdrop-blur transition hover:bg-white/20"
+              >
+                🇪🇺 {t("EU", "EU")}
+              </Link>
+            </div>
+          </div>
         </div>
       </header>
 
