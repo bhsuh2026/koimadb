@@ -13,12 +13,8 @@ const LangCtx = createContext<Ctx | null>(null);
 export function LangProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("en");
 
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("koima.lang");
-      if (saved === "en" || saved === "ko") setLangState(saved);
-    } catch {}
-  }, []);
+  // Always default to English on load; user can toggle per session.
+
 
   const setLang = (l: Lang) => {
     setLangState(l);
