@@ -450,6 +450,8 @@ export function ImportersDirectory({
               allCountries={allCountries}
               scalesAvailable={SCALE_ORDER}
               scaleCounts={facets.data?.scales ?? {}}
+              countryCounts={facets.data?.countries ?? {}}
+
               additionalCountries={additionalCountries}
               setAdditionalCountries={(next) => setCountries(next)}
               scales={scales}
