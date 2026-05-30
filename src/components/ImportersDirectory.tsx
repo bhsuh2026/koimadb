@@ -22,7 +22,9 @@ import {
 } from "@/lib/importers.functions";
 import { flagOf, displayCountry, displayCompanyName, scaleLabel } from "@/lib/koima-types";
 import { AseanFlag } from "@/components/AseanFlag";
+import { RegionSnapshot } from "@/components/RegionSnapshot";
 import { LangToggle, useLang } from "@/lib/i18n";
+
 
 const PAGE_SIZE = 50;
 
