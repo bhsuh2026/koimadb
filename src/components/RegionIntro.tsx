@@ -4,7 +4,7 @@ import { useLang } from "@/lib/i18n";
 type Country = { kr: string; en: string; flag: string };
 
 type Props = {
-  region: "asean" | "eu";
+  region: "asean" | "eu" | "cis";
   counts: Record<string, number>;
   grandTotal: number;
   countries: Country[];
