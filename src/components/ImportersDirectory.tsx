@@ -321,16 +321,16 @@ export function ImportersDirectory({
           <div className="mb-3 flex items-center justify-between text-sm text-muted-foreground">
             <div>
               {list.isLoading ? (
-                "검색 중…"
+                t("검색 중…", "Searching…")
               ) : (
                 <>
                   <span className="font-semibold text-foreground">
                     {total.toLocaleString()}
                   </span>{" "}
-                  개 결과
+                  {t("개 결과", "results")}
                   {lockedCountry && (
                     <span className="ml-1 text-xs">
-                      · {flagOf(lockedCountry)} {displayCountry(lockedCountry)} 거래
+                      · {flagOf(lockedCountry)} {displayCountry(lockedCountry, lang)} {t("거래", "trade")}
                     </span>
                   )}
                 </>
@@ -341,7 +341,7 @@ export function ImportersDirectory({
                 onClick={clearAll}
                 className="inline-flex items-center gap-1 text-xs hover:text-foreground"
               >
-                <X className="size-3.5" /> 필터 초기화
+                <X className="size-3.5" /> {t("필터 초기화", "Clear filters")}
               </button>
             )}
           </div>
@@ -355,11 +355,11 @@ export function ImportersDirectory({
                   />
                 ))
               : rows.map((r) => (
-                  <ImporterCard key={r.id} row={r} onOpen={() => setOpened(r)} />
+                  <ImporterCard key={r.id} row={r} onOpen={() => setOpened(r)} lang={lang} t={t} />
                 ))}
             {!list.isLoading && rows.length === 0 && (
               <div className="rounded-lg border bg-card p-10 text-center text-muted-foreground">
-                조건에 맞는 업체가 없습니다.
+                {t("조건에 맞는 업체가 없습니다.", "No companies match your filters.")}
               </div>
             )}
           </div>
@@ -372,7 +372,7 @@ export function ImportersDirectory({
                 disabled={page <= 1}
                 className="inline-flex items-center gap-1 rounded-md border bg-card px-3 py-2 shadow-sm enabled:hover:bg-accent disabled:opacity-40"
               >
-                <ChevronLeft className="size-4" /> 이전
+                <ChevronLeft className="size-4" /> {t("이전", "Prev")}
               </button>
               <span className="px-2 tabular-nums">
                 {page} / {pages.toLocaleString()}
@@ -382,7 +382,7 @@ export function ImportersDirectory({
                 disabled={page >= pages}
                 className="inline-flex items-center gap-1 rounded-md border bg-card px-3 py-2 shadow-sm enabled:hover:bg-accent disabled:opacity-40"
               >
-                다음 <ChevronRight className="size-4" />
+                {t("다음", "Next")} <ChevronRight className="size-4" />
               </button>
             </div>
           )}
