@@ -17,10 +17,11 @@ export function AseanFlag({ className }: { className?: string }) {
         {/* Stalks radiating from center */}
         {[0, 36, 72, 108, 144, 180, 216, 252, 288, 324].map((angle, i) => {
           const rad = (angle * Math.PI) / 180;
-          const x1 = 36 + 5 * Math.cos(rad);
-          const y1 = 24 + 5 * Math.sin(rad);
-          const x2 = 36 + 12 * Math.cos(rad);
-          const y2 = 24 + 12 * Math.sin(rad);
+          const r = (n: number) => Number(n.toFixed(3));
+          const x1 = r(36 + 5 * Math.cos(rad));
+          const y1 = r(24 + 5 * Math.sin(rad));
+          const x2 = r(36 + 12 * Math.cos(rad));
+          const y2 = r(24 + 12 * Math.sin(rad));
           return (
             <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} />
           );
