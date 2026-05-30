@@ -228,6 +228,18 @@ function Index() {
         </div>
       </header>
 
+      {/* ===== INTRO SECTIONS ===== */}
+      <RegionIntro
+        region="asean"
+        counts={counts}
+        grandTotal={grandTotal}
+        countries={ASEAN}
+        onPickCountry={(kr) => {
+          setCountry(kr);
+          scrollToList();
+        }}
+      />
+
       {/* ===== DIRECTORY ===== */}
       <div
         ref={dirRef}
