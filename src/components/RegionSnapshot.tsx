@@ -173,6 +173,38 @@ const REGION_INFO: Record<
     snapshotTitleEn: "Korea–CIS Trade Snapshot",
     ftaTitleKr: "적용 가능 협정 · 특혜관세",
     ftaTitleEn: "Applicable Agreements & Preferential Tariffs",
+    intro_kr:
+      "한-CIS 간 FTA는 미발효 상태로, EAEU 관세동맹·CIS 자유무역지대 등 권역 협정과 양자 합의에 따라 품목별 세율이 달라집니다. 일반적으로 MFN 세율이 적용되는 경우가 많습니다.",
+    intro_en:
+      "No Korea–CIS FTA is in force. Tariffs depend on the EAEU customs union, intra-CIS arrangements, and bilateral terms; MFN rates often apply.",
+    counterparts: [
+      {
+        title_kr: "CIS 각국 주한 대사관",
+        title_en: "CIS Embassies in Korea",
+        category_kr: "주한 대사관 · Embassies",
+        category_en: "Diplomatic missions",
+        desc_kr: "러시아·우즈베키스탄·카자흐스탄 등 국가별 대사관",
+        desc_en: "Per-country embassies including Russia, Uzbekistan, Kazakhstan.",
+      },
+      {
+        title_kr: "KOTRA 러시아·CIS 무역관",
+        title_en: "KOTRA Russia & CIS Trade Offices",
+        category_kr: "KOTRA 무역관 · CIS",
+        category_en: "Trade promotion",
+        desc_kr: "모스크바·상트페테르부르크·타슈켄트·알마티 등",
+        desc_en: "Moscow · St. Petersburg · Tashkent · Almaty and more.",
+        href: "https://www.kotra.or.kr/",
+        hrefLabel: "kotra.or.kr",
+      },
+      {
+        title_kr: "한-러 협력 기관",
+        title_en: "Korea–Russia cooperation bodies",
+        category_kr: "권역 협력 · CIS",
+        category_en: "Regional cooperation",
+        desc_kr: "한-러 경제과학기술공동위 등 정부간 협력 채널",
+        desc_en: "Intergovernmental committees on Korea–Russia economic cooperation.",
+      },
+    ],
     ftas: [
       {
         name: "EAEU 관세동맹 (참고)",
