@@ -223,7 +223,7 @@ export function ImportersDirectory({
                 </p>
               </div>
             <div className="flex items-center gap-2">
-              <LangToggle />
+              {isVietnamPage ? <LangToggleVietnam /> : <LangToggle />}
               <button
                 onClick={() => setFilterOpen(true)}
                 className="relative inline-flex items-center gap-1.5 rounded-md border bg-card px-3 py-2 text-sm shadow-sm hover:bg-accent lg:hidden"
