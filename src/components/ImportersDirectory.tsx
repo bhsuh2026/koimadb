@@ -948,14 +948,23 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
 
 function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
   const { t, lang } = useLang();
+  const [scrolled, setScrolled] = useState(false);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    // lock body scroll
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
   }, [onClose]);
 
-  const emails = [row.email, row.email_extra].filter(Boolean).join(", ");
-  const phones = [row.phone, row.phone_extra].filter(Boolean).join(" / ");
+  const emailList = [row.email, row.email_extra].filter(Boolean).join(",").split(",").map((s) => s.trim()).filter(Boolean);
+  const phoneList = [row.phone, row.phone_extra].filter(Boolean).join("/").split("/").map((s) => s.trim()).filter(Boolean);
+
   const primaryName = lang === "ko"
     ? (displayCompanyName(row.name_kr) || row.name_en)
     : (row.name_en || displayCompanyName(row.name_kr));
@@ -963,11 +972,24 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
 
   const initial = (primaryName || "?").trim().charAt(0).toUpperCase();
 
+  const handleShare = async () => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    const text = `${primaryName}${secondaryName ? ` (${secondaryName})` : ""}`;
+    if (navigator.share) {
+      try { await navigator.share({ title: text, url }); } catch {}
+    } else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(`${text} — ${url}`);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={onClose} />
       <div
-        className="absolute inset-x-0 bottom-0 flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-3xl bg-background shadow-2xl animate-in slide-in-from-bottom duration-300 sm:inset-y-8 sm:left-auto sm:right-8 sm:w-[560px] sm:max-w-[calc(100vw-2rem)] sm:rounded-2xl sm:slide-in-from-right"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+        onClick={onClose}
+      />
+      <div
+        className="absolute inset-x-0 bottom-0 flex max-h-[94vh] w-full flex-col overflow-hidden rounded-t-3xl bg-background shadow-2xl ring-1 ring-border/60 animate-in slide-in-from-bottom duration-300 sm:inset-y-6 sm:left-auto sm:right-6 sm:w-[580px] sm:max-w-[calc(100vw-2rem)] sm:rounded-2xl sm:slide-in-from-right"
         role="dialog"
         aria-modal="true"
       >
@@ -976,54 +998,95 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
           <div className="h-1.5 w-10 rounded-full bg-muted-foreground/30" />
         </div>
 
+        {/* Sticky compact header — shows only when scrolled */}
+        {scrolled && (
+          <div className="absolute inset-x-0 top-0 z-20 flex items-center gap-2 border-b border-border bg-background/95 px-4 py-2.5 backdrop-blur sm:px-5 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="flex size-7 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-primary to-primary/70 text-xs font-bold text-primary-foreground">
+              {initial}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold">{primaryName}</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="rounded-full p-1.5 hover:bg-accent"
+              aria-label={t("닫기", "Close", "Đóng")}
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+        )}
+
         {/* Hero header */}
         <div className="relative overflow-hidden border-b border-border">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent" />
+          <div className="absolute -right-12 -top-12 size-40 rounded-full bg-primary/10 blur-3xl" />
           <button
             onClick={onClose}
-            className="absolute right-3 top-3 z-10 rounded-full bg-background/80 p-1.5 backdrop-blur hover:bg-accent"
+            className="absolute right-3 top-3 z-10 rounded-full bg-background/80 p-1.5 backdrop-blur transition hover:bg-accent"
             aria-label={t("닫기", "Close", "Đóng")}
           >
             <X className="size-4" />
           </button>
-          <div className="relative flex items-start gap-3 px-4 py-4 sm:px-5 sm:py-5">
-            <div className="flex size-12 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-lg font-bold text-primary-foreground shadow-sm sm:size-14 sm:text-xl">
+          <div className="relative flex items-start gap-3 px-4 pb-4 pt-5 sm:px-6 sm:pb-5 sm:pt-6">
+            <div className="relative flex size-14 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/60 text-xl font-bold text-primary-foreground shadow-lg shadow-primary/20 ring-4 ring-background sm:size-16 sm:text-2xl">
               {initial}
             </div>
             <div className="min-w-0 flex-1 pr-8">
-              <h2 className="break-words text-base font-semibold leading-tight sm:text-xl">
+              <h2 className="break-words text-base font-bold leading-tight sm:text-xl">
                 {primaryName}
               </h2>
               {secondaryName && (
-                <p className="mt-0.5 break-words text-xs text-muted-foreground sm:text-sm">{secondaryName}</p>
+                <p className="mt-1 break-words text-xs text-muted-foreground sm:text-sm">{secondaryName}</p>
               )}
-              <div className="mt-2.5 flex flex-wrap gap-1.5">
+              <div className="mt-3 flex flex-wrap gap-1.5">
                 {row.scale_label && (
                   <span
-                    className={`rounded-full px-2 py-0.5 text-[11px] font-medium sm:text-xs ${scaleColor(row.scale_label)}`}
+                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold sm:text-xs ${scaleColor(row.scale_label)}`}
                   >
+                    <Sparkles className="size-3" />
                     {scaleLabel(row.scale_label, lang)}
                   </span>
                 )}
                 {row.rank_import != null && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background/60 px-2 py-0.5 text-[11px] backdrop-blur sm:text-xs">
-                    <TrendingUp className="size-3" />
+                  <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background/70 px-2.5 py-1 text-[11px] font-medium backdrop-blur sm:text-xs">
+                    <TrendingUp className="size-3 text-primary" />
                     {t("수입", "Imp.", "NK")} #{row.rank_import.toLocaleString()}
                   </span>
                 )}
                 {row.rank_sales != null && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background/60 px-2 py-0.5 text-[11px] backdrop-blur sm:text-xs">
-                    <Building2 className="size-3" />
+                  <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background/70 px-2.5 py-1 text-[11px] font-medium backdrop-blur sm:text-xs">
+                    <Building2 className="size-3 text-primary" />
                     {t("매출", "Rev.", "DT")} #{row.rank_sales.toLocaleString()}
                   </span>
                 )}
               </div>
             </div>
           </div>
+
+          {/* Quick action bar */}
+          <div className="relative flex gap-2 border-t border-border/60 bg-background/40 px-4 py-2.5 backdrop-blur sm:px-6">
+            {row.biz_no && (
+              <CopyChip
+                label={t("사업자번호", "Biz no.", "Mã số thuế")}
+                value={maskBizNo(row.biz_no)}
+                icon={<IdCard className="size-3.5" />}
+              />
+            )}
+            <button
+              onClick={handleShare}
+              className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium transition hover:bg-accent"
+            >
+              <Share2 className="size-3.5" />
+              {t("공유", "Share", "Chia sẻ")}
+            </button>
+          </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-5">
-
+        <div
+          className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6"
+          onScroll={(e) => setScrolled((e.target as HTMLDivElement).scrollTop > 24)}
+        >
           <div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-200">
             <ShieldAlert className="mt-0.5 size-3.5 flex-shrink-0" />
             <span>
@@ -1036,40 +1099,26 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
           </div>
 
           {/* Contact section */}
-          {(row.biz_no || emails || phones) && (
-            <Section title={t("연락 정보", "Contact", "Liên hệ")}>
-              {row.biz_no && (
-                <DRow icon={<IdCard className="size-3.5" />} label={t("사업자번호", "Business no.", "Mã số thuế")}>
-                  <span className="font-mono tabular-nums">{maskBizNo(row.biz_no)}</span>
-                </DRow>
-              )}
-              {emails && (
+          {(emailList.length > 0 || phoneList.length > 0) && (
+            <Section
+              title={t("연락 정보", "Contact", "Liên hệ")}
+              count={emailList.length + phoneList.length}
+            >
+              {emailList.length > 0 && (
                 <DRow icon={<Mail className="size-3.5" />} label={t("이메일", "Email", "Email")}>
-                  <div className="flex flex-wrap gap-1.5 font-mono text-xs">
-                    {emails.split(",").map((e, i) => {
-                      const v = e.trim();
-                      if (!v) return null;
-                      return (
-                        <span key={`${v}-${i}`} className="rounded-md bg-muted px-2 py-0.5">
-                          {maskEmail(v)}
-                        </span>
-                      );
-                    })}
+                  <div className="flex flex-wrap gap-1.5">
+                    {emailList.map((v, i) => (
+                      <CopyChip key={`${v}-${i}`} value={maskEmail(v)} mono />
+                    ))}
                   </div>
                 </DRow>
               )}
-              {phones && (
+              {phoneList.length > 0 && (
                 <DRow icon={<Phone className="size-3.5" />} label={t("전화", "Phone", "Điện thoại")}>
-                  <div className="flex flex-wrap gap-1.5 font-mono text-xs">
-                    {phones.split("/").map((p, i) => {
-                      const v = p.trim();
-                      if (!v) return null;
-                      return (
-                        <span key={`${v}-${i}`} className="rounded-md bg-muted px-2 py-0.5">
-                          {maskPhone(v)}
-                        </span>
-                      );
-                    })}
+                  <div className="flex flex-wrap gap-1.5">
+                    {phoneList.map((v, i) => (
+                      <CopyChip key={`${v}-${i}`} value={maskPhone(v)} mono />
+                    ))}
                   </div>
                 </DRow>
               )}
@@ -1078,17 +1127,21 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
 
           {/* Trade section */}
           {(row.countries.length > 0 || row.hs_codes.length > 0) && (
-            <Section title={t("무역 정보", "Trade", "Thương mại")}>
+            <Section
+              title={t("무역 정보", "Trade", "Thương mại")}
+              count={row.countries.length + row.hs_codes.length}
+            >
               {row.countries.length > 0 && (
                 <DRow
                   icon={<Globe2 className="size-3.5" />}
-                  label={t(`수입국가 (${row.countries.length})`, `Import countries (${row.countries.length})`, `Quốc gia nhập khẩu (${row.countries.length})`)}
+                  label={t("수입국가", "Import countries", "Quốc gia NK")}
+                  badge={row.countries.length}
                 >
                   <div className="flex flex-wrap gap-1.5">
                     {row.countries.map((c) => (
                       <span
                         key={c}
-                        className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/50 px-2 py-0.5 text-xs"
+                        className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/50 px-2.5 py-1 text-xs"
                       >
                         <span>{flagOf(c)}</span> {displayCountry(c, lang)}
                       </span>
@@ -1097,15 +1150,14 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
                 </DRow>
               )}
               {row.hs_codes.length > 0 && (
-                <DRow icon={<Hash className="size-3.5" />} label={t("HS코드", "HS codes", "Mã HS")}>
-                  <div className="flex flex-wrap gap-1.5 font-mono text-xs">
+                <DRow
+                  icon={<Hash className="size-3.5" />}
+                  label={t("HS코드", "HS codes", "Mã HS")}
+                  badge={row.hs_codes.length}
+                >
+                  <div className="flex flex-wrap gap-1.5">
                     {row.hs_codes.map((h) => (
-                      <span
-                        key={h}
-                        className="rounded-md bg-muted px-2 py-0.5 tabular-nums"
-                      >
-                        {maskHS(h)}
-                      </span>
+                      <CopyChip key={h} value={maskHS(h)} mono />
                     ))}
                   </div>
                 </DRow>
@@ -1119,26 +1171,26 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
               {lang === "ko"
                 ? row.items_kr && (
                     <DRow icon={<Package className="size-3.5" />} label={t("한국어", "Korean", "Tiếng Hàn")}>
-                      <p className="whitespace-pre-wrap leading-relaxed">{row.items_kr}</p>
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed">{row.items_kr}</p>
                     </DRow>
                   )
                 : (row.items_en || row.items_kr) && (
                     <DRow icon={<Package className="size-3.5" />} label={t("영문", "English", "Tiếng Anh")}>
-                      <p className="whitespace-pre-wrap leading-relaxed">
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed">
                         {row.items_en || row.items_kr}
                       </p>
                     </DRow>
                   )}
               {lang !== "ko" && row.items_en && row.items_kr && (
                 <DRow icon={<Package className="size-3.5" />} label={t("한국어", "Korean", "Tiếng Hàn")}>
-                  <p className="whitespace-pre-wrap leading-relaxed text-muted-foreground">
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
                     {row.items_kr}
                   </p>
                 </DRow>
               )}
               {lang === "ko" && row.items_en && (
                 <DRow icon={<Package className="size-3.5" />} label="English">
-                  <p className="whitespace-pre-wrap leading-relaxed text-muted-foreground">
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
                     {row.items_en}
                   </p>
                 </DRow>
@@ -1148,34 +1200,97 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
         </div>
       </div>
     </div>
-
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  count,
+  children,
+}: {
+  title: string;
+  count?: number;
+  children: React.ReactNode;
+}) {
   return (
-    <section className="mb-4 overflow-hidden rounded-xl border border-border bg-card">
-      <div className="border-b border-border bg-muted/30 px-3 py-2">
+    <section className="mb-3 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <div className="flex items-center justify-between border-b border-border bg-muted/40 px-3.5 py-2">
         <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           {title}
         </h3>
+        {count != null && count > 0 && (
+          <span className="rounded-full bg-background px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+            {count}
+          </span>
+        )}
       </div>
-      <div className="divide-y divide-border">
-        {children}
-      </div>
+      <div className="divide-y divide-border">{children}</div>
     </section>
   );
 }
 
-function DRow({ icon, label, children }: { icon?: React.ReactNode; label: string; children: React.ReactNode }) {
+function DRow({
+  icon,
+  label,
+  badge,
+  children,
+}: {
+  icon?: React.ReactNode;
+  label: string;
+  badge?: number;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="px-3 py-2.5">
-      <div className="mb-1 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+    <div className="px-3.5 py-3">
+      <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
         {icon}
         <span>{label}</span>
+        {badge != null && (
+          <span className="rounded-full bg-muted px-1.5 py-px text-[10px] font-bold normal-case tracking-normal text-foreground/70">
+            {badge}
+          </span>
+        )}
       </div>
       <div className="text-sm">{children}</div>
     </div>
+  );
+}
+
+function CopyChip({
+  value,
+  label,
+  icon,
+  mono = false,
+}: {
+  value: string;
+  label?: string;
+  icon?: React.ReactNode;
+  mono?: boolean;
+}) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1400);
+    } catch {}
+  };
+  return (
+    <button
+      onClick={handleCopy}
+      className={`group inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-1 text-xs transition hover:border-primary/40 hover:bg-primary/5 active:scale-95 ${mono ? "font-mono tabular-nums" : ""}`}
+      title="Copy"
+    >
+      {icon}
+      {label && <span className="font-sans text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</span>}
+      <span>{value}</span>
+      {copied ? (
+        <Check className="size-3 text-emerald-600" />
+      ) : (
+        <Copy className="size-3 text-muted-foreground/60 group-hover:text-primary" />
+      )}
+    </button>
   );
 }
 
