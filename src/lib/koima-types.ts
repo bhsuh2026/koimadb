@@ -227,17 +227,17 @@ function regionNames(lang: "en" | "zh" | "vi"): Intl.DisplayNames | null {
   }
 }
 
-// 표시용 국가명. lang으로 영어/중국어 변환 가능 (ISO2 → Intl.DisplayNames).
-export const displayCountry = (country: string, lang: "ko" | "en" | "zh" = "ko"): string => {
+// 표시용 국가명. lang으로 영어/중국어/베트남어 변환 가능 (ISO2 → Intl.DisplayNames).
+export const displayCountry = (country: string, lang: "ko" | "en" | "zh" | "vi" = "ko"): string => {
   const t = country.trim();
   if (NON_COUNTRY.has(t)) {
-    return lang === "en" ? "Other" : lang === "zh" ? "其他" : "기타국";
+    return lang === "en" ? "Other" : lang === "zh" ? "其他" : lang === "vi" ? "Khác" : "기타국";
   }
   const normalized = NAME_FIX[t] ?? t;
   if (lang === "ko") return normalized;
   const iso = COUNTRY_ISO[normalized];
   if (iso) {
-    const dn = regionNames(lang);
+    const dn = regionNames(lang === "vi" ? "vi" : lang);
     if (dn) {
       try {
         const v = dn.of(iso);
