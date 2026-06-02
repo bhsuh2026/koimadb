@@ -90,6 +90,8 @@ export function ImportersDirectory({
   const lockedSet = useMemo(() => new Set(lockedCountries), [lockedCountries]);
   const isLocked = lockedCountries.length > 0;
   const { t, lang } = useLang();
+  const router = useRouter();
+  const isVietnamPage = router.state.location.pathname === "/vietnam";
   const listFn = useServerFn(listImporters);
   const facetsFn = useServerFn(getImporterFacets);
   const [q, setQ] = useState(initialQuery);
