@@ -14,6 +14,10 @@ import {
   Building2,
   TrendingUp,
   Globe2,
+  Hash,
+  Package,
+  IdCard,
+  ShieldAlert,
 } from "lucide-react";
 import {
   listImporters,
@@ -953,11 +957,13 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
     : (row.name_en || displayCompanyName(row.name_kr));
   const secondaryName = lang === "ko" ? row.name_en : displayCompanyName(row.name_kr);
 
+  const initial = (primaryName || "?").trim().charAt(0).toUpperCase();
+
   return (
     <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={onClose} />
       <div
-        className="absolute inset-x-0 bottom-0 flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl bg-background shadow-2xl sm:inset-y-8 sm:left-auto sm:right-8 sm:w-[520px] sm:max-w-[calc(100vw-2rem)] sm:rounded-2xl"
+        className="absolute inset-x-0 bottom-0 flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-3xl bg-background shadow-2xl animate-in slide-in-from-bottom duration-300 sm:inset-y-8 sm:left-auto sm:right-8 sm:w-[560px] sm:max-w-[calc(100vw-2rem)] sm:rounded-2xl sm:slide-in-from-right"
         role="dialog"
         aria-modal="true"
       >
@@ -966,148 +972,206 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
           <div className="h-1.5 w-10 rounded-full bg-muted-foreground/30" />
         </div>
 
-        <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3 sm:px-5 sm:py-4">
-          <div className="min-w-0 flex-1">
-            <h2 className="break-words text-base font-semibold leading-tight sm:text-xl">
-              {primaryName}
-            </h2>
-            {secondaryName && (
-              <p className="mt-0.5 break-words text-xs text-muted-foreground sm:text-sm">{secondaryName}</p>
-            )}
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {row.scale_label && (
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[11px] font-medium sm:text-xs ${scaleColor(row.scale_label)}`}
-                >
-                  {scaleLabel(row.scale_label, lang)}
-                </span>
-              )}
-              {row.rank_import != null && (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] sm:text-xs">
-                  {t("수입액", "Imports", "Kim ngạch nhập khẩu")} #{row.rank_import.toLocaleString()}
-                </span>
-              )}
-              {row.rank_sales != null && (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] sm:text-xs">
-                  {t("매출액", "Revenue", "Doanh thu")} #{row.rank_sales.toLocaleString()}
-                </span>
-              )}
-            </div>
-          </div>
+        {/* Hero header */}
+        <div className="relative overflow-hidden border-b border-border">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent" />
           <button
             onClick={onClose}
-            className="flex-shrink-0 rounded p-1.5 hover:bg-accent"
+            className="absolute right-3 top-3 z-10 rounded-full bg-background/80 p-1.5 backdrop-blur hover:bg-accent"
             aria-label={t("닫기", "Close", "Đóng")}
           >
-            <X className="size-5" />
+            <X className="size-4" />
           </button>
+          <div className="relative flex items-start gap-3 px-4 py-4 sm:px-5 sm:py-5">
+            <div className="flex size-12 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-lg font-bold text-primary-foreground shadow-sm sm:size-14 sm:text-xl">
+              {initial}
+            </div>
+            <div className="min-w-0 flex-1 pr-8">
+              <h2 className="break-words text-base font-semibold leading-tight sm:text-xl">
+                {primaryName}
+              </h2>
+              {secondaryName && (
+                <p className="mt-0.5 break-words text-xs text-muted-foreground sm:text-sm">{secondaryName}</p>
+              )}
+              <div className="mt-2.5 flex flex-wrap gap-1.5">
+                {row.scale_label && (
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[11px] font-medium sm:text-xs ${scaleColor(row.scale_label)}`}
+                  >
+                    {scaleLabel(row.scale_label, lang)}
+                  </span>
+                )}
+                {row.rank_import != null && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background/60 px-2 py-0.5 text-[11px] backdrop-blur sm:text-xs">
+                    <TrendingUp className="size-3" />
+                    {t("수입", "Imp.", "NK")} #{row.rank_import.toLocaleString()}
+                  </span>
+                )}
+                {row.rank_sales != null && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background/60 px-2 py-0.5 text-[11px] backdrop-blur sm:text-xs">
+                    <Building2 className="size-3" />
+                    {t("매출", "Rev.", "DT")} #{row.rank_sales.toLocaleString()}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-5">
 
-        <div className="mb-3 rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-200">
-          {t(
-            "개인정보 보호를 위해 사업자번호 · 연락처 · 이메일 · HS코드 · 품목은 일부가 마스킹되어 표시됩니다.",
-            "For privacy, business numbers, contacts, emails, HS codes, and items are partially masked.",
-          )}
-        </div>
-        <dl className="space-y-3 text-sm">
-          {row.biz_no && (
-            <Row label={t("사업자번호", "Business no.", "Mã số thuế")}>
-              <span className="font-mono tabular-nums">{maskBizNo(row.biz_no)}</span>
-            </Row>
-          )}
-          {emails && (
-            <Row label={t("이메일", "Email", "Email")}>
-              <div className="flex flex-wrap gap-2 font-mono text-xs">
-                {emails.split(",").map((e, i) => {
-                  const v = e.trim();
-                  if (!v) return null;
-                  return (
-                    <span key={`${v}-${i}`} className="rounded bg-muted px-1.5 py-0.5">
-                      {maskEmail(v)}
-                    </span>
-                  );
-                })}
-              </div>
-            </Row>
-          )}
-          {phones && (
-            <Row label={t("전화", "Phone", "Điện thoại")}>
-              <div className="flex flex-wrap gap-2 font-mono text-xs">
-                {phones.split("/").map((p, i) => {
-                  const v = p.trim();
-                  if (!v) return null;
-                  return (
-                    <span key={`${v}-${i}`} className="rounded bg-muted px-1.5 py-0.5">
-                      {maskPhone(v)}
-                    </span>
-                  );
-                })}
-              </div>
-            </Row>
+          <div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-200">
+            <ShieldAlert className="mt-0.5 size-3.5 flex-shrink-0" />
+            <span>
+              {t(
+                "개인정보 보호를 위해 사업자번호 · 연락처 · 이메일 · HS코드 · 품목은 일부가 마스킹되어 표시됩니다.",
+                "For privacy, business numbers, contacts, emails, HS codes, and items are partially masked.",
+                "Vì lý do bảo mật, mã số thuế, liên hệ, email, mã HS và mặt hàng được hiển thị một phần.",
+              )}
+            </span>
+          </div>
+
+          {/* Contact section */}
+          {(row.biz_no || emails || phones) && (
+            <Section title={t("연락 정보", "Contact", "Liên hệ")}>
+              {row.biz_no && (
+                <DRow icon={<IdCard className="size-3.5" />} label={t("사업자번호", "Business no.", "Mã số thuế")}>
+                  <span className="font-mono tabular-nums">{maskBizNo(row.biz_no)}</span>
+                </DRow>
+              )}
+              {emails && (
+                <DRow icon={<Mail className="size-3.5" />} label={t("이메일", "Email", "Email")}>
+                  <div className="flex flex-wrap gap-1.5 font-mono text-xs">
+                    {emails.split(",").map((e, i) => {
+                      const v = e.trim();
+                      if (!v) return null;
+                      return (
+                        <span key={`${v}-${i}`} className="rounded-md bg-muted px-2 py-0.5">
+                          {maskEmail(v)}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </DRow>
+              )}
+              {phones && (
+                <DRow icon={<Phone className="size-3.5" />} label={t("전화", "Phone", "Điện thoại")}>
+                  <div className="flex flex-wrap gap-1.5 font-mono text-xs">
+                    {phones.split("/").map((p, i) => {
+                      const v = p.trim();
+                      if (!v) return null;
+                      return (
+                        <span key={`${v}-${i}`} className="rounded-md bg-muted px-2 py-0.5">
+                          {maskPhone(v)}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </DRow>
+              )}
+            </Section>
           )}
 
-          {row.countries.length > 0 && (
-            <Row label={t(`수입국가 (${row.countries.length})`, `Import countries (${row.countries.length})`)}>
-              <div className="flex flex-wrap gap-1">
-                {row.countries.map((c) => (
-                  <span
-                    key={c}
-                    className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs"
-                  >
-                    <span>{flagOf(c)}</span> {displayCountry(c, lang)}
-                  </span>
-                ))}
-              </div>
-            </Row>
-          )}
-          {row.hs_codes.length > 0 && (
-            <Row label={t("HS코드", "HS codes", "Mã HS")}>
-              <div className="flex flex-wrap gap-1 font-mono text-xs">
-                {row.hs_codes.map((h) => (
-                  <span
-                    key={h}
-                    className="rounded bg-muted px-1.5 py-0.5 tabular-nums"
-                  >
-                    {maskHS(h)}
-                  </span>
-                ))}
-              </div>
-            </Row>
-          )}
-          {lang === "ko"
-            ? row.items_kr && (
-                <Row label="취급 품목">
-                  <p className="whitespace-pre-wrap leading-relaxed">{row.items_kr}</p>
-                </Row>
-              )
-            : (row.items_en || row.items_kr) && (
-                <Row label="Items">
-                  <p className="whitespace-pre-wrap leading-relaxed">
-                    {row.items_en || row.items_kr}
-                  </p>
-                </Row>
+          {/* Trade section */}
+          {(row.countries.length > 0 || row.hs_codes.length > 0) && (
+            <Section title={t("무역 정보", "Trade", "Thương mại")}>
+              {row.countries.length > 0 && (
+                <DRow
+                  icon={<Globe2 className="size-3.5" />}
+                  label={t(`수입국가 (${row.countries.length})`, `Import countries (${row.countries.length})`, `Quốc gia nhập khẩu (${row.countries.length})`)}
+                >
+                  <div className="flex flex-wrap gap-1.5">
+                    {row.countries.map((c) => (
+                      <span
+                        key={c}
+                        className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/50 px-2 py-0.5 text-xs"
+                      >
+                        <span>{flagOf(c)}</span> {displayCountry(c, lang)}
+                      </span>
+                    ))}
+                  </div>
+                </DRow>
               )}
-          {lang !== "ko" && row.items_en && row.items_kr && (
-            <Row label="품목 (KR)">
-              <p className="whitespace-pre-wrap leading-relaxed text-muted-foreground">
-                {row.items_kr}
-              </p>
-            </Row>
+              {row.hs_codes.length > 0 && (
+                <DRow icon={<Hash className="size-3.5" />} label={t("HS코드", "HS codes", "Mã HS")}>
+                  <div className="flex flex-wrap gap-1.5 font-mono text-xs">
+                    {row.hs_codes.map((h) => (
+                      <span
+                        key={h}
+                        className="rounded-md bg-muted px-2 py-0.5 tabular-nums"
+                      >
+                        {maskHS(h)}
+                      </span>
+                    ))}
+                  </div>
+                </DRow>
+              )}
+            </Section>
           )}
-          {lang === "ko" && row.items_en && (
-            <Row label="Items (EN)">
-              <p className="whitespace-pre-wrap leading-relaxed text-muted-foreground">
-                {row.items_en}
-              </p>
-            </Row>
+
+          {/* Items section */}
+          {(row.items_kr || row.items_en) && (
+            <Section title={t("취급 품목", "Items", "Mặt hàng")}>
+              {lang === "ko"
+                ? row.items_kr && (
+                    <DRow icon={<Package className="size-3.5" />} label={t("한국어", "Korean", "Tiếng Hàn")}>
+                      <p className="whitespace-pre-wrap leading-relaxed">{row.items_kr}</p>
+                    </DRow>
+                  )
+                : (row.items_en || row.items_kr) && (
+                    <DRow icon={<Package className="size-3.5" />} label={t("영문", "English", "Tiếng Anh")}>
+                      <p className="whitespace-pre-wrap leading-relaxed">
+                        {row.items_en || row.items_kr}
+                      </p>
+                    </DRow>
+                  )}
+              {lang !== "ko" && row.items_en && row.items_kr && (
+                <DRow icon={<Package className="size-3.5" />} label={t("한국어", "Korean", "Tiếng Hàn")}>
+                  <p className="whitespace-pre-wrap leading-relaxed text-muted-foreground">
+                    {row.items_kr}
+                  </p>
+                </DRow>
+              )}
+              {lang === "ko" && row.items_en && (
+                <DRow icon={<Package className="size-3.5" />} label="English">
+                  <p className="whitespace-pre-wrap leading-relaxed text-muted-foreground">
+                    {row.items_en}
+                  </p>
+                </DRow>
+              )}
+            </Section>
           )}
-        </dl>
         </div>
       </div>
     </div>
 
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="mb-4 overflow-hidden rounded-xl border border-border bg-card">
+      <div className="border-b border-border bg-muted/30 px-3 py-2">
+        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {title}
+        </h3>
+      </div>
+      <div className="divide-y divide-border">
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function DRow({ icon, label, children }: { icon?: React.ReactNode; label: string; children: React.ReactNode }) {
+  return (
+    <div className="px-3 py-2.5">
+      <div className="mb-1 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        {icon}
+        <span>{label}</span>
+      </div>
+      <div className="text-sm">{children}</div>
+    </div>
   );
 }
 
