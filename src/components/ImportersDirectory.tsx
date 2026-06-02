@@ -69,6 +69,8 @@ export type ImportersDirectoryProps = {
   scopeBadge?: string;
   /** When set, renders RegionSnapshot above results (asean/eu/cis). */
   regionKey?: import("@/components/RegionSnapshot").RegionKey;
+  /** Initial search query (e.g. from /search?q=…). */
+  initialQuery?: string;
 };
 
 
@@ -78,6 +80,7 @@ export function ImportersDirectory({
   title,
   scopeBadge,
   regionKey,
+  initialQuery = "",
 }: ImportersDirectoryProps) {
 
   const lockedCountries = useMemo(
@@ -89,8 +92,8 @@ export function ImportersDirectory({
   const { t, lang } = useLang();
   const listFn = useServerFn(listImporters);
   const facetsFn = useServerFn(getImporterFacets);
-  const [q, setQ] = useState("");
-  const [qDeb, setQDeb] = useState("");
+  const [q, setQ] = useState(initialQuery);
+  const [qDeb, setQDeb] = useState(initialQuery);
   const [countries, setCountries] = useState<string[]>([]);
   const [scales, setScales] = useState<Set<string>>(new Set());
   const [hs, setHs] = useState("");
@@ -99,6 +102,13 @@ export function ImportersDirectory({
   const [page, setPage] = useState(1);
   const [opened, setOpened] = useState<Importer | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
+
+  // Sync when initialQuery changes (e.g. submitting a new search from /).
+  useEffect(() => {
+    setQ(initialQuery);
+    setQDeb(initialQuery);
+    setPage(1);
+  }, [initialQuery]);
 
   useEffect(() => {
     const t = setTimeout(() => {
