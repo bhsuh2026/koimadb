@@ -209,14 +209,19 @@ const iso2ToFlag = (iso: string): string =>
 
 let _regionEn: Intl.DisplayNames | null | undefined;
 let _regionZh: Intl.DisplayNames | null | undefined;
-function regionNames(lang: "en" | "zh"): Intl.DisplayNames | null {
+let _regionVi: Intl.DisplayNames | null | undefined;
+function regionNames(lang: "en" | "zh" | "vi"): Intl.DisplayNames | null {
   try {
     if (lang === "en") {
       if (_regionEn === undefined) _regionEn = new Intl.DisplayNames(["en"], { type: "region" });
       return _regionEn;
     }
-    if (_regionZh === undefined) _regionZh = new Intl.DisplayNames(["zh"], { type: "region" });
-    return _regionZh;
+    if (lang === "zh") {
+      if (_regionZh === undefined) _regionZh = new Intl.DisplayNames(["zh"], { type: "region" });
+      return _regionZh;
+    }
+    if (_regionVi === undefined) _regionVi = new Intl.DisplayNames(["vi"], { type: "region" });
+    return _regionVi;
   } catch {
     return null;
   }
