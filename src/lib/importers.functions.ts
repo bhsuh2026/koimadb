@@ -261,6 +261,10 @@ export const adminListImporters = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) =>
     z.object({
       q: z.string().max(100).default(""),
+      countries: z.array(z.string().min(1).max(50)).max(50).default([]),
+      scales: z.array(z.string().min(1).max(50)).max(20).default([]),
+      hs: z.string().max(12).default(""),
+      hasEmail: z.boolean().default(false),
       page: z.number().int().min(1).default(1),
       pageSize: z.number().int().min(1).max(100).default(25),
     }).parse(i),
@@ -270,6 +274,10 @@ export const adminListImporters = createServerFn({ method: "POST" })
     let query = supabaseAdmin
       .from("importers")
       .select("*", { count: tokens.length > 0 ? "planned" : "exact" });
+    if (data.countries.length) query = query.overlaps("countries", data.countries);
+    if (data.scales.length) query = query.in("scale_label", data.scales);
+    if (data.hs) query = query.contains("hs_codes", [data.hs.trim()]);
+    if (data.hasEmail) query = query.neq("email", "");
     if (tokens.length > 0) {
       for (const t of tokens) {
         query = query.or(
@@ -284,6 +292,7 @@ export const adminListImporters = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { rows: (rows ?? []) as Importer[], total: count ?? 0 };
   });
+
 
 export const createImporter = createServerFn({ method: "POST" })
   .middleware([requireAdmin])
