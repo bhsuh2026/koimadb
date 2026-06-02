@@ -1,5 +1,5 @@
 import koimaLogo from "@/assets/koima-logo.png";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -23,7 +23,7 @@ import {
 import { flagOf, displayCountry, displayCompanyName, scaleLabel } from "@/lib/koima-types";
 import { AseanFlag } from "@/components/AseanFlag";
 import { RegionSnapshot } from "@/components/RegionSnapshot";
-import { LangToggle, useLang } from "@/lib/i18n";
+import { LangToggle, LangToggleVietnam, useLang } from "@/lib/i18n";
 
 
 const PAGE_SIZE = 50;
