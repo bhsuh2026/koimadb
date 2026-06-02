@@ -1,12 +1,12 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 
-export type Lang = "ko" | "en" | "zh";
+export type Lang = "ko" | "en" | "zh" | "vi";
 
 type Ctx = {
   lang: Lang;
   setLang: (l: Lang) => void;
-  /** 2-arg translate: ko / en. Optional 3rd arg is ignored (lets USA page reuse China page strings). */
-  t: (ko: string, en: string, _zh?: string) => string;
+  /** 2-arg translate: ko / en. Optional 3rd arg is Vietnamese. */
+  t: (ko: string, en: string, vi?: string) => string;
   /** 3-arg translate: ko / en / zh. Use on the China page. */
   tt: (ko: string, en: string, zh: string) => string;
 };
@@ -24,7 +24,10 @@ export function LangProvider({ children }: { children: ReactNode }) {
     } catch {}
   };
 
-  const t = (ko: string, en: string) => (lang === "ko" ? ko : en);
+  const t = (ko: string, en: string, vi?: string) => {
+    if (lang === "vi" && vi) return vi;
+    return lang === "ko" ? ko : en;
+  };
   const tt = (ko: string, en: string, zh: string) =>
     lang === "ko" ? ko : lang === "zh" ? zh : en;
 
@@ -89,6 +92,36 @@ export function LangToggle3({ className = "" }: { className?: string }) {
       <Btn code="en" label="EN" />
       <span className="text-muted-foreground/40">·</span>
       <Btn code="zh" label="中文" />
+    </div>
+  );
+}
+
+/** Vietnam-page toggle: KO · EN · VI */
+export function LangToggleVietnam({ className = "" }: { className?: string }) {
+  const { lang, setLang } = useLang();
+  const Btn = ({ code, label }: { code: Lang; label: string }) => (
+    <button
+      onClick={() => setLang(code)}
+      className={`rounded px-1.5 py-0.5 transition ${
+        lang === code ? "text-primary" : "text-muted-foreground hover:text-foreground"
+      }`}
+    >
+      {label}
+    </button>
+  );
+  return (
+    <div
+      aria-label="Language"
+      className={
+        className ||
+        "inline-flex items-center gap-0.5 rounded-md border bg-card px-1 py-1 text-[11px] font-bold shadow-sm"
+      }
+    >
+      <Btn code="ko" label="KO" />
+      <span className="text-muted-foreground/40">·</span>
+      <Btn code="en" label="EN" />
+      <span className="text-muted-foreground/40">·</span>
+      <Btn code="vi" label="VI" />
     </div>
   );
 }
