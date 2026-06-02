@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UsaRouteImport } from './routes/usa'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ImportersRouteImport } from './routes/importers'
 import { Route as EuRouteImport } from './routes/eu'
@@ -26,6 +27,11 @@ import { Route as AdminMfaRouteImport } from './routes/admin.mfa'
 const UsaRoute = UsaRouteImport.update({
   id: '/usa',
   path: '/usa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -97,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
+  '/search': typeof SearchRoute
   '/usa': typeof UsaRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
+  '/search': typeof SearchRoute
   '/usa': typeof UsaRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/eu': typeof EuRoute
   '/importers': typeof ImportersRoute
   '/login': typeof LoginRoute
+  '/search': typeof SearchRoute
   '/usa': typeof UsaRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/eu'
     | '/importers'
     | '/login'
+    | '/search'
     | '/usa'
     | '/admin/mfa'
     | '/api/check-service-role'
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/eu'
     | '/importers'
     | '/login'
+    | '/search'
     | '/usa'
     | '/admin/mfa'
     | '/api/check-service-role'
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/eu'
     | '/importers'
     | '/login'
+    | '/search'
     | '/usa'
     | '/admin/mfa'
     | '/api/check-service-role'
@@ -189,6 +201,7 @@ export interface RootRouteChildren {
   EuRoute: typeof EuRoute
   ImportersRoute: typeof ImportersRoute
   LoginRoute: typeof LoginRoute
+  SearchRoute: typeof SearchRoute
   UsaRoute: typeof UsaRoute
   ApiCheckServiceRoleRoute: typeof ApiCheckServiceRoleRoute
   ApiGetKeyRoute: typeof ApiGetKeyRoute
@@ -202,6 +215,13 @@ declare module '@tanstack/react-router' {
       path: '/usa'
       fullPath: '/usa'
       preLoaderRoute: typeof UsaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -311,6 +331,7 @@ const rootRouteChildren: RootRouteChildren = {
   EuRoute: EuRoute,
   ImportersRoute: ImportersRoute,
   LoginRoute: LoginRoute,
+  SearchRoute: SearchRoute,
   UsaRoute: UsaRoute,
   ApiCheckServiceRoleRoute: ApiCheckServiceRoleRoute,
   ApiGetKeyRoute: ApiGetKeyRoute,
@@ -319,3 +340,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
