@@ -329,3 +329,141 @@ export const deleteImporter = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// ===== Stats Dashboard ======================================================
+export const adminGetStats = createServerFn({ method: "GET" })
+  .middleware([requireAdmin])
+  .handler(async () => {
+    const { count: total } = await supabaseAdmin
+      .from("importers")
+      .select("id", { count: "exact", head: true });
+    const { count: withEmail } = await supabaseAdmin
+      .from("importers")
+      .select("id", { count: "exact", head: true })
+      .neq("email", "");
+    const { count: withBiz } = await supabaseAdmin
+      .from("importers")
+      .select("id", { count: "exact", head: true })
+      .not("biz_no", "is", null);
+
+    const rows: { countries: string[]; scale_label: string; hs_codes: string[] }[] = [];
+    let from = 0;
+    const PAGE = 1000;
+    while (true) {
+      const { data, error } = await supabaseAdmin
+        .from("importers")
+        .select("countries, scale_label, hs_codes")
+        .range(from, from + PAGE - 1);
+      if (error) throw new Error(error.message);
+      if (!data || data.length === 0) break;
+      rows.push(...(data as typeof rows));
+      if (data.length < PAGE) break;
+      from += PAGE;
+    }
+
+    const countries: Record<string, number> = {};
+    const scales: Record<string, number> = {};
+    const hsCodes: Record<string, number> = {};
+    for (const r of rows) {
+      for (const c of r.countries ?? []) countries[c] = (countries[c] ?? 0) + 1;
+      if (r.scale_label) scales[r.scale_label] = (scales[r.scale_label] ?? 0) + 1;
+      for (const h of r.hs_codes ?? []) {
+        const k = h.slice(0, 4);
+        if (k) hsCodes[k] = (hsCodes[k] ?? 0) + 1;
+      }
+    }
+    return {
+      total: total ?? 0,
+      withEmail: withEmail ?? 0,
+      withBiz: withBiz ?? 0,
+      countries,
+      scales,
+      hsCodes,
+    };
+  });
+
+// ===== Bulk Upload ==========================================================
+export const adminBulkUpsertImporters = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .inputValidator((i: unknown) =>
+    z.object({
+      rows: z.array(ImporterInputSchema).min(1).max(2000),
+    }).parse(i),
+  )
+  .handler(async ({ data }) => {
+    let inserted = 0;
+    let updated = 0;
+    const errors: { row: number; message: string }[] = [];
+    for (let i = 0; i < data.rows.length; i++) {
+      const row = data.rows[i];
+      try {
+        if (row.biz_no) {
+          const { data: existing } = await supabaseAdmin
+            .from("importers")
+            .select("id")
+            .eq("biz_no", row.biz_no)
+            .maybeSingle();
+          if (existing) {
+            const { error } = await supabaseAdmin
+              .from("importers")
+              .update(row)
+              .eq("id", existing.id);
+            if (error) throw new Error(error.message);
+            updated++;
+            continue;
+          }
+        }
+        const { error } = await supabaseAdmin.from("importers").insert(row);
+        if (error) throw new Error(error.message);
+        inserted++;
+      } catch (e) {
+        errors.push({
+          row: i + 1,
+          message: e instanceof Error ? e.message : String(e),
+        });
+      }
+    }
+    return { inserted, updated, errors };
+  });
+
+// ===== Export (마스킹 없는 원본) =============================================
+export const adminExportImporters = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .inputValidator((i: unknown) =>
+    z.object({
+      q: z.string().max(100).default(""),
+      countries: z.array(z.string()).max(50).default([]),
+      scales: z.array(z.string()).max(20).default([]),
+      hs: z.string().max(12).default(""),
+    }).parse(i),
+  )
+  .handler(async ({ data }) => {
+    const tokens = getSearchTokens(data.q);
+    const out: Importer[] = [];
+    let from = 0;
+    const PAGE = 1000;
+    while (true) {
+      let query = supabaseAdmin.from("importers").select("*");
+      if (data.countries.length) query = query.overlaps("countries", data.countries);
+      if (data.scales.length) query = query.in("scale_label", data.scales);
+      if (data.hs) query = query.contains("hs_codes", [data.hs.trim()]);
+      if (tokens.length > 0) {
+        for (const t of tokens) {
+          query = query.or(
+            `name_kr.ilike.%${t}%,name_en.ilike.%${t}%,biz_no.ilike.%${t}%,items_kr.ilike.%${t}%`,
+          );
+        }
+      }
+      query = query
+        .order("rank_import", { ascending: true, nullsFirst: false })
+        .range(from, from + PAGE - 1);
+      const { data: rows, error } = await query;
+      if (error) throw new Error(error.message);
+      if (!rows || rows.length === 0) break;
+      out.push(...(rows as Importer[]));
+      if (rows.length < PAGE || out.length >= 10000) break;
+      from += PAGE;
+    }
+    return { rows: out };
+  });
+
+
