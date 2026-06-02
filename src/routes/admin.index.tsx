@@ -183,9 +183,12 @@ function AdminImporters() {
   const total = listQ.data?.total ?? 0;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
+  const activeFilterCount =
+    countriesArr.length + scaleFilter.length + (hsFilter.trim() ? 1 : 0) + (hasEmail ? 1 : 0);
+
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6">
-      <div className="mb-4 flex flex-wrap items-center gap-2">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
         <div className="relative min-w-[220px] flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
@@ -195,6 +198,29 @@ function AdminImporters() {
             className="h-10 w-full rounded-md border border-border bg-card px-3 pl-9 text-sm focus:border-primary focus:outline-none"
           />
         </div>
+        <button
+          onClick={() => setShowFilters((v) => !v)}
+          className={`inline-flex h-10 items-center gap-1.5 rounded-md border px-3 text-[12px] font-semibold transition ${
+            showFilters || activeFilterCount > 0
+              ? "border-primary bg-primary/5 text-primary"
+              : "border-border text-muted-foreground hover:border-primary hover:text-primary"
+          }`}
+        >
+          <Filter className="h-3.5 w-3.5" /> 필터
+          {activeFilterCount > 0 && (
+            <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-white">
+              {activeFilterCount}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={onExport}
+          disabled={exporting}
+          className="inline-flex h-10 items-center gap-1.5 rounded-md border border-border px-3 text-[12px] font-semibold text-muted-foreground hover:border-primary hover:text-primary disabled:opacity-50"
+        >
+          {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+          CSV 내보내기
+        </button>
         <div className="text-[12px] text-muted-foreground">
           총 <b className="font-mono text-primary">{total.toLocaleString()}</b>건
         </div>
@@ -205,6 +231,83 @@ function AdminImporters() {
           <Plus className="h-4 w-4" /> 신규 등록
         </button>
       </div>
+
+      {showFilters && (
+        <div className="mb-3 grid grid-cols-1 gap-3 rounded-lg border border-border bg-card p-3 sm:grid-cols-4">
+          <div>
+            <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">
+              국가 (쉼표 구분)
+            </label>
+            <input
+              value={countryFilter}
+              onChange={(e) => setCountryFilter(e.target.value)}
+              placeholder="중국, 베트남"
+              className="h-9 w-full rounded-md border border-border bg-background px-2.5 text-[13px] focus:border-primary focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">
+              HS 코드
+            </label>
+            <input
+              value={hsFilter}
+              onChange={(e) => setHsFilter(e.target.value)}
+              placeholder="8517620000"
+              className="h-9 w-full rounded-md border border-border bg-background px-2.5 font-mono text-[12px] focus:border-primary focus:outline-none"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">
+              수입 규모
+            </label>
+            <div className="flex flex-wrap gap-1">
+              {SCALE_LABELS.map((s) => {
+                const on = scaleFilter.includes(s);
+                return (
+                  <button
+                    key={s}
+                    onClick={() =>
+                      setScaleFilter((prev) =>
+                        on ? prev.filter((x) => x !== s) : [...prev, s],
+                      )
+                    }
+                    className={`rounded-md border px-2 py-1 text-[11px] transition ${
+                      on
+                        ? "border-primary bg-primary text-white"
+                        : "border-border text-muted-foreground hover:border-primary"
+                    }`}
+                  >
+                    {s}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div className="sm:col-span-4 flex items-center justify-between border-t border-border pt-2">
+            <label className="inline-flex items-center gap-2 text-[12px]">
+              <input
+                type="checkbox"
+                checked={hasEmail}
+                onChange={(e) => setHasEmail(e.target.checked)}
+                className="h-4 w-4 accent-primary"
+              />
+              이메일 보유 업체만
+            </label>
+            <button
+              onClick={() => {
+                setCountryFilter("");
+                setScaleFilter([]);
+                setHsFilter("");
+                setHasEmail(false);
+              }}
+              className="text-[11px] text-muted-foreground underline hover:text-destructive"
+            >
+              초기화
+            </button>
+          </div>
+        </div>
+      )}
+
 
       <div className="overflow-x-auto rounded-lg border border-border bg-card">
         <table className="w-full min-w-[900px] text-[13px]">
