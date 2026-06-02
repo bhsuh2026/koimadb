@@ -8,7 +8,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Database, ArrowLeft, ShieldCheck, LogOut, Zap, Loader2, KeyRound } from "lucide-react";
+import { Database, ArrowLeft, ShieldCheck, LogOut, Zap, Loader2, KeyRound, BarChart3, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyMfaStatus } from "@/lib/auth.functions";
 import { runDbTest } from "@/lib/db-test.functions";
