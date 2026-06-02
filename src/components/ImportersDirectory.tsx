@@ -333,6 +333,15 @@ export function ImportersDirectory({
                   <AseanFlag className="h-4 w-auto" />
                   <span className="hidden sm:inline">ASEAN</span>
                 </Link>
+                <Link
+                  to="/vietnam"
+                  title="Vietnam · Việt Nam"
+                  aria-label="Vietnam"
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
+                >
+                  <span className="text-base leading-none">🇻🇳</span>
+                  <span className="hidden sm:inline">{t("베트남", "Vietnam")}</span>
+                </Link>
               </div>
             </div>
           </div>

@@ -122,6 +122,12 @@ function HomePage() {
             🇨🇳 {t("중국", "China")}
           </Link>
           <Link
+            to="/vietnam"
+            className="inline-flex items-center gap-1.5 rounded-full border bg-card px-4 py-1.5 text-sm shadow-sm hover:bg-accent"
+          >
+            🇻🇳 {t("베트남", "Vietnam")}
+          </Link>
+          <Link
             to="/usa"
             className="inline-flex items-center gap-1.5 rounded-full border bg-card px-4 py-1.5 text-sm shadow-sm hover:bg-accent"
           >
