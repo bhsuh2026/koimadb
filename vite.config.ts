@@ -8,7 +8,7 @@ const isVercel = process.env.DEPLOY_TARGET === "vercel" || !!process.env.VERCEL;
 export default defineConfig(
   isVercel
     ? {
-        cloudflare: false,
+        
         plugins: [nitro({ preset: "vercel" })],
         tanstackStart: {
           server: { entry: "server" },
