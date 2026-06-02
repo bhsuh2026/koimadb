@@ -25,6 +25,7 @@ import { Route as ApiGetKeyRouteImport } from './routes/api/get-key'
 import { Route as ApiCheckServiceRoleRouteImport } from './routes/api/check-service-role'
 import { Route as AdminStatsRouteImport } from './routes/admin.stats'
 import { Route as AdminMfaRouteImport } from './routes/admin.mfa'
+import { Route as AdminImportRouteImport } from './routes/admin.import'
 
 const VietnamRoute = VietnamRouteImport.update({
   id: '/vietnam',
@@ -106,6 +107,11 @@ const AdminMfaRoute = AdminMfaRouteImport.update({
   path: '/mfa',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminImportRoute = AdminImportRouteImport.update({
+  id: '/import',
+  path: '/import',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/usa': typeof UsaRoute
   '/vietnam': typeof VietnamRoute
+  '/admin/import': typeof AdminImportRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/admin/stats': typeof AdminStatsRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/usa': typeof UsaRoute
   '/vietnam': typeof VietnamRoute
+  '/admin/import': typeof AdminImportRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/admin/stats': typeof AdminStatsRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/usa': typeof UsaRoute
   '/vietnam': typeof VietnamRoute
+  '/admin/import': typeof AdminImportRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/admin/stats': typeof AdminStatsRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/usa'
     | '/vietnam'
+    | '/admin/import'
     | '/admin/mfa'
     | '/admin/stats'
     | '/api/check-service-role'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/usa'
     | '/vietnam'
+    | '/admin/import'
     | '/admin/mfa'
     | '/admin/stats'
     | '/api/check-service-role'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/usa'
     | '/vietnam'
+    | '/admin/import'
     | '/admin/mfa'
     | '/admin/stats'
     | '/api/check-service-role'
@@ -347,16 +359,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMfaRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/import': {
+      id: '/admin/import'
+      path: '/import'
+      fullPath: '/admin/import'
+      preLoaderRoute: typeof AdminImportRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminImportRoute: typeof AdminImportRoute
   AdminMfaRoute: typeof AdminMfaRoute
   AdminStatsRoute: typeof AdminStatsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminImportRoute: AdminImportRoute,
   AdminMfaRoute: AdminMfaRoute,
   AdminStatsRoute: AdminStatsRoute,
   AdminIndexRoute: AdminIndexRoute,
