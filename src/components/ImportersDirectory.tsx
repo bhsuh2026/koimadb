@@ -238,33 +238,42 @@ export function ImportersDirectory({
           </div>
 
           {/* Search */}
-          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+          <div className="mt-3 space-y-2">
             <form
-              className="flex flex-1 gap-2"
+              className="flex w-full items-center gap-2 rounded-full border bg-card pl-4 pr-1.5 py-1.5 shadow-sm focus-within:ring-2 focus-within:ring-ring transition"
               onSubmit={(e) => {
                 e.preventDefault();
                 setQDeb(q.trim());
                 setPage(1);
               }}
             >
-              <div className="relative flex-1">
-                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  placeholder={t("업체명 · 사업자번호 · 품목으로 검색", "Search by name · biz no · items")}
-                  className="w-full rounded-md border bg-card py-2 pl-9 pr-3 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
-                />
-              </div>
+              <Search className="size-4 shrink-0 text-muted-foreground" />
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder={t("업체명 · 사업자번호 · 품목으로 검색", "Search by name · biz no · items")}
+                className="flex-1 bg-transparent py-1.5 text-sm outline-none placeholder:text-muted-foreground"
+              />
+              {q && (
+                <button
+                  type="button"
+                  onClick={() => setQ("")}
+                  className="rounded-full p-1 text-muted-foreground hover:bg-accent"
+                  aria-label={t("지우기", "Clear")}
+                >
+                  <X className="size-4" />
+                </button>
+              )}
               <button
                 type="submit"
-                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
+                className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
               >
                 <Search className="size-4" />
-                {t("검색", "Search")}
+                <span className="hidden sm:inline">{t("검색", "Search")}</span>
               </button>
             </form>
-            <div className="flex flex-wrap gap-2">
+
+            <div className="flex flex-wrap items-center gap-2">
               <input
                 value={hs}
                 onChange={(e) => {
@@ -273,7 +282,7 @@ export function ImportersDirectory({
                 }}
                 placeholder={t("HS코드", "HS code")}
                 inputMode="numeric"
-                className="w-28 rounded-md border bg-card px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
+                className="w-28 rounded-full border bg-card px-3 py-1.5 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
               />
               <select
                 value={sort}
@@ -281,52 +290,50 @@ export function ImportersDirectory({
                   setSort(e.target.value as SortKey);
                   setPage(1);
                 }}
-                className="rounded-md border bg-card px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
+                className="rounded-full border bg-card px-3 py-1.5 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="rank_import_asc">{t("수입액 순", "By imports")}</option>
                 <option value="rank_sales_asc">{t("매출액 순", "By revenue")}</option>
                 <option value="name_asc">{t("업체명 가나다순", "Name A–Z")}</option>
               </select>
-              <div className="inline-flex flex-1 items-center justify-around gap-1 rounded-lg border bg-card p-1 shadow-sm sm:flex-none sm:justify-start">
+              <div className="ml-auto inline-flex items-center gap-0.5 rounded-full border bg-card p-1 shadow-sm">
                 <Link
                   to="/"
-                  title={t("전체 디렉토리", "All importers")}
-                  aria-label={t("전체 디렉토리", "All importers")}
-                  className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
+                  title={t("홈", "Home")}
+                  aria-label={t("홈", "Home")}
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
                 >
-                  <span className="text-base leading-none">🌐</span>
-                  <span className="hidden sm:inline">{t("전체", "All")}</span>
+                  <span className="text-base leading-none">🏠</span>
+                  <span className="hidden sm:inline">{t("홈", "Home")}</span>
                 </Link>
                 <Link
                   to="/eu"
-                  title="EU 거래 디렉토리"
-                  aria-label="EU 거래 디렉토리"
-                  className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
+                  title="EU"
+                  aria-label="EU"
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
                 >
                   <span className="text-base leading-none">🇪🇺</span>
                   <span className="hidden sm:inline">EU</span>
                 </Link>
                 <Link
                   to="/cis"
-                  title="CIS 거래 디렉토리"
-                  aria-label="CIS 거래 디렉토리"
-                  className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
+                  title="CIS"
+                  aria-label="CIS"
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
                 >
                   <span className="text-base leading-none">🌍</span>
                   <span className="hidden sm:inline">CIS</span>
                 </Link>
                 <Link
                   to="/importers"
-                  title="아세안 거래 디렉토리"
-                  aria-label="아세안 거래 디렉토리"
-                  className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
+                  title="ASEAN"
+                  aria-label="ASEAN"
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
                 >
                   <AseanFlag className="h-4 w-auto" />
                   <span className="hidden sm:inline">ASEAN</span>
                 </Link>
               </div>
-
-
             </div>
           </div>
         </div>
