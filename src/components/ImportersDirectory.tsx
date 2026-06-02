@@ -1,5 +1,5 @@
 import koimaLogo from "@/assets/koima-logo.png";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -23,7 +23,7 @@ import {
 import { flagOf, displayCountry, displayCompanyName, scaleLabel } from "@/lib/koima-types";
 import { AseanFlag } from "@/components/AseanFlag";
 import { RegionSnapshot } from "@/components/RegionSnapshot";
-import { LangToggle, useLang } from "@/lib/i18n";
+import { LangToggle, LangToggleVietnam, useLang } from "@/lib/i18n";
 
 
 const PAGE_SIZE = 50;
@@ -90,6 +90,8 @@ export function ImportersDirectory({
   const lockedSet = useMemo(() => new Set(lockedCountries), [lockedCountries]);
   const isLocked = lockedCountries.length > 0;
   const { t, lang } = useLang();
+  const router = useRouter();
+  const isVietnamPage = router.state.location.pathname === "/vietnam";
   const listFn = useServerFn(listImporters);
   const facetsFn = useServerFn(getImporterFacets);
   const [q, setQ] = useState(initialQuery);
@@ -212,22 +214,22 @@ export function ImportersDirectory({
                   {scopeBadge && (
                     <span className="mr-1.5">{scopeBadge}</span>
                   )}
-                  {t(title, "Korean Importers Directory")}
+                  {t(title, "Korean Importers Directory", "Danh bạ nhà nhập khẩu Hàn Quốc")}
                 </h1>
                 <p className="hidden text-xs text-muted-foreground sm:block">
-                  {t("2025 관세청 기준 ·", "2025 Korea Customs ·")}{" "}
+                  {t("2025 관세청 기준 ·", "2025 Korea Customs ·", "Dữ liệu 2025 Hải quan Hàn Quốc ·")}{" "}
                   {(lockedCount ?? facets.data?.total ?? 0).toLocaleString()}
-                  {t("개 업체", " companies")}
+                  {t("개 업체", " companies", " doanh nghiệp")}
                 </p>
               </div>
             <div className="flex items-center gap-2">
-              <LangToggle />
+              {isVietnamPage ? <LangToggleVietnam /> : <LangToggle />}
               <button
                 onClick={() => setFilterOpen(true)}
                 className="relative inline-flex items-center gap-1.5 rounded-md border bg-card px-3 py-2 text-sm shadow-sm hover:bg-accent lg:hidden"
               >
                 <SlidersHorizontal className="size-4" />
-                {t("필터", "Filters")}
+                {t("필터", "Filters", "Bộ lọc")}
                 {activeFilterCount > 0 && (
                   <span className="ml-1 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
                     {activeFilterCount}
@@ -251,7 +253,7 @@ export function ImportersDirectory({
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder={t("업체명 · 사업자번호 · 품목으로 검색", "Search by name · biz no · items")}
+                placeholder={t("업체명 · 사업자번호 · 품목으로 검색", "Search by name · biz no · items", "Tìm theo tên · mã số thuế · mặt hàng")}
                 className="flex-1 bg-transparent py-1.5 text-sm outline-none placeholder:text-muted-foreground"
               />
               {q && (
@@ -259,7 +261,7 @@ export function ImportersDirectory({
                   type="button"
                   onClick={() => setQ("")}
                   className="rounded-full p-1 text-muted-foreground hover:bg-accent"
-                  aria-label={t("지우기", "Clear")}
+                  aria-label={t("지우기", "Clear", "Xóa")}
                 >
                   <X className="size-4" />
                 </button>
@@ -269,7 +271,7 @@ export function ImportersDirectory({
                 className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
               >
                 <Search className="size-4" />
-                <span className="hidden sm:inline">{t("검색", "Search")}</span>
+                <span className="hidden sm:inline">{t("검색", "Search", "Tìm kiếm")}</span>
               </button>
             </form>
 
@@ -280,7 +282,7 @@ export function ImportersDirectory({
                   setHs(e.target.value.replace(/[^\d]/g, ""));
                   setPage(1);
                 }}
-                placeholder={t("HS코드", "HS code")}
+                placeholder={t("HS코드", "HS code", "Mã HS")}
                 inputMode="numeric"
                 className="w-28 rounded-full border bg-card px-3 py-1.5 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
               />
@@ -292,19 +294,19 @@ export function ImportersDirectory({
                 }}
                 className="rounded-full border bg-card px-3 py-1.5 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
               >
-                <option value="rank_import_asc">{t("수입액 순", "By imports")}</option>
-                <option value="rank_sales_asc">{t("매출액 순", "By revenue")}</option>
-                <option value="name_asc">{t("업체명 가나다순", "Name A–Z")}</option>
+                <option value="rank_import_asc">{t("수입액 순", "By imports", "Theo kim ngạch nhập khẩu")}</option>
+                <option value="rank_sales_asc">{t("매출액 순", "By revenue", "Theo doanh thu")}</option>
+                <option value="name_asc">{t("업체명 가나다순", "Name A–Z", "Theo tên A–Z")}</option>
               </select>
               <div className="ml-auto inline-flex items-center gap-0.5 rounded-full border bg-card p-1 shadow-sm">
                 <Link
                   to="/"
-                  title={t("홈", "Home")}
-                  aria-label={t("홈", "Home")}
+                  title={t("홈", "Home", "Trang chủ")}
+                  aria-label={t("홈", "Home", "Trang chủ")}
                   className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
                 >
                   <span className="text-base leading-none">🏠</span>
-                  <span className="hidden sm:inline">{t("홈", "Home")}</span>
+                  <span className="hidden sm:inline">{t("홈", "Home", "Trang chủ")}</span>
                 </Link>
                 <Link
                   to="/eu"
@@ -340,7 +342,7 @@ export function ImportersDirectory({
                   className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
                 >
                   <span className="text-base leading-none">🇻🇳</span>
-                  <span className="hidden sm:inline">{t("베트남", "Vietnam")}</span>
+                  <span className="hidden sm:inline">{t("베트남", "Vietnam", "Việt Nam")}</span>
                 </Link>
               </div>
             </div>
@@ -396,17 +398,17 @@ export function ImportersDirectory({
               {list.isFetching ? (
                 <span className="inline-flex items-center gap-1.5">
                   <span className="inline-block size-3.5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                  {t("검색 중…", "Searching…")}
+                  {t("검색 중…", "Searching…", "Đang tìm kiếm…")}
                 </span>
               ) : (
                 <>
                   <span className="font-semibold text-foreground">
                     {total.toLocaleString()}
                   </span>{" "}
-                  {t("개 결과", "results")}
+                  {t("개 결과", "results", " kết quả")}
                   {isLocked && (
                     <span className="ml-1 text-xs">
-                      · {lockedLabel ?? t("선택 지역", "Selected region")} {t("거래", "trade")}
+                      · {lockedLabel ?? t("선택 지역", "Selected region", "Khu vực đã chọn")} {t("거래", "trade", "giao dịch")}
                     </span>
                   )}
                 </>
@@ -417,7 +419,7 @@ export function ImportersDirectory({
                 onClick={clearAll}
                 className="inline-flex items-center gap-1 text-xs hover:text-foreground"
               >
-                <X className="size-3.5" /> {t("필터 초기화", "Clear filters")}
+                <X className="size-3.5" /> {t("필터 초기화", "Clear filters", "Xóa bộ lọc")}
               </button>
             )}
           </div>
@@ -435,7 +437,7 @@ export function ImportersDirectory({
                 ))}
             {!list.isLoading && rows.length === 0 && (
               <div className="rounded-lg border bg-card p-10 text-center text-muted-foreground">
-                {t("조건에 맞는 업체가 없습니다.", "No companies match your filters.")}
+                {t("조건에 맞는 업체가 없습니다.", "No companies match your filters.", "Không có doanh nghiệp phù hợp.")}
               </div>
             )}
           </div>
@@ -448,7 +450,7 @@ export function ImportersDirectory({
                 disabled={page <= 1}
                 className="inline-flex items-center gap-1 rounded-md border bg-card px-3 py-2 shadow-sm enabled:hover:bg-accent disabled:opacity-40"
               >
-                <ChevronLeft className="size-4" /> {t("이전", "Prev")}
+                <ChevronLeft className="size-4" /> {t("이전", "Prev", "Trước")}
               </button>
               <span className="px-2 tabular-nums">
                 {page} / {pages.toLocaleString()}
@@ -458,7 +460,7 @@ export function ImportersDirectory({
                 disabled={page >= pages}
                 className="inline-flex items-center gap-1 rounded-md border bg-card px-3 py-2 shadow-sm enabled:hover:bg-accent disabled:opacity-40"
               >
-                {t("다음", "Next")} <ChevronRight className="size-4" />
+                {t("다음", "Next", "Tiếp")} <ChevronRight className="size-4" />
               </button>
             </div>
           )}
@@ -474,11 +476,11 @@ export function ImportersDirectory({
           />
           <div className="absolute inset-y-0 right-0 w-[88%] max-w-sm overflow-y-auto bg-background p-4 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
-              <div className="font-semibold">{t("필터", "Filters")}</div>
+              <div className="font-semibold">{t("필터", "Filters", "Bộ lọc")}</div>
               <button
                 onClick={() => setFilterOpen(false)}
                 className="rounded p-1 hover:bg-accent"
-                aria-label={t("닫기", "Close")}
+                aria-label={t("닫기", "Close", "Đóng")}
               >
                 <X className="size-5" />
               </button>
@@ -595,14 +597,14 @@ function FilterPanel(props: {
         <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           <Globe2 className="size-3.5" />
           {props.isLocked
-            ? t("지역 내 국가 필터", "Filter within region")
-            : t("주요 수입국가", "Top import countries")}
+            ? t("지역 내 국가 필터", "Filter within region", "Lọc trong khu vực")
+            : t("주요 수입국가", "Top import countries", "Quốc gia nhập khẩu chính")}
         </div>
 
         {props.isLocked && props.lockedLabel && (
           <div className="mb-2 inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
             {props.lockedLabel}
-            <span className="ml-1 text-[10px] font-normal text-primary/70">{t("고정", "Locked")}</span>
+            <span className="ml-1 text-[10px] font-normal text-primary/70">{t("고정", "Locked", "Đã khóa")}</span>
           </div>
         )}
 
@@ -614,7 +616,7 @@ function FilterPanel(props: {
               props.onFilterChange();
             }}
           >
-            {t("전체", "All")}
+            {t("전체", "All", "Tất cả")}
           </FilterChip>
           {props.topCountries.map((c) => (
             <span key={c} className="inline-flex items-center gap-0.5">
@@ -639,7 +641,7 @@ function FilterPanel(props: {
                   aria-label={t(`${displayCountry(c, lang)} 전용 페이지`, `${displayCountry(c, lang)} page`)}
                   className="ml-0.5 inline-flex items-center rounded-md border border-border bg-card px-1.5 py-1 text-[10px] font-medium text-muted-foreground transition hover:border-primary hover:bg-primary/5 hover:text-primary"
                 >
-                  {t("상세 ↗", "Detail ↗")}
+                  {t("상세 ↗", "Detail ↗", "Chi tiết ↗")}
                 </Link>
               )}
             </span>
@@ -673,7 +675,7 @@ function FilterPanel(props: {
               }}
               className="text-[11px] text-muted-foreground underline hover:text-foreground"
             >
-              {t("초기화", "Reset")}
+              {t("초기화", "Reset", "Đặt lại")}
             </button>
           </div>
         )}
@@ -684,7 +686,7 @@ function FilterPanel(props: {
           <input
             value={countryQ}
             onChange={(e) => setCountryQ(e.target.value)}
-            placeholder={t("국가 검색…", "Search countries…")}
+            placeholder={t("국가 검색…", "Search countries…", "Tìm quốc gia…")}
             className="w-full rounded-md border bg-card py-1.5 pl-7 pr-2 text-xs shadow-sm outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
@@ -701,7 +703,7 @@ function FilterPanel(props: {
               >
                 <span className="text-sm">{flagOf(c)}</span>
                 <span className="flex-1">{displayCountry(c, lang)}</span>
-                <span className="text-[10px] text-muted-foreground">{t("선택", "Select")}</span>
+                <span className="text-[10px] text-muted-foreground">{t("선택", "Select", "Chọn")}</span>
               </button>
             ))}
           </div>
@@ -714,7 +716,7 @@ function FilterPanel(props: {
             className="mt-1.5 text-xs text-muted-foreground underline hover:text-foreground"
           >
             {showAll
-              ? t("접기", "Collapse")
+              ? t("접기", "Collapse", "Thu gọn")
               : t(
                   `전체 국가 보기 (${props.allCountries.length}개)`,
                   `View all countries (${props.allCountries.length})`,
@@ -745,7 +747,7 @@ function FilterPanel(props: {
 
       <div>
         <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          <TrendingUp className="size-3.5" /> {t("수입액 구간", "Import scale")}
+          <TrendingUp className="size-3.5" /> {t("수입액 구간", "Import scale", "Khoảng kim ngạch nhập khẩu")}
         </div>
         <div className="space-y-1">
           {props.scalesAvailable.map((s) => (
@@ -781,7 +783,7 @@ function FilterPanel(props: {
             }}
             className="accent-primary"
           />
-          {t("이메일 보유 업체만", "With email only")}
+          {t("이메일 보유 업체만", "With email only", "Chỉ doanh nghiệp có email")}
         </label>
       </div>
 
@@ -789,7 +791,7 @@ function FilterPanel(props: {
         onClick={props.clearAll}
         className="w-full rounded-md border bg-card px-3 py-2 text-xs hover:bg-accent"
       >
-        {t("필터 초기화", "Clear filters")}
+        {t("필터 초기화", "Clear filters", "Xóa bộ lọc")}
       </button>
     </div>
   );
@@ -912,7 +914,7 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
         {row.biz_no && (
           <span className="font-mono tabular-nums">
-            {t("사업자", "Biz no")} {maskBizNo(row.biz_no)}
+            {t("사업자", "Biz no", "Mã số thuế")} {maskBizNo(row.biz_no)}
           </span>
         )}
         {row.email && (
@@ -982,12 +984,12 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
               )}
               {row.rank_import != null && (
                 <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] sm:text-xs">
-                  {t("수입액", "Imports")} #{row.rank_import.toLocaleString()}
+                  {t("수입액", "Imports", "Kim ngạch nhập khẩu")} #{row.rank_import.toLocaleString()}
                 </span>
               )}
               {row.rank_sales != null && (
                 <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] sm:text-xs">
-                  {t("매출액", "Revenue")} #{row.rank_sales.toLocaleString()}
+                  {t("매출액", "Revenue", "Doanh thu")} #{row.rank_sales.toLocaleString()}
                 </span>
               )}
             </div>
@@ -995,7 +997,7 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
           <button
             onClick={onClose}
             className="flex-shrink-0 rounded p-1.5 hover:bg-accent"
-            aria-label={t("닫기", "Close")}
+            aria-label={t("닫기", "Close", "Đóng")}
           >
             <X className="size-5" />
           </button>
@@ -1011,12 +1013,12 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
         </div>
         <dl className="space-y-3 text-sm">
           {row.biz_no && (
-            <Row label={t("사업자번호", "Business no.")}>
+            <Row label={t("사업자번호", "Business no.", "Mã số thuế")}>
               <span className="font-mono tabular-nums">{maskBizNo(row.biz_no)}</span>
             </Row>
           )}
           {emails && (
-            <Row label={t("이메일", "Email")}>
+            <Row label={t("이메일", "Email", "Email")}>
               <div className="flex flex-wrap gap-2 font-mono text-xs">
                 {emails.split(",").map((e, i) => {
                   const v = e.trim();
@@ -1031,7 +1033,7 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
             </Row>
           )}
           {phones && (
-            <Row label={t("전화", "Phone")}>
+            <Row label={t("전화", "Phone", "Điện thoại")}>
               <div className="flex flex-wrap gap-2 font-mono text-xs">
                 {phones.split("/").map((p, i) => {
                   const v = p.trim();
@@ -1061,7 +1063,7 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
             </Row>
           )}
           {row.hs_codes.length > 0 && (
-            <Row label={t("HS코드", "HS codes")}>
+            <Row label={t("HS코드", "HS codes", "Mã HS")}>
               <div className="flex flex-wrap gap-1 font-mono text-xs">
                 {row.hs_codes.map((h) => (
                   <span

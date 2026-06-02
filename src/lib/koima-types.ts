@@ -209,30 +209,35 @@ const iso2ToFlag = (iso: string): string =>
 
 let _regionEn: Intl.DisplayNames | null | undefined;
 let _regionZh: Intl.DisplayNames | null | undefined;
-function regionNames(lang: "en" | "zh"): Intl.DisplayNames | null {
+let _regionVi: Intl.DisplayNames | null | undefined;
+function regionNames(lang: "en" | "zh" | "vi"): Intl.DisplayNames | null {
   try {
     if (lang === "en") {
       if (_regionEn === undefined) _regionEn = new Intl.DisplayNames(["en"], { type: "region" });
       return _regionEn;
     }
-    if (_regionZh === undefined) _regionZh = new Intl.DisplayNames(["zh"], { type: "region" });
-    return _regionZh;
+    if (lang === "zh") {
+      if (_regionZh === undefined) _regionZh = new Intl.DisplayNames(["zh"], { type: "region" });
+      return _regionZh;
+    }
+    if (_regionVi === undefined) _regionVi = new Intl.DisplayNames(["vi"], { type: "region" });
+    return _regionVi;
   } catch {
     return null;
   }
 }
 
-// 표시용 국가명. lang으로 영어/중국어 변환 가능 (ISO2 → Intl.DisplayNames).
-export const displayCountry = (country: string, lang: "ko" | "en" | "zh" = "ko"): string => {
+// 표시용 국가명. lang으로 영어/중국어/베트남어 변환 가능 (ISO2 → Intl.DisplayNames).
+export const displayCountry = (country: string, lang: "ko" | "en" | "zh" | "vi" = "ko"): string => {
   const t = country.trim();
   if (NON_COUNTRY.has(t)) {
-    return lang === "en" ? "Other" : lang === "zh" ? "其他" : "기타국";
+    return lang === "en" ? "Other" : lang === "zh" ? "其他" : lang === "vi" ? "Khác" : "기타국";
   }
   const normalized = NAME_FIX[t] ?? t;
   if (lang === "ko") return normalized;
   const iso = COUNTRY_ISO[normalized];
   if (iso) {
-    const dn = regionNames(lang);
+    const dn = regionNames(lang === "vi" ? "vi" : lang);
     if (dn) {
       try {
         const v = dn.of(iso);
@@ -265,7 +270,7 @@ export const SCALE: Record<number, [string, string]> = {
   15: ["1억불 초과", "Over USD 100M"],
 };
 
-// Korean scale_label (as stored in DB) → English / Chinese.
+// Korean scale_label (as stored in DB) → English / Chinese / Vietnamese.
 const SCALE_LABEL_EN: Record<string, string> = {
   "1억불 초과": "Over USD 100M",
   "5000만불~1억불": "USD 50–100M",
@@ -300,10 +305,28 @@ const SCALE_LABEL_ZH: Record<string, string> = {
   "1만불~3만불": "1万–3万美元",
   "1만불 미만": "1万美元以下",
 };
+const SCALE_LABEL_VI: Record<string, string> = {
+  "1억불 초과": "Trên 100 triệu USD",
+  "5000만불~1억불": "50–100 triệu USD",
+  "3000만불~5000만불": "30–50 triệu USD",
+  "1000만불~3000만불": "10–30 triệu USD",
+  "700만불~1000만불": "7–10 triệu USD",
+  "500만불~700만불": "5–7 triệu USD",
+  "300만불~500만불": "3–5 triệu USD",
+  "100만불~300만불": "1–3 triệu USD",
+  "50만불~100만불": "0.5–1 triệu USD",
+  "30만불~50만불": "0.3–0.5 triệu USD",
+  "10만불~30만불": "0.1–0.3 triệu USD",
+  "5만불~10만불": "50–100 nghìn USD",
+  "3만불~5만불": "30–50 nghìn USD",
+  "1만불~3만불": "10–30 nghìn USD",
+  "1만불 미만": "Dưới 10 nghìn USD",
+};
 
-export const scaleLabel = (label: string, lang: "ko" | "en" | "zh" = "ko"): string => {
+export const scaleLabel = (label: string, lang: "ko" | "en" | "zh" | "vi" = "ko"): string => {
   if (lang === "en") return SCALE_LABEL_EN[label] ?? label;
   if (lang === "zh") return SCALE_LABEL_ZH[label] ?? label;
+  if (lang === "vi") return SCALE_LABEL_VI[label] ?? label;
   return label;
 };
 

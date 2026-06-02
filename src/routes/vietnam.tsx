@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ImportersDirectory } from "@/components/ImportersDirectory";
+import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/vietnam")({
   component: VietnamPage,
@@ -28,9 +29,14 @@ export const Route = createFileRoute("/vietnam")({
 });
 
 function VietnamPage() {
+  const { t } = useLang();
   return (
     <ImportersDirectory
-      title="베트남 거래 한국 수입업체 디렉토리 · Nhà nhập khẩu Hàn Quốc giao dịch với Việt Nam"
+      title={t(
+        "베트남 거래 한국 수입업체 디렉토리",
+        "Vietnam Korean Importers Directory",
+        "Danh bạ nhà nhập khẩu Hàn Quốc giao dịch với Việt Nam",
+      )}
       lockedCountries={["베트남"]}
       lockedLabel="🇻🇳 베트남 · Việt Nam · Vietnam"
     />
