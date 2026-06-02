@@ -107,9 +107,16 @@ function AdminLayout() {
             <AdminTab to="/admin" active={pathname === "/admin"}>
               <Database className="h-3.5 w-3.5" /> 업체
             </AdminTab>
+            <AdminTab to="/admin/stats" active={pathname === "/admin/stats"}>
+              <BarChart3 className="h-3.5 w-3.5" /> 통계
+            </AdminTab>
+            <AdminTab to="/admin/import" active={pathname === "/admin/import"}>
+              <Upload className="h-3.5 w-3.5" /> 업로드
+            </AdminTab>
             <AdminTab to="/admin/mfa" active={pathname === "/admin/mfa"}>
               <KeyRound className="h-3.5 w-3.5" /> 2단계 인증
             </AdminTab>
+
             <button
               onClick={onTest}
               disabled={testing}
