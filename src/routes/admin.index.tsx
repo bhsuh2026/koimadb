@@ -57,6 +57,7 @@ type EditState =
 
 function AdminImporters() {
   const listFn = useServerFn(adminListImporters);
+  const exportFn = useServerFn(adminExportImporters);
   const createFn = useServerFn(createImporter);
   const updateFn = useServerFn(updateImporter);
   const deleteFn = useServerFn(deleteImporter);
@@ -67,6 +68,12 @@ function AdminImporters() {
   const [page, setPage] = useState(1);
   const [edit, setEdit] = useState<EditState>(null);
   const [confirmDelete, setConfirmDelete] = useState<Importer | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [countryFilter, setCountryFilter] = useState("");
+  const [scaleFilter, setScaleFilter] = useState<string[]>([]);
+  const [hsFilter, setHsFilter] = useState("");
+  const [hasEmail, setHasEmail] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -76,11 +83,65 @@ function AdminImporters() {
     return () => clearTimeout(t);
   }, [q]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [countryFilter, scaleFilter, hsFilter, hasEmail]);
+
+  const countriesArr = useMemo(
+    () => countryFilter.split(",").map((s) => s.trim()).filter(Boolean),
+    [countryFilter],
+  );
+
+  const filterPayload = useMemo(
+    () => ({
+      q: qDeb,
+      countries: countriesArr,
+      scales: scaleFilter,
+      hs: hsFilter.trim(),
+      hasEmail,
+    }),
+    [qDeb, countriesArr, scaleFilter, hsFilter, hasEmail],
+  );
+
   const listQ = useQuery({
-    queryKey: ["admin-importers", { qDeb, page }],
-    queryFn: () => listFn({ data: { q: qDeb, page, pageSize: PAGE_SIZE } }),
+    queryKey: ["admin-importers", { ...filterPayload, page }],
+    queryFn: () => listFn({ data: { ...filterPayload, page, pageSize: PAGE_SIZE } }),
     placeholderData: (prev) => prev,
   });
+
+  const onExport = async () => {
+    setExporting(true);
+    try {
+      const r = await exportFn({ data: filterPayload });
+      const headers = [
+        "rank_import","biz_no","name_kr","name_en","email","email_extra",
+        "phone","phone_extra","countries","scale_label","items_kr","items_en","hs_codes",
+      ];
+      const esc = (v: unknown) => {
+        const s = v == null ? "" : Array.isArray(v) ? v.join(";") : String(v);
+        return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+      };
+      const csv = [
+        headers.join(","),
+        ...r.rows.map((row) =>
+          headers.map((h) => esc((row as Record<string, unknown>)[h])).join(","),
+        ),
+      ].join("\n");
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `importers-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success(`${r.rows.length}건 내보내기 완료`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    } finally {
+      setExporting(false);
+    }
+  };
+
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["admin-importers"] });
