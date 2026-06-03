@@ -108,6 +108,7 @@ export function ImportersDirectory({
   const [scales, setScales] = useState<Set<string>>(new Set());
   const [hs, setHs] = useState("");
   const [hasEmail, setHasEmail] = useState(false);
+  const [exact, setExact] = useState(false);
   const [sort, setSort] = useState<SortKey>("rank_import_asc");
   const [page, setPage] = useState(1);
   const [opened, setOpened] = useState<Importer | null>(null);
