@@ -32,6 +32,7 @@ import { flagOf, displayCountry, displayCompanyName, scaleLabel } from "@/lib/ko
 import { AseanFlag } from "@/components/AseanFlag";
 import { RegionSnapshot } from "@/components/RegionSnapshot";
 import { LangToggle, LangToggleVietnam, useLang } from "@/lib/i18n";
+import { hsCategoriesFromCodes } from "@/lib/hs-categories";
 
 
 const PAGE_SIZE = 50;
@@ -108,6 +109,7 @@ export function ImportersDirectory({
   const [scales, setScales] = useState<Set<string>>(new Set());
   const [hs, setHs] = useState("");
   const [hasEmail, setHasEmail] = useState(false);
+  const [exact, setExact] = useState(false);
   const [sort, setSort] = useState<SortKey>("rank_import_asc");
   const [page, setPage] = useState(1);
   const [opened, setOpened] = useState<Importer | null>(null);
@@ -146,7 +148,7 @@ export function ImportersDirectory({
   const list = useQuery({
     queryKey: [
       "importers",
-      { qDeb, effectiveCountries, scaleArr, hs, hasEmail, sort, page },
+      { qDeb, effectiveCountries, scaleArr, hs, hasEmail, exact, sort, page },
     ],
     queryFn: () =>
       listFn({
@@ -156,6 +158,7 @@ export function ImportersDirectory({
           scales: scaleArr,
           hs: hs.trim(),
           hasEmail,
+          exact,
           sort,
           page,
           pageSize: PAGE_SIZE,
@@ -261,7 +264,11 @@ export function ImportersDirectory({
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder={t("업체명 · 사업자번호 · 품목으로 검색", "Search by name · biz no · items", "Tìm theo tên · mã số thuế · mặt hàng")}
+                placeholder={t(
+                  "업체명·품목 검색 · 제외는 -단어 (예: 커피 -머신)",
+                  "Search · exclude with -word (e.g. coffee -machine)",
+                  "Tìm kiếm · loại trừ với -từ (vd: coffee -machine)",
+                )}
                 className="flex-1 bg-transparent py-1.5 text-sm outline-none placeholder:text-muted-foreground"
               />
               {q && (
@@ -294,6 +301,29 @@ export function ImportersDirectory({
                 inputMode="numeric"
                 className="w-28 rounded-full border bg-card px-3 py-1.5 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
               />
+              <label
+                title={t(
+                  "켜면 품목명이 정확히 일치할 때만 표시 (예: '커피' 검색 시 '커피머신' 제외)",
+                  "When on, match items as whole entries (e.g. 'coffee' excludes 'coffee machine')",
+                  "Bật để khớp chính xác mục hàng",
+                )}
+                className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium shadow-sm transition ${
+                  exact
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "bg-card text-foreground/80 hover:bg-accent"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={exact}
+                  onChange={(e) => {
+                    setExact(e.target.checked);
+                    setPage(1);
+                  }}
+                  className="sr-only"
+                />
+                {t("정확 일치", "Exact match", "Khớp chính xác")}
+              </label>
               <select
                 value={sort}
                 onChange={(e) => {
@@ -1231,7 +1261,7 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
           )}
 
           {/* Items section */}
-          {(row.items_kr || row.items_en) && (
+          {(row.items_kr || row.items_en) ? (
             <Section title={t("취급 품목", "Items", "Mặt hàng")}>
               {lang === "ko"
                 ? row.items_kr && (
@@ -1261,8 +1291,35 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
                 </DRow>
               )}
             </Section>
-          )}
+          ) : row.hs_codes.length > 0 ? (
+            <Section title={t("취급 품목", "Items", "Mặt hàng")}>
+              <DRow
+                icon={<Package className="size-3.5" />}
+                label={t("HS코드 기반 추정 카테고리", "Inferred from HS codes", "Suy ra từ mã HS")}
+              >
+                <div className="flex flex-wrap gap-1.5">
+                  {hsCategoriesFromCodes(row.hs_codes).map((cat) => (
+                    <span
+                      key={cat}
+                      className="inline-flex items-center rounded-full border border-dashed border-border bg-muted/30 px-2.5 py-1 text-xs text-foreground/80"
+                    >
+                      {cat}
+                    </span>
+                  ))}
+                </div>
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  {t(
+                    "이 업체는 세부 품목명을 미등록했습니다. HS코드 상위 분류로 업종을 추정한 결과입니다.",
+                    "Specific item names are not registered. Categories are inferred from HS chapter codes.",
+                    "Tên mặt hàng cụ thể chưa được đăng ký. Danh mục được suy ra từ chương HS.",
+                  )}
+                </p>
+              </DRow>
+            </Section>
+          ) : null}
         </div>
+
+
 
         {/* Bottom close bar — mobile sticky */}
         <div className="absolute inset-x-0 bottom-0 z-10 border-t border-border bg-background/95 px-4 py-3 backdrop-blur sm:hidden">

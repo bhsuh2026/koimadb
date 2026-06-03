@@ -116,6 +116,7 @@ const ListInput = z.object({
   scales: z.array(z.string().min(1).max(50)).max(20).default([]),
   hs: z.string().max(12).default(""),
   hasEmail: z.boolean().default(false),
+  exact: z.boolean().default(false),
   sort: z
     .enum(["rank_import_asc", "rank_sales_asc", "name_asc", "countries_desc"])
     .default("rank_import_asc"),
@@ -137,6 +138,23 @@ const SEARCH_STOP_WORDS = new Set([
   "llc",
 ]);
 
+/** 쿼리를 포함어/제외어(-단어)로 분리합니다. */
+function splitIncludeExclude(input: string): { include: string; excludes: string[] } {
+  const parts = input.split(/\s+/);
+  const inc: string[] = [];
+  const exc: string[] = [];
+  for (const raw of parts) {
+    const t = raw.trim();
+    if (!t) continue;
+    if (t.startsWith("-") && t.length > 1) {
+      exc.push(t.slice(1));
+    } else {
+      inc.push(t);
+    }
+  }
+  return { include: inc.join(" "), excludes: exc };
+}
+
 function getSearchTokens(input: string): string[] {
   return Array.from(
     new Set(
@@ -155,10 +173,27 @@ function getSearchTokens(input: string): string[] {
   ).slice(0, 5);
 }
 
+/** 사용자 입력을 안전한 PostgreSQL 정규식 토큰으로 변환 */
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** "품목" 단위 정확 일치 패턴 (쉼표 경계). 콤마(\054)는 octal 로 표기해 PostgREST or= 파싱과 충돌하지 않도록 합니다. */
+function exactItemPattern(token: string): string {
+  const t = escapeRegex(token);
+  return `(^|\\054[[:space:]]*)${t}([[:space:]]*\\054|[[:space:]]*$)`;
+}
+
+/** 제외어 토큰 정규화 (sanitize): wildcard 등 특수문자 제거 */
+function cleanExcludeToken(t: string): string {
+  return t.replace(/[%,()"\\*]/g, "").trim();
+}
+
 export const listImporters = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => ListInput.parse(i))
   .handler(async ({ data }) => {
-    const tokens = getSearchTokens(data.q);
+    const { include, excludes } = splitIncludeExclude(data.q);
+    const tokens = getSearchTokens(include);
     let query = supabaseAdmin
       .from("importers")
       .select("*", { count: tokens.length > 0 ? "planned" : "exact" });
@@ -168,12 +203,30 @@ export const listImporters = createServerFn({ method: "POST" })
     if (data.scales.length) query = query.in("scale_label", data.scales);
     if (data.hasEmail) query = query.neq("email", "");
     if (data.hs) query = query.contains("hs_codes", [data.hs.trim()]);
+
     if (tokens.length > 0) {
       for (const t of tokens) {
-        query = query.or(
-          `name_kr.ilike.%${t}%,name_en.ilike.%${t}%,biz_no.ilike.%${t}%,items_kr.ilike.%${t}%,items_en.ilike.%${t}%`,
-        );
+        if (data.exact) {
+          // 정확 일치: items 필드를 쉼표 경계 정규식으로 매칭. 업체명 / 사업자번호는 그대로 부분일치.
+          const pat = exactItemPattern(t);
+          query = query.or(
+            `name_kr.ilike.%${t}%,name_en.ilike.%${t}%,biz_no.ilike.%${t}%,items_kr.imatch."${pat}",items_en.imatch."${pat}"`,
+          );
+        } else {
+          query = query.or(
+            `name_kr.ilike.%${t}%,name_en.ilike.%${t}%,biz_no.ilike.%${t}%,items_kr.ilike.%${t}%,items_en.ilike.%${t}%`,
+          );
+        }
       }
+    }
+
+    // 제외어: items_kr · items_en 양쪽 모두 해당 단어를 포함하지 않은 행만 통과.
+    for (const raw of excludes.slice(0, 5)) {
+      const w = cleanExcludeToken(raw);
+      if (w.length < 2) continue;
+      query = query
+        .not("items_kr", "ilike", `%${w}%`)
+        .not("items_en", "ilike", `%${w}%`);
     }
 
     switch (data.sort) {
