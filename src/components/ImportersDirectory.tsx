@@ -300,6 +300,29 @@ export function ImportersDirectory({
                 inputMode="numeric"
                 className="w-28 rounded-full border bg-card px-3 py-1.5 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
               />
+              <label
+                title={t(
+                  "켜면 품목명이 정확히 일치할 때만 표시 (예: '커피' 검색 시 '커피머신' 제외)",
+                  "When on, match items as whole entries (e.g. 'coffee' excludes 'coffee machine')",
+                  "Bật để khớp chính xác mục hàng",
+                )}
+                className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium shadow-sm transition ${
+                  exact
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "bg-card text-foreground/80 hover:bg-accent"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={exact}
+                  onChange={(e) => {
+                    setExact(e.target.checked);
+                    setPage(1);
+                  }}
+                  className="sr-only"
+                />
+                {t("정확 일치", "Exact match", "Khớp chính xác")}
+              </label>
               <select
                 value={sort}
                 onChange={(e) => {
