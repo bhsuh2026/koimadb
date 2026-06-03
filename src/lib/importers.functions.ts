@@ -192,7 +192,8 @@ function cleanExcludeToken(t: string): string {
 export const listImporters = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => ListInput.parse(i))
   .handler(async ({ data }) => {
-    const tokens = getSearchTokens(data.q);
+    const { include, excludes } = splitIncludeExclude(data.q);
+    const tokens = getSearchTokens(include);
     let query = supabaseAdmin
       .from("importers")
       .select("*", { count: tokens.length > 0 ? "planned" : "exact" });
@@ -202,12 +203,30 @@ export const listImporters = createServerFn({ method: "POST" })
     if (data.scales.length) query = query.in("scale_label", data.scales);
     if (data.hasEmail) query = query.neq("email", "");
     if (data.hs) query = query.contains("hs_codes", [data.hs.trim()]);
+
     if (tokens.length > 0) {
       for (const t of tokens) {
-        query = query.or(
-          `name_kr.ilike.%${t}%,name_en.ilike.%${t}%,biz_no.ilike.%${t}%,items_kr.ilike.%${t}%,items_en.ilike.%${t}%`,
-        );
+        if (data.exact) {
+          // 정확 일치: items 필드를 쉼표 경계 정규식으로 매칭. 업체명 / 사업자번호는 그대로 부분일치.
+          const pat = exactItemPattern(t);
+          query = query.or(
+            `name_kr.ilike.%${t}%,name_en.ilike.%${t}%,biz_no.ilike.%${t}%,items_kr.imatch.${pat},items_en.imatch.${pat}`,
+          );
+        } else {
+          query = query.or(
+            `name_kr.ilike.%${t}%,name_en.ilike.%${t}%,biz_no.ilike.%${t}%,items_kr.ilike.%${t}%,items_en.ilike.%${t}%`,
+          );
+        }
       }
+    }
+
+    // 제외어: items_kr · items_en 양쪽 모두 해당 단어를 포함하지 않은 행만 통과.
+    for (const raw of excludes.slice(0, 5)) {
+      const w = cleanExcludeToken(raw);
+      if (w.length < 2) continue;
+      query = query
+        .not("items_kr", "ilike", `%${w}%`)
+        .not("items_en", "ilike", `%${w}%`);
     }
 
     switch (data.sort) {
