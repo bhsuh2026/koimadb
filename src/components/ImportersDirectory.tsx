@@ -1260,7 +1260,7 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
           )}
 
           {/* Items section */}
-          {(row.items_kr || row.items_en) && (
+          {(row.items_kr || row.items_en) ? (
             <Section title={t("취급 품목", "Items", "Mặt hàng")}>
               {lang === "ko"
                 ? row.items_kr && (
@@ -1290,8 +1290,35 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
                 </DRow>
               )}
             </Section>
-          )}
+          ) : row.hs_codes.length > 0 ? (
+            <Section title={t("취급 품목", "Items", "Mặt hàng")}>
+              <DRow
+                icon={<Package className="size-3.5" />}
+                label={t("HS코드 기반 추정 카테고리", "Inferred from HS codes", "Suy ra từ mã HS")}
+              >
+                <div className="flex flex-wrap gap-1.5">
+                  {hsCategoriesFromCodes(row.hs_codes).map((cat) => (
+                    <span
+                      key={cat}
+                      className="inline-flex items-center rounded-full border border-dashed border-border bg-muted/30 px-2.5 py-1 text-xs text-foreground/80"
+                    >
+                      {cat}
+                    </span>
+                  ))}
+                </div>
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  {t(
+                    "이 업체는 세부 품목명을 미등록했습니다. HS코드 상위 분류로 업종을 추정한 결과입니다.",
+                    "Specific item names are not registered. Categories are inferred from HS chapter codes.",
+                    "Tên mặt hàng cụ thể chưa được đăng ký. Danh mục được suy ra từ chương HS.",
+                  )}
+                </p>
+              </DRow>
+            </Section>
+          ) : null}
         </div>
+
+
 
         {/* Bottom close bar — mobile sticky */}
         <div className="absolute inset-x-0 bottom-0 z-10 border-t border-border bg-background/95 px-4 py-3 backdrop-blur sm:hidden">
