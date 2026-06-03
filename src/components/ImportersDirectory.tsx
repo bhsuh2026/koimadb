@@ -147,7 +147,7 @@ export function ImportersDirectory({
   const list = useQuery({
     queryKey: [
       "importers",
-      { qDeb, effectiveCountries, scaleArr, hs, hasEmail, sort, page },
+      { qDeb, effectiveCountries, scaleArr, hs, hasEmail, exact, sort, page },
     ],
     queryFn: () =>
       listFn({
@@ -157,6 +157,7 @@ export function ImportersDirectory({
           scales: scaleArr,
           hs: hs.trim(),
           hasEmail,
+          exact,
           sort,
           page,
           pageSize: PAGE_SIZE,
