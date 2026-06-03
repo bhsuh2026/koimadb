@@ -116,6 +116,7 @@ const ListInput = z.object({
   scales: z.array(z.string().min(1).max(50)).max(20).default([]),
   hs: z.string().max(12).default(""),
   hasEmail: z.boolean().default(false),
+  exact: z.boolean().default(false),
   sort: z
     .enum(["rank_import_asc", "rank_sales_asc", "name_asc", "countries_desc"])
     .default("rank_import_asc"),
@@ -137,6 +138,23 @@ const SEARCH_STOP_WORDS = new Set([
   "llc",
 ]);
 
+/** 쿼리를 포함어/제외어(-단어)로 분리합니다. */
+function splitIncludeExclude(input: string): { include: string; excludes: string[] } {
+  const parts = input.split(/\s+/);
+  const inc: string[] = [];
+  const exc: string[] = [];
+  for (const raw of parts) {
+    const t = raw.trim();
+    if (!t) continue;
+    if (t.startsWith("-") && t.length > 1) {
+      exc.push(t.slice(1));
+    } else {
+      inc.push(t);
+    }
+  }
+  return { include: inc.join(" "), excludes: exc };
+}
+
 function getSearchTokens(input: string): string[] {
   return Array.from(
     new Set(
@@ -153,6 +171,22 @@ function getSearchTokens(input: string): string[] {
         }),
     ),
   ).slice(0, 5);
+}
+
+/** 사용자 입력을 안전한 PostgreSQL 정규식 토큰으로 변환 */
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** "품목" 단위 정확 일치 패턴 (쉼표 경계). 콤마(\054)는 octal 로 표기해 PostgREST or= 파싱과 충돌하지 않도록 합니다. */
+function exactItemPattern(token: string): string {
+  const t = escapeRegex(token);
+  return `(^|\\054[[:space:]]*)${t}([[:space:]]*\\054|[[:space:]]*$)`;
+}
+
+/** 제외어 토큰 정규화 (sanitize): wildcard 등 특수문자 제거 */
+function cleanExcludeToken(t: string): string {
+  return t.replace(/[%,()"\\*]/g, "").trim();
 }
 
 export const listImporters = createServerFn({ method: "POST" })
