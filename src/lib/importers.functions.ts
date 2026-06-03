@@ -210,7 +210,7 @@ export const listImporters = createServerFn({ method: "POST" })
           // 정확 일치: items 필드를 쉼표 경계 정규식으로 매칭. 업체명 / 사업자번호는 그대로 부분일치.
           const pat = exactItemPattern(t);
           query = query.or(
-            `name_kr.ilike.%${t}%,name_en.ilike.%${t}%,biz_no.ilike.%${t}%,items_kr.imatch.${pat},items_en.imatch.${pat}`,
+            `name_kr.ilike.%${t}%,name_en.ilike.%${t}%,biz_no.ilike.%${t}%,items_kr.imatch."${pat}",items_en.imatch."${pat}"`,
           );
         } else {
           query = query.or(
