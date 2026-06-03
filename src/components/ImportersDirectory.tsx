@@ -263,7 +263,11 @@ export function ImportersDirectory({
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder={t("업체명 · 사업자번호 · 품목으로 검색", "Search by name · biz no · items", "Tìm theo tên · mã số thuế · mặt hàng")}
+                placeholder={t(
+                  "업체명·품목 검색 · 제외는 -단어 (예: 커피 -머신)",
+                  "Search · exclude with -word (e.g. coffee -machine)",
+                  "Tìm kiếm · loại trừ với -từ (vd: coffee -machine)",
+                )}
                 className="flex-1 bg-transparent py-1.5 text-sm outline-none placeholder:text-muted-foreground"
               />
               {q && (
