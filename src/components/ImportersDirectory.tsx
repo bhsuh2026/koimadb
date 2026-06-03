@@ -32,6 +32,7 @@ import { flagOf, displayCountry, displayCompanyName, scaleLabel } from "@/lib/ko
 import { AseanFlag } from "@/components/AseanFlag";
 import { RegionSnapshot } from "@/components/RegionSnapshot";
 import { LangToggle, LangToggleVietnam, useLang } from "@/lib/i18n";
+import { hsCategoriesFromCodes } from "@/lib/hs-categories";
 
 
 const PAGE_SIZE = 50;
