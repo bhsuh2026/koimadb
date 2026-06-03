@@ -949,6 +949,8 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
 function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
   const { t, lang } = useLang();
   const [scrolled, setScrolled] = useState(false);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const [swipeClosing, setSwipeClosing] = useState(false);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -959,6 +961,60 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
     return () => {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
+    };
+  }, [onClose]);
+
+  // Mobile swipe-to-close
+  useEffect(() => {
+    const el = sheetRef.current;
+    if (!el) return;
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+
+    const onTouchStart = (e: TouchEvent) => {
+      // Only start swipe from top area (drag handle or header)
+      const touch = e.touches[0];
+      const rect = el.getBoundingClientRect();
+      const relativeY = touch.clientY - rect.top;
+      if (relativeY > 120) return; // allow only near top
+      startY = touch.clientY;
+      isDragging = true;
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isDragging) return;
+      currentY = e.touches[0].clientY;
+      const delta = currentY - startY;
+      if (delta > 0) {
+        el.style.transform = `translateY(${delta}px)`;
+        el.style.transition = "none";
+      }
+    };
+
+    const onTouchEnd = () => {
+      if (!isDragging) return;
+      isDragging = false;
+      const delta = currentY - startY;
+      el.style.transition = "transform 0.25s ease-out";
+      if (delta > 80) {
+        setSwipeClosing(true);
+        el.style.transform = `translateY(100%)`;
+        setTimeout(onClose, 250);
+      } else {
+        el.style.transform = "";
+      }
+      startY = 0;
+      currentY = 0;
+    };
+
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: true });
+    el.addEventListener("touchend", onTouchEnd);
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
     };
   }, [onClose]);
 
@@ -989,14 +1045,23 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
         onClick={onClose}
       />
       <div
+        ref={sheetRef}
         className="absolute inset-x-0 bottom-0 flex max-h-[94vh] w-full flex-col overflow-hidden rounded-t-3xl bg-background shadow-2xl ring-1 ring-border/60 animate-in slide-in-from-bottom duration-300 sm:inset-y-6 sm:left-auto sm:right-6 sm:w-[580px] sm:max-w-[calc(100vw-2rem)] sm:rounded-2xl sm:slide-in-from-right"
         role="dialog"
         aria-modal="true"
+        style={swipeClosing ? { transform: "translateY(100%)", transition: "transform 0.25s ease-out" } : undefined}
       >
         {/* mobile drag handle */}
-        <div className="flex justify-center pt-2 sm:hidden">
+        <button
+          className="flex w-full flex-col items-center justify-center pt-2 pb-1 sm:hidden"
+          onClick={onClose}
+          aria-label={t("목록으로 닫기", "Close to list", "Đóng danh sách")}
+        >
           <div className="h-1.5 w-10 rounded-full bg-muted-foreground/30" />
-        </div>
+          <span className="mt-1 text-[10px] text-muted-foreground">
+            {t("아래로 당겨서 닫기", "Swipe down to close", "Vuốt xuống để đóng")}
+          </span>
+        </button>
 
         {/* Sticky compact header — shows only when scrolled */}
         {scrolled && (
@@ -1084,7 +1149,7 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
         </div>
 
         <div
-          className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6"
+          className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-20 sm:pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6"
           onScroll={(e) => setScrolled((e.target as HTMLDivElement).scrollTop > 24)}
         >
           <div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-200">
@@ -1197,6 +1262,17 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
               )}
             </Section>
           )}
+        </div>
+
+        {/* Bottom close bar — mobile sticky */}
+        <div className="absolute inset-x-0 bottom-0 z-10 border-t border-border bg-background/95 px-4 py-3 backdrop-blur sm:hidden">
+          <button
+            onClick={onClose}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground shadow-lg active:scale-[0.98] transition"
+          >
+            <ChevronLeft className="size-4" />
+            {t("목록으로 돌아가기", "Back to list", "Quay lại danh sách")}
+          </button>
         </div>
       </div>
     </div>
