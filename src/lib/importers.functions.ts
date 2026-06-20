@@ -528,4 +528,221 @@ export const adminExportImporters = createServerFn({ method: "POST" })
     return { rows: out };
   });
 
+// ===== Duplicate detection & merge (사업자번호 기준) ========================
+
+function unionCSV(...values: string[]): string {
+  const set = new Set<string>();
+  for (const v of values) {
+    if (!v) continue;
+    for (const part of v.split(/[,/]/)) {
+      const t = part.trim();
+      if (t) set.add(t);
+    }
+  }
+  return Array.from(set).join(", ");
+}
+
+function unionArr(...arrs: (string[] | null | undefined)[]): string[] {
+  const set = new Set<string>();
+  for (const arr of arrs) {
+    for (const v of arr ?? []) {
+      const t = String(v).trim();
+      if (t) set.add(t);
+    }
+  }
+  return Array.from(set);
+}
+
+function mergeRows(rows: Importer[]): Omit<Importer, "id"> & { keeperId: string; mergedIds: string[] } {
+  const sorted = [...rows].sort((a, b) => {
+    const ar = a.rank_import ?? Number.MAX_SAFE_INTEGER;
+    const br = b.rank_import ?? Number.MAX_SAFE_INTEGER;
+    return ar - br;
+  });
+  const keeper = sorted[0];
+  const others = sorted.slice(1);
+  const pickStr = (key: keyof Importer): string => {
+    const v = (keeper[key] as string) ?? "";
+    if (v && v.trim()) return v;
+    for (const o of others) {
+      const ov = (o[key] as string) ?? "";
+      if (ov && ov.trim()) return ov;
+    }
+    return "";
+  };
+  const pickNum = (key: keyof Importer): number | null => {
+    for (const r of sorted) {
+      const v = r[key] as number | null | undefined;
+      if (v != null) return v;
+    }
+    return null;
+  };
+  return {
+    keeperId: keeper.id,
+    mergedIds: others.map((o) => o.id),
+    rank_import: pickNum("rank_import"),
+    rank_sales: pickNum("rank_sales"),
+    biz_no: keeper.biz_no,
+    name_kr: pickStr("name_kr"),
+    name_en: pickStr("name_en"),
+    email: unionCSV(...rows.map((r) => r.email)),
+    email_extra: unionCSV(...rows.map((r) => r.email_extra)),
+    phone: unionCSV(...rows.map((r) => r.phone)),
+    phone_extra: unionCSV(...rows.map((r) => r.phone_extra)),
+    countries: unionArr(...rows.map((r) => r.countries)),
+    scale_label: pickStr("scale_label"),
+    items_kr: unionCSV(...rows.map((r) => r.items_kr)),
+    items_en: unionCSV(...rows.map((r) => r.items_en)),
+    hs_codes: unionArr(...rows.map((r) => r.hs_codes)),
+  };
+}
+
+async function collectBizGroups(): Promise<Map<string, string[]>> {
+  const all: { id: string; biz_no: string | null }[] = [];
+  let from = 0;
+  const PAGE = 1000;
+  while (true) {
+    const { data, error } = await supabaseAdmin
+      .from("importers")
+      .select("id, biz_no")
+      .not("biz_no", "is", null)
+      .neq("biz_no", "")
+      .range(from, from + PAGE - 1);
+    if (error) throw new Error(error.message);
+    if (!data || data.length === 0) break;
+    all.push(...data);
+    if (data.length < PAGE) break;
+    from += PAGE;
+  }
+  const groups = new Map<string, string[]>();
+  for (const r of all) {
+    const key = (r.biz_no ?? "").replace(/[-\s]/g, "");
+    if (!key) continue;
+    const list = groups.get(key) ?? [];
+    list.push(r.id);
+    groups.set(key, list);
+  }
+  return groups;
+}
+
+export const adminFindDuplicates = createServerFn({ method: "GET" })
+  .middleware([requireAdmin])
+  .handler(async () => {
+    const groups = await collectBizGroups();
+    const dup = Array.from(groups.entries())
+      .filter(([, ids]) => ids.length > 1)
+      .map(([biz_no, ids]) => ({ biz_no, count: ids.length, ids }))
+      .sort((a, b) => b.count - a.count);
+
+    const preview: Record<string, Importer[]> = {};
+    for (const g of dup.slice(0, 50)) {
+      const { data, error } = await supabaseAdmin
+        .from("importers")
+        .select("*")
+        .in("id", g.ids);
+      if (error) throw new Error(error.message);
+      preview[g.biz_no] = (data ?? []) as Importer[];
+    }
+    return {
+      totalGroups: dup.length,
+      totalRowsAffected: dup.reduce((s, g) => s + g.count, 0),
+      groups: dup,
+      preview,
+    };
+  });
+
+export const adminMergeGroup = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .inputValidator((i: unknown) =>
+    z.object({ ids: z.array(z.string().uuid()).min(2).max(50) }).parse(i),
+  )
+  .handler(async ({ data }) => {
+    const { data: rows, error } = await supabaseAdmin
+      .from("importers")
+      .select("*")
+      .in("id", data.ids);
+    if (error) throw new Error(error.message);
+    if (!rows || rows.length < 2) throw new Error("병합할 행이 부족합니다");
+    const merged = mergeRows(rows as Importer[]);
+    const { keeperId, mergedIds, ...patch } = merged;
+    const { error: upErr } = await supabaseAdmin
+      .from("importers")
+      .update(patch)
+      .eq("id", keeperId);
+    if (upErr) throw new Error(upErr.message);
+    if (mergedIds.length > 0) {
+      const { error: delErr } = await supabaseAdmin
+        .from("importers")
+        .delete()
+        .in("id", mergedIds);
+      if (delErr) throw new Error(delErr.message);
+    }
+    return { keeperId, deletedCount: mergedIds.length };
+  });
+
+export const adminMergeAllDuplicates = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .inputValidator((i: unknown) =>
+    z.object({ dryRun: z.boolean().default(false) }).parse(i),
+  )
+  .handler(async ({ data }) => {
+    const groups = await collectBizGroups();
+    const dupGroups = Array.from(groups.values()).filter((ids) => ids.length > 1);
+
+    if (data.dryRun) {
+      return {
+        dryRun: true,
+        groupCount: dupGroups.length,
+        rowsToRemove: dupGroups.reduce((s, ids) => s + (ids.length - 1), 0),
+        merged: 0,
+        deleted: 0,
+        errors: [] as { ids: string; message: string }[],
+      };
+    }
+
+    let merged = 0;
+    let deleted = 0;
+    const errors: { ids: string; message: string }[] = [];
+    for (const ids of dupGroups) {
+      try {
+        const { data: rows, error } = await supabaseAdmin
+          .from("importers")
+          .select("*")
+          .in("id", ids);
+        if (error) throw new Error(error.message);
+        if (!rows || rows.length < 2) continue;
+        const m = mergeRows(rows as Importer[]);
+        const { keeperId, mergedIds, ...patch } = m;
+        const { error: upErr } = await supabaseAdmin
+          .from("importers")
+          .update(patch)
+          .eq("id", keeperId);
+        if (upErr) throw new Error(upErr.message);
+        if (mergedIds.length > 0) {
+          const { error: delErr } = await supabaseAdmin
+            .from("importers")
+            .delete()
+            .in("id", mergedIds);
+          if (delErr) throw new Error(delErr.message);
+          deleted += mergedIds.length;
+        }
+        merged++;
+      } catch (e) {
+        errors.push({
+          ids: ids.join(","),
+          message: e instanceof Error ? e.message : String(e),
+        });
+      }
+    }
+    return {
+      dryRun: false,
+      groupCount: dupGroups.length,
+      rowsToRemove: dupGroups.reduce((s, ids) => s + (ids.length - 1), 0),
+      merged,
+      deleted,
+      errors,
+    };
+  });
+
+
 
