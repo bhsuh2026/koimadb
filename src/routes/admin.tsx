@@ -8,7 +8,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Database, ArrowLeft, ShieldCheck, LogOut, Zap, Loader2, BarChart3, Upload } from "lucide-react";
+import { Database, ArrowLeft, ShieldCheck, LogOut, Zap, Loader2, BarChart3, Upload, GitMerge } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyAdminStatus } from "@/lib/auth.functions";
 import { runDbTest } from "@/lib/db-test.functions";
@@ -99,6 +99,10 @@ function AdminLayout() {
             <AdminTab to="/admin/import" active={pathname === "/admin/import"}>
               <Upload className="h-3.5 w-3.5" /> 업로드
             </AdminTab>
+            <AdminTab to="/admin/duplicates" active={pathname === "/admin/duplicates"}>
+              <GitMerge className="h-3.5 w-3.5" /> 중복 통합
+            </AdminTab>
+
 
             <button
               onClick={onTest}

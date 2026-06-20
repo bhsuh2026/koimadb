@@ -25,6 +25,7 @@ import { Route as ApiGetKeyRouteImport } from './routes/api/get-key'
 import { Route as ApiCheckServiceRoleRouteImport } from './routes/api/check-service-role'
 import { Route as AdminStatsRouteImport } from './routes/admin.stats'
 import { Route as AdminImportRouteImport } from './routes/admin.import'
+import { Route as AdminDuplicatesRouteImport } from './routes/admin.duplicates'
 
 const VietnamRoute = VietnamRouteImport.update({
   id: '/vietnam',
@@ -106,6 +107,11 @@ const AdminImportRoute = AdminImportRouteImport.update({
   path: '/import',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminDuplicatesRoute = AdminDuplicatesRouteImport.update({
+  id: '/duplicates',
+  path: '/duplicates',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/usa': typeof UsaRoute
   '/vietnam': typeof VietnamRoute
+  '/admin/duplicates': typeof AdminDuplicatesRoute
   '/admin/import': typeof AdminImportRoute
   '/admin/stats': typeof AdminStatsRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/usa': typeof UsaRoute
   '/vietnam': typeof VietnamRoute
+  '/admin/duplicates': typeof AdminDuplicatesRoute
   '/admin/import': typeof AdminImportRoute
   '/admin/stats': typeof AdminStatsRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/usa': typeof UsaRoute
   '/vietnam': typeof VietnamRoute
+  '/admin/duplicates': typeof AdminDuplicatesRoute
   '/admin/import': typeof AdminImportRoute
   '/admin/stats': typeof AdminStatsRoute
   '/api/check-service-role': typeof ApiCheckServiceRoleRoute
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/usa'
     | '/vietnam'
+    | '/admin/duplicates'
     | '/admin/import'
     | '/admin/stats'
     | '/api/check-service-role'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/usa'
     | '/vietnam'
+    | '/admin/duplicates'
     | '/admin/import'
     | '/admin/stats'
     | '/api/check-service-role'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/usa'
     | '/vietnam'
+    | '/admin/duplicates'
     | '/admin/import'
     | '/admin/stats'
     | '/api/check-service-role'
@@ -347,16 +359,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminImportRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/duplicates': {
+      id: '/admin/duplicates'
+      path: '/duplicates'
+      fullPath: '/admin/duplicates'
+      preLoaderRoute: typeof AdminDuplicatesRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminDuplicatesRoute: typeof AdminDuplicatesRoute
   AdminImportRoute: typeof AdminImportRoute
   AdminStatsRoute: typeof AdminStatsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminDuplicatesRoute: AdminDuplicatesRoute,
   AdminImportRoute: AdminImportRoute,
   AdminStatsRoute: AdminStatsRoute,
   AdminIndexRoute: AdminIndexRoute,
@@ -382,13 +403,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
