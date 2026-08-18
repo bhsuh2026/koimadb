@@ -76,6 +76,7 @@ function AdminImporters() {
   const [hsFilter, setHsFilter] = useState("");
   const [hasEmail, setHasEmail] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [exportingExcel, setExportingExcel] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => {
