@@ -53,7 +53,7 @@ function AdminLayout() {
 
   const onLogout = async () => {
     await supabase.auth.signOut();
-    navigate({ to: "/login", replace: true });
+    navigate({ to: "/login", replace: true, search: { redirect: "/" } });
   };
 
   const onTest = async () => {

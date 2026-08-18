@@ -14,6 +14,7 @@ import {
   Download,
   Filter,
   Loader2,
+  FileSpreadsheet,
 } from "lucide-react";
 import {
   adminListImporters,
@@ -74,6 +75,7 @@ function AdminImporters() {
   const [hsFilter, setHsFilter] = useState("");
   const [hasEmail, setHasEmail] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [exportingExcel, setExportingExcel] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -139,6 +141,75 @@ function AdminImporters() {
       toast.error(e instanceof Error ? e.message : String(e));
     } finally {
       setExporting(false);
+    }
+  };
+
+
+  const onExportExcel = async () => {
+    setExportingExcel(true);
+    try {
+      const [r, XLSX] = await Promise.all([
+        exportFn({ data: filterPayload }),
+        import("xlsx"),
+      ]);
+      const headers = [
+        { key: "rank_import", label: "수입순위" },
+        { key: "biz_no", label: "사업자번호" },
+        { key: "name_kr", label: "업체명(한글)" },
+        { key: "name_en", label: "업체명(영문)" },
+        { key: "email", label: "이메일" },
+        { key: "email_extra", label: "추가이메일" },
+        { key: "phone", label: "전화번호" },
+        { key: "phone_extra", label: "추가전화" },
+        { key: "countries", label: "국가" },
+        { key: "scale_label", label: "수입규모" },
+        { key: "items_kr", label: "품목(한글)" },
+        { key: "items_en", label: "품목(영문)" },
+        { key: "hs_codes", label: "HS코드" },
+      ];
+      const data = r.rows.map((row) => {
+        const obj: Record<string, string> = {};
+        for (const h of headers) {
+          const v = (row as Record<string, unknown>)[h.key];
+          if (v == null) obj[h.label] = "";
+          else if (Array.isArray(v)) obj[h.label] = v.join("; ");
+          else obj[h.label] = String(v);
+        }
+        return obj;
+      });
+      const ws = XLSX.utils.json_to_sheet(data, { header: headers.map((h) => h.label) });
+      const colWidths = headers.map((h) => ({
+        wch: Math.max(h.label.length + 2, 14),
+      }));
+      ws["!cols"] = colWidths;
+      const range = XLSX.utils.decode_range(ws["!ref"] ?? "A1");
+      for (let c = range.s.c; c <= range.e.c; c++) {
+        const cell = XLSX.utils.encode_cell({ r: 0, c });
+        if (!ws[cell]) continue;
+        ws[cell].s = {
+          font: { bold: true, color: { rgb: "FFFFFF" } },
+          fill: { fgColor: { rgb: "2563EB" }, patternType: "solid" },
+          alignment: { horizontal: "center", vertical: "center" },
+        };
+      }
+      ws["!rows"] = [{ hpt: 24 }];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "수입업체");
+      const buf = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      const blob = new Blob([buf], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `importers-${new Date().toISOString().slice(0, 10)}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success(`${r.rows.length}건 엑셀보내기 완료`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    } finally {
+      setExportingExcel(false);
     }
   };
 
@@ -220,6 +291,14 @@ function AdminImporters() {
         >
           {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
           CSV 내보내기
+        </button>
+        <button
+          onClick={onExportExcel}
+          disabled={exportingExcel}
+          className="inline-flex h-10 items-center gap-1.5 rounded-md border border-border px-3 text-[12px] font-semibold text-green-700 hover:border-green-600 hover:bg-green-50 disabled:opacity-50 dark:text-green-400 dark:hover:bg-green-950"
+        >
+          {exportingExcel ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileSpreadsheet className="h-3.5 w-3.5" />}
+          Excel보내기
         </button>
         <div className="text-[12px] text-muted-foreground">
           총 <b className="font-mono text-primary">{total.toLocaleString()}</b>건
