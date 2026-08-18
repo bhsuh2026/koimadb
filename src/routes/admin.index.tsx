@@ -25,7 +25,6 @@ import {
   type Importer,
 } from "@/lib/importers.functions";
 import { toast } from "sonner";
-import * as XLSX from "xlsx";
 
 
 export const Route = createFileRoute("/admin/")({
