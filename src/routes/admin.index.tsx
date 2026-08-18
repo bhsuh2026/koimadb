@@ -148,7 +148,10 @@ function AdminImporters() {
   const onExportExcel = async () => {
     setExportingExcel(true);
     try {
-      const r = await exportFn({ data: filterPayload });
+      const [r, XLSX] = await Promise.all([
+        exportFn({ data: filterPayload }),
+        import("xlsx"),
+      ]);
       const headers = [
         { key: "rank_import", label: "수입순위" },
         { key: "biz_no", label: "사업자번호" },
