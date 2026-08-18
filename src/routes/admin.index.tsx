@@ -290,6 +290,14 @@ function AdminImporters() {
           {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
           CSV 내보내기
         </button>
+        <button
+          onClick={onExportExcel}
+          disabled={exportingExcel}
+          className="inline-flex h-10 items-center gap-1.5 rounded-md border border-border px-3 text-[12px] font-semibold text-green-700 hover:border-green-600 hover:bg-green-50 disabled:opacity-50 dark:text-green-400 dark:hover:bg-green-950"
+        >
+          {exportingExcel ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileSpreadsheet className="h-3.5 w-3.5" />}
+          Excel보내기
+        </button>
         <div className="text-[12px] text-muted-foreground">
           총 <b className="font-mono text-primary">{total.toLocaleString()}</b>건
         </div>
