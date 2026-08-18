@@ -496,6 +496,7 @@ export const adminExportImporters = createServerFn({ method: "POST" })
       countries: z.array(z.string()).max(50).default([]),
       scales: z.array(z.string()).max(20).default([]),
       hs: z.string().max(12).default(""),
+      hasEmail: z.boolean().default(false),
     }).parse(i),
   )
   .handler(async ({ data }) => {
@@ -508,6 +509,7 @@ export const adminExportImporters = createServerFn({ method: "POST" })
       if (data.countries.length) query = query.overlaps("countries", data.countries);
       if (data.scales.length) query = query.in("scale_label", data.scales);
       if (data.hs) query = query.contains("hs_codes", [data.hs.trim()]);
+      if (data.hasEmail) query = query.neq("email", "");
       if (tokens.length > 0) {
         for (const t of tokens) {
           query = query.or(
