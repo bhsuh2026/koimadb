@@ -1,5 +1,7 @@
 # Tasks
 
+- [x] Give the Central Asia page a regional visual identity and verify search, language selection, and mobile layout.
+
 - [x] Show buyer companies directly on the home page.
 - [x] Remove public regional menus, trade information, and promotional footer.
 - [x] Refine company cards and retain search, filters, and detail closing.

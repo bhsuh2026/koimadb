@@ -1,4 +1,5 @@
 import koimaLogo from "@/assets/koima-logo.png";
+import { CentralAsiaIdentity } from "@/components/CentralAsiaIdentity";
 import { Link, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -206,29 +207,34 @@ export function ImportersDirectory({
   const activeFilterCount =
     additionalCountries.length + scales.size + (hs ? 1 : 0) + (hasEmail ? 1 : 0);
 
+  const searchForm = (
+    <form className={`${isCentralAsiaPage ? "central-asia-search" : "mt-5"} flex w-full max-w-3xl items-center gap-2 rounded-lg border bg-background p-2 focus-within:ring-2 focus-within:ring-ring`}
+      onSubmit={(e) => { e.preventDefault(); setQDeb(q.trim()); setPage(1); }}>
+      <Search className="ml-2 size-5 shrink-0 text-muted-foreground" />
+      <input aria-label={t("바이어 기업 검색", "Search buyer companies", "Tìm doanh nghiệp")}
+        value={q} onChange={(e) => setQ(e.target.value)}
+        placeholder={t("기업명 · 품목 · 사업자번호", "Company · product · business number", "Tên doanh nghiệp · mặt hàng · mã số thuế")}
+        className="min-w-0 flex-1 bg-transparent px-1 py-2 text-sm outline-none sm:text-base" />
+      {q && <Button type="button" variant="ghost" size="icon" onClick={() => setQ("")} aria-label={t("지우기", "Clear", "Xóa")}><X /></Button>}
+      <Button type="submit" className="h-11 shrink-0 px-4 sm:px-6"><Search />{t("검색", "Search", "Tìm kiếm")}</Button>
+    </form>
+  );
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className={`${isCentralAsiaPage ? "central-asia-directory " : ""}min-h-screen bg-background text-foreground`}>
       <header className="border-b bg-card">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
-          <div className="mb-6 flex items-center justify-between gap-4">
+        <div className={`mx-auto max-w-7xl px-4 sm:px-6 ${isCentralAsiaPage ? "py-4" : "py-6 sm:py-8"}`}>
+          <div className={`${isCentralAsiaPage ? "" : "mb-6 "}flex items-center justify-between gap-4`}>
             <img src={koimaLogo} alt="KOIMA" className="h-9 w-auto sm:h-11" />
             {isVietnamPage ? <LangToggleVietnam /> : isCentralAsiaPage ? <LangToggleRussian /> : <LangToggle />}
           </div>
-          <h1 className="text-2xl font-semibold leading-snug sm:text-3xl">
+          {!isCentralAsiaPage && <><h1 className="text-2xl font-semibold leading-snug sm:text-3xl">
             {t(isLocked ? title.replace("디렉토리", "기업정보") : "바이어 기업정보", "Buyer Companies", "Thông tin doanh nghiệp nhập khẩu", router.state.location.pathname === "/central-asia" ? "Покупатели из Кореи · Центральная Азия" : "Компании-покупатели из Кореи")}
           </h1>
-          <form className="mt-5 flex w-full max-w-3xl items-center gap-2 rounded-lg border bg-background p-2 focus-within:ring-2 focus-within:ring-ring"
-            onSubmit={(e) => { e.preventDefault(); setQDeb(q.trim()); setPage(1); }}>
-            <Search className="ml-2 size-5 shrink-0 text-muted-foreground" />
-            <input aria-label={t("바이어 기업 검색", "Search buyer companies", "Tìm doanh nghiệp")}
-              value={q} onChange={(e) => setQ(e.target.value)}
-              placeholder={t("기업명 · 품목 · 사업자번호", "Company · product · business number", "Tên doanh nghiệp · mặt hàng · mã số thuế")}
-              className="min-w-0 flex-1 bg-transparent px-1 py-2 text-sm outline-none sm:text-base" />
-            {q && <Button type="button" variant="ghost" size="icon" onClick={() => setQ("")} aria-label={t("지우기", "Clear", "Xóa")}><X /></Button>}
-            <Button type="submit" className="h-11 shrink-0 px-4 sm:px-6"><Search />{t("검색", "Search", "Tìm kiếm")}</Button>
-          </form>
+          {searchForm}</>}
         </div>
       </header>
+      {isCentralAsiaPage && <CentralAsiaIdentity>{searchForm}</CentralAsiaIdentity>}
 
       <div className="mx-auto flex max-w-7xl gap-6 px-4 py-6 sm:px-6">
 

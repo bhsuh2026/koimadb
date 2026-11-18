@@ -35,6 +35,9 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-paper: var(--paper);
+  --color-region-teal: var(--region-teal);
+  --color-region-gold: var(--region-gold);
+  --color-region-on-cover: var(--region-on-cover);
 }
 
 :root {
@@ -62,6 +65,25 @@
   --border: oklch(0.9 0.005 100);
   --input: oklch(0.9 0.005 100);
   --ring: oklch(0.5 0.16 255);
+  --region-teal: oklch(0.43 0.085 195);
+  --region-gold: oklch(0.79 0.12 82);
+  --region-on-cover: oklch(0.99 0 0);
+  --region-cover-ink: oklch(0.23 0.045 195);
+  --region-cover-shade: linear-gradient(90deg, color-mix(in oklab, var(--region-cover-ink) 94%, transparent) 0%, color-mix(in oklab, var(--region-cover-ink) 75%, transparent) 42%, color-mix(in oklab, var(--region-cover-ink) 12%, transparent) 100%);
+  --region-search-shadow: 0 6px 24px color-mix(in oklab, var(--region-cover-ink) 18%, transparent);
+}
+
+.central-asia-directory {
+  --primary: var(--region-teal);
+  --ring: var(--region-teal);
+}
+.central-asia-cover { min-height: 330px; }
+.central-asia-shade { background: var(--region-cover-shade); }
+.central-asia-search { box-shadow: var(--region-search-shadow); }
+.central-asia-country-band { border-top: 3px solid var(--region-gold); }
+@media (max-width: 639px) {
+  .central-asia-cover { min-height: 310px; }
+  .central-asia-shade { background: color-mix(in oklab, var(--region-cover-ink) 78%, transparent); }
 }
 
 @layer base {
