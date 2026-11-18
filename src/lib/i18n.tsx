@@ -37,7 +37,7 @@ export function LangProvider({ children }: { children: ReactNode }) {
   return <LangCtx.Provider value={{ lang, setLang, t, tt }}>{children}</LangCtx.Provider>;
 }
 
-/** Central Asia and CIS language selector. */
+/** Shared buyer-directory language selector, including home and region pages. */
 export function LangToggleRussian() {
   const { lang, setLang } = useLang();
   return (
