@@ -9,62 +9,28 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VietnamRouteImport } from './routes/vietnam'
-import { Route as UsaRouteImport } from './routes/usa'
-import { Route as SearchRouteImport } from './routes/search'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as ImportersRouteImport } from './routes/importers'
-import { Route as EuRouteImport } from './routes/eu'
-import { Route as CisRouteImport } from './routes/cis'
-import { Route as ChinaRouteImport } from './routes/china'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as CentralAsiaRouteImport } from './routes/central-asia'
+import { Route as ChinaRouteImport } from './routes/china'
+import { Route as CisRouteImport } from './routes/cis'
+import { Route as EuRouteImport } from './routes/eu'
+import { Route as ImportersRouteImport } from './routes/importers'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as SearchRouteImport } from './routes/search'
+import { Route as UsaRouteImport } from './routes/usa'
+import { Route as VietnamRouteImport } from './routes/vietnam'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as CCountryRouteImport } from './routes/c.$country'
-import { Route as ApiGetKeyRouteImport } from './routes/api/get-key'
-import { Route as ApiCheckServiceRoleRouteImport } from './routes/api/check-service-role'
-import { Route as AdminStatsRouteImport } from './routes/admin.stats'
-import { Route as AdminImportRouteImport } from './routes/admin.import'
 import { Route as AdminDuplicatesRouteImport } from './routes/admin.duplicates'
+import { Route as AdminImportRouteImport } from './routes/admin.import'
+import { Route as AdminStatsRouteImport } from './routes/admin.stats'
+import { Route as ApiCheckServiceRoleRouteImport } from './routes/api/check-service-role'
+import { Route as ApiGetKeyRouteImport } from './routes/api/get-key'
+import { Route as CCountryRouteImport } from './routes/c.$country'
 
-const VietnamRoute = VietnamRouteImport.update({
-  id: '/vietnam',
-  path: '/vietnam',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const UsaRoute = UsaRouteImport.update({
-  id: '/usa',
-  path: '/usa',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SearchRoute = SearchRouteImport.update({
-  id: '/search',
-  path: '/search',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ImportersRoute = ImportersRouteImport.update({
-  id: '/importers',
-  path: '/importers',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EuRoute = EuRouteImport.update({
-  id: '/eu',
-  path: '/eu',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CisRoute = CisRouteImport.update({
-  id: '/cis',
-  path: '/cis',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChinaRoute = ChinaRouteImport.update({
-  id: '/china',
-  path: '/china',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -72,9 +38,49 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const CentralAsiaRoute = CentralAsiaRouteImport.update({
+  id: '/central-asia',
+  path: '/central-asia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChinaRoute = ChinaRouteImport.update({
+  id: '/china',
+  path: '/china',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CisRoute = CisRouteImport.update({
+  id: '/cis',
+  path: '/cis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuRoute = EuRouteImport.update({
+  id: '/eu',
+  path: '/eu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImportersRoute = ImportersRouteImport.update({
+  id: '/importers',
+  path: '/importers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsaRoute = UsaRouteImport.update({
+  id: '/usa',
+  path: '/usa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VietnamRoute = VietnamRouteImport.update({
+  id: '/vietnam',
+  path: '/vietnam',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -82,24 +88,9 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
-const CCountryRoute = CCountryRouteImport.update({
-  id: '/c/$country',
-  path: '/c/$country',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiGetKeyRoute = ApiGetKeyRouteImport.update({
-  id: '/api/get-key',
-  path: '/api/get-key',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiCheckServiceRoleRoute = ApiCheckServiceRoleRouteImport.update({
-  id: '/api/check-service-role',
-  path: '/api/check-service-role',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminStatsRoute = AdminStatsRouteImport.update({
-  id: '/stats',
-  path: '/stats',
+const AdminDuplicatesRoute = AdminDuplicatesRouteImport.update({
+  id: '/duplicates',
+  path: '/duplicates',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminImportRoute = AdminImportRouteImport.update({
@@ -107,15 +98,31 @@ const AdminImportRoute = AdminImportRouteImport.update({
   path: '/import',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminDuplicatesRoute = AdminDuplicatesRouteImport.update({
-  id: '/duplicates',
-  path: '/duplicates',
+const AdminStatsRoute = AdminStatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
   getParentRoute: () => AdminRoute,
+} as any)
+const ApiCheckServiceRoleRoute = ApiCheckServiceRoleRouteImport.update({
+  id: '/api/check-service-role',
+  path: '/api/check-service-role',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGetKeyRoute = ApiGetKeyRouteImport.update({
+  id: '/api/get-key',
+  path: '/api/get-key',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CCountryRoute = CCountryRouteImport.update({
+  id: '/c/$country',
+  path: '/c/$country',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/central-asia': typeof CentralAsiaRoute
   '/china': typeof ChinaRoute
   '/cis': typeof CisRoute
   '/eu': typeof EuRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/central-asia': typeof CentralAsiaRoute
   '/china': typeof ChinaRoute
   '/cis': typeof CisRoute
   '/eu': typeof EuRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/central-asia': typeof CentralAsiaRoute
   '/china': typeof ChinaRoute
   '/cis': typeof CisRoute
   '/eu': typeof EuRoute
@@ -175,6 +184,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/central-asia'
     | '/china'
     | '/cis'
     | '/eu'
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/central-asia'
     | '/china'
     | '/cis'
     | '/eu'
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/central-asia'
     | '/china'
     | '/cis'
     | '/eu'
@@ -232,6 +244,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  CentralAsiaRoute: typeof CentralAsiaRoute
   ChinaRoute: typeof ChinaRoute
   CisRoute: typeof CisRoute
   EuRoute: typeof EuRoute
@@ -247,60 +260,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/vietnam': {
-      id: '/vietnam'
-      path: '/vietnam'
-      fullPath: '/vietnam'
-      preLoaderRoute: typeof VietnamRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/usa': {
-      id: '/usa'
-      path: '/usa'
-      fullPath: '/usa'
-      preLoaderRoute: typeof UsaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/search': {
-      id: '/search'
-      path: '/search'
-      fullPath: '/search'
-      preLoaderRoute: typeof SearchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/importers': {
-      id: '/importers'
-      path: '/importers'
-      fullPath: '/importers'
-      preLoaderRoute: typeof ImportersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/eu': {
-      id: '/eu'
-      path: '/eu'
-      fullPath: '/eu'
-      preLoaderRoute: typeof EuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cis': {
-      id: '/cis'
-      path: '/cis'
-      fullPath: '/cis'
-      preLoaderRoute: typeof CisRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/china': {
-      id: '/china'
-      path: '/china'
-      fullPath: '/china'
-      preLoaderRoute: typeof ChinaRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -310,11 +274,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/central-asia': {
+      id: '/central-asia'
+      path: '/central-asia'
+      fullPath: '/central-asia'
+      preLoaderRoute: typeof CentralAsiaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/china': {
+      id: '/china'
+      path: '/china'
+      fullPath: '/china'
+      preLoaderRoute: typeof ChinaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cis': {
+      id: '/cis'
+      path: '/cis'
+      fullPath: '/cis'
+      preLoaderRoute: typeof CisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu': {
+      id: '/eu'
+      path: '/eu'
+      fullPath: '/eu'
+      preLoaderRoute: typeof EuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/importers': {
+      id: '/importers'
+      path: '/importers'
+      fullPath: '/importers'
+      preLoaderRoute: typeof ImportersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/usa': {
+      id: '/usa'
+      path: '/usa'
+      fullPath: '/usa'
+      preLoaderRoute: typeof UsaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vietnam': {
+      id: '/vietnam'
+      path: '/vietnam'
+      fullPath: '/vietnam'
+      preLoaderRoute: typeof VietnamRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -324,32 +344,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/c/$country': {
-      id: '/c/$country'
-      path: '/c/$country'
-      fullPath: '/c/$country'
-      preLoaderRoute: typeof CCountryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/get-key': {
-      id: '/api/get-key'
-      path: '/api/get-key'
-      fullPath: '/api/get-key'
-      preLoaderRoute: typeof ApiGetKeyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/check-service-role': {
-      id: '/api/check-service-role'
-      path: '/api/check-service-role'
-      fullPath: '/api/check-service-role'
-      preLoaderRoute: typeof ApiCheckServiceRoleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/stats': {
-      id: '/admin/stats'
-      path: '/stats'
-      fullPath: '/admin/stats'
-      preLoaderRoute: typeof AdminStatsRouteImport
+    '/admin/duplicates': {
+      id: '/admin/duplicates'
+      path: '/duplicates'
+      fullPath: '/admin/duplicates'
+      preLoaderRoute: typeof AdminDuplicatesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/import': {
@@ -359,12 +358,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminImportRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/duplicates': {
-      id: '/admin/duplicates'
-      path: '/duplicates'
-      fullPath: '/admin/duplicates'
-      preLoaderRoute: typeof AdminDuplicatesRouteImport
+    '/admin/stats': {
+      id: '/admin/stats'
+      path: '/stats'
+      fullPath: '/admin/stats'
+      preLoaderRoute: typeof AdminStatsRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/api/check-service-role': {
+      id: '/api/check-service-role'
+      path: '/api/check-service-role'
+      fullPath: '/api/check-service-role'
+      preLoaderRoute: typeof ApiCheckServiceRoleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/get-key': {
+      id: '/api/get-key'
+      path: '/api/get-key'
+      fullPath: '/api/get-key'
+      preLoaderRoute: typeof ApiGetKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/c/$country': {
+      id: '/c/$country'
+      path: '/c/$country'
+      fullPath: '/c/$country'
+      preLoaderRoute: typeof CCountryRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -388,6 +408,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  CentralAsiaRoute: CentralAsiaRoute,
   ChinaRoute: ChinaRoute,
   CisRoute: CisRoute,
   EuRoute: EuRoute,

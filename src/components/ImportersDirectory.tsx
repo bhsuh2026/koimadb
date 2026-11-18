@@ -365,6 +365,15 @@ export function ImportersDirectory({
                   <span className="hidden sm:inline">CIS</span>
                 </Link>
                 <Link
+                  to="/central-asia"
+                  title="중앙아시아"
+                  aria-label="중앙아시아"
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
+                >
+                  <span className="text-base leading-none">🌏</span>
+                  <span className="hidden sm:inline">중앙아시아</span>
+                </Link>
+                <Link
                   to="/importers"
                   title="ASEAN"
                   aria-label="ASEAN"

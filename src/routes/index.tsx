@@ -110,6 +110,12 @@ function HomePage() {
             🌍 CIS
           </Link>
           <Link
+            to="/central-asia"
+            className="inline-flex items-center gap-1.5 rounded-full border bg-card px-4 py-1.5 text-sm shadow-sm hover:bg-accent"
+          >
+            🌏 중앙아시아
+          </Link>
+          <Link
             to="/importers"
             className="inline-flex items-center gap-1.5 rounded-full border bg-card px-4 py-1.5 text-sm shadow-sm hover:bg-accent"
           >
