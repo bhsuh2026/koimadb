@@ -1,12 +1,14 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { RUSSIAN_LABELS } from "@/lib/i18n-ru";
 
-export type Lang = "ko" | "en" | "zh" | "vi";
+export type Lang = "ko" | "en" | "zh" | "vi" | "ru";
 
 type Ctx = {
   lang: Lang;
   setLang: (l: Lang) => void;
   /** 2-arg translate: ko / en. Optional 3rd arg is Vietnamese. */
-  t: (ko: string, en: string, vi?: string) => string;
+  t: (ko: string, en: string, vi?: string, ru?: string) => string;
   /** 3-arg translate: ko / en / zh. Use on the China page. */
   tt: (ko: string, en: string, zh: string) => string;
 };
@@ -24,7 +26,8 @@ export function LangProvider({ children }: { children: ReactNode }) {
     } catch {}
   };
 
-  const t = (ko: string, en: string, vi?: string) => {
+  const t = (ko: string, en: string, vi?: string, ru?: string) => {
+    if (lang === "ru") return ru ?? RUSSIAN_LABELS[en] ?? en;
     if (lang === "vi" && vi) return vi;
     return lang === "ko" ? ko : en;
   };
@@ -32,6 +35,20 @@ export function LangProvider({ children }: { children: ReactNode }) {
     lang === "ko" ? ko : lang === "zh" ? zh : en;
 
   return <LangCtx.Provider value={{ lang, setLang, t, tt }}>{children}</LangCtx.Provider>;
+}
+
+/** Central Asia and CIS language selector. */
+export function LangToggleRussian() {
+  const { lang, setLang } = useLang();
+  return (
+    <div role="group" aria-label="Language" className="inline-flex shrink-0 items-center gap-0.5 rounded-md border bg-card p-1">
+      {([{ code: "ko", label: "KO", name: "한국어" }, { code: "en", label: "EN", name: "English" }, { code: "ru", label: "RU", name: "Русский" }] as const).map(({ code, label, name }) => (
+        <Button key={code} variant={lang === code ? "secondary" : "ghost"} size="sm" onClick={() => setLang(code)} aria-label={name} aria-pressed={lang === code} title={name} className="h-8 px-2 text-xs font-semibold">
+          {label}
+        </Button>
+      ))}
+    </div>
+  );
 }
 
 export function useLang(): Ctx {

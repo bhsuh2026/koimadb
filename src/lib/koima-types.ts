@@ -210,8 +210,13 @@ const iso2ToFlag = (iso: string): string =>
 let _regionEn: Intl.DisplayNames | null | undefined;
 let _regionZh: Intl.DisplayNames | null | undefined;
 let _regionVi: Intl.DisplayNames | null | undefined;
-function regionNames(lang: "en" | "zh" | "vi"): Intl.DisplayNames | null {
+let _regionRu: Intl.DisplayNames | null | undefined;
+function regionNames(lang: "en" | "zh" | "vi" | "ru"): Intl.DisplayNames | null {
   try {
+    if (lang === "ru") {
+      if (_regionRu === undefined) _regionRu = new Intl.DisplayNames(["ru"], { type: "region" });
+      return _regionRu;
+    }
     if (lang === "en") {
       if (_regionEn === undefined) _regionEn = new Intl.DisplayNames(["en"], { type: "region" });
       return _regionEn;
@@ -228,10 +233,10 @@ function regionNames(lang: "en" | "zh" | "vi"): Intl.DisplayNames | null {
 }
 
 // 표시용 국가명. lang으로 영어/중국어/베트남어 변환 가능 (ISO2 → Intl.DisplayNames).
-export const displayCountry = (country: string, lang: "ko" | "en" | "zh" | "vi" = "ko"): string => {
+export const displayCountry = (country: string, lang: "ko" | "en" | "zh" | "vi" | "ru" = "ko"): string => {
   const t = country.trim();
   if (NON_COUNTRY.has(t)) {
-    return lang === "en" ? "Other" : lang === "zh" ? "其他" : lang === "vi" ? "Khác" : "기타국";
+    return lang === "ru" ? "Прочие" : lang === "en" ? "Other" : lang === "zh" ? "其他" : lang === "vi" ? "Khác" : "기타국";
   }
   const normalized = NAME_FIX[t] ?? t;
   if (lang === "ko") return normalized;
@@ -323,7 +328,26 @@ const SCALE_LABEL_VI: Record<string, string> = {
   "1만불 미만": "Dưới 10 nghìn USD",
 };
 
-export const scaleLabel = (label: string, lang: "ko" | "en" | "zh" | "vi" = "ko"): string => {
+const SCALE_LABEL_RU: Record<string, string> = {
+  "1억불 초과": "Свыше 100 млн USD",
+  "5000만불~1억불": "50–100 млн USD",
+  "3000만불~5000만불": "30–50 млн USD",
+  "1000만불~3000만불": "10–30 млн USD",
+  "700만불~1000만불": "7–10 млн USD",
+  "500만불~700만불": "5–7 млн USD",
+  "300만불~500만불": "3–5 млн USD",
+  "100만불~300만불": "1–3 млн USD",
+  "50만불~100만불": "0,5–1 млн USD",
+  "30만불~50만불": "0,3–0,5 млн USD",
+  "10만불~30만불": "0,1–0,3 млн USD",
+  "5만불~10만불": "50–100 тыс. USD",
+  "3만불~5만불": "30–50 тыс. USD",
+  "1만불~3만불": "10–30 тыс. USD",
+  "1만불 미만": "Менее 10 тыс. USD",
+};
+
+export const scaleLabel = (label: string, lang: "ko" | "en" | "zh" | "vi" | "ru" = "ko"): string => {
+  if (lang === "ru") return SCALE_LABEL_RU[label] ?? label;
   if (lang === "en") return SCALE_LABEL_EN[label] ?? label;
   if (lang === "zh") return SCALE_LABEL_ZH[label] ?? label;
   if (lang === "vi") return SCALE_LABEL_VI[label] ?? label;

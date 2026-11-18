@@ -31,7 +31,7 @@ import {
 import { flagOf, displayCountry, displayCompanyName, scaleLabel } from "@/lib/koima-types";
 import { Button } from "@/components/ui/button";
 
-import { LangToggle, LangToggleVietnam, useLang } from "@/lib/i18n";
+import { LangToggle, LangToggleVietnam, LangToggleRussian, useLang } from "@/lib/i18n";
 import { hsCategoriesFromCodes } from "@/lib/hs-categories";
 
 
@@ -99,6 +99,7 @@ export function ImportersDirectory({
   const { t, lang } = useLang();
   const router = useRouter();
   const isVietnamPage = router.state.location.pathname === "/vietnam";
+  const isRussianPage = ["/central-asia", "/cis"].includes(router.state.location.pathname) || lang === "ru";
   const listFn = useServerFn(listImporters);
   const facetsFn = useServerFn(getImporterFacets);
   const [q, setQ] = useState(initialQuery);
@@ -208,10 +209,10 @@ export function ImportersDirectory({
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
           <div className="mb-6 flex items-center justify-between gap-4">
             <img src={koimaLogo} alt="KOIMA" className="h-9 w-auto sm:h-11" />
-            {isVietnamPage ? <LangToggleVietnam /> : <LangToggle />}
+            {isVietnamPage ? <LangToggleVietnam /> : isRussianPage ? <LangToggleRussian /> : <LangToggle />}
           </div>
           <h1 className="text-2xl font-semibold leading-snug sm:text-3xl">
-            {t(isLocked ? title.replace("디렉토리", "기업정보") : "바이어 기업정보", "Buyer Companies", "Thông tin doanh nghiệp nhập khẩu")}
+            {t(isLocked ? title.replace("디렉토리", "기업정보") : "바이어 기업정보", "Buyer Companies", "Thông tin doanh nghiệp nhập khẩu", router.state.location.pathname === "/central-asia" ? "Покупатели из Кореи · Центральная Азия" : "Компании-покупатели из Кореи")}
           </h1>
           <form className="mt-5 flex w-full max-w-3xl items-center gap-2 rounded-lg border bg-background p-2 focus-within:ring-2 focus-within:ring-ring"
             onSubmit={(e) => { e.preventDefault(); setQDeb(q.trim()); setPage(1); }}>
@@ -337,7 +338,7 @@ export function ImportersDirectory({
               </Button>
             </div>
             <div className="mb-6 space-y-3">
-              <input aria-label="HS코드" value={hs} onChange={(e) => {setHs(e.target.value.replace(/[^\d]/g, "")); setPage(1);}} placeholder="HS코드" inputMode="numeric" className="h-10 w-full rounded-md border bg-card px-3 text-sm" />
+              <input aria-label={t("HS코드", "HS codes", "Mã HS")} value={hs} onChange={(e) => {setHs(e.target.value.replace(/[^\d]/g, "")); setPage(1);}} placeholder={t("HS코드", "HS codes", "Mã HS")} inputMode="numeric" className="h-10 w-full rounded-md border bg-card px-3 text-sm" />
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={exact} onChange={(e) => {setExact(e.target.checked); setPage(1);}} />{t("품목 정확 일치", "Exact item match", "Khớp chính xác mặt hàng")}</label>
             </div>
             <FilterPanel
@@ -362,7 +363,7 @@ export function ImportersDirectory({
               onClick={() => setFilterOpen(false)}
               className="mt-6 w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow"
             >
-              {t(`${total.toLocaleString()}개 결과 보기`, `View ${total.toLocaleString()} results`)}
+              {t(`${total.toLocaleString()}개 결과 보기`, `View ${total.toLocaleString()} results`, undefined, `Показать результаты (${total.toLocaleString("ru")})`)}
             </Button>
           </div>
         </div>
@@ -417,9 +418,9 @@ function FilterPanel(props: {
     if (!countryQ.trim()) return [];
     const q = countryQ.trim();
     return props.allCountries
-      .filter((c) => c.includes(q) && !props.additionalCountries.includes(c))
+      .filter((c) => (c.includes(q) || displayCountry(c, lang).toLocaleLowerCase(lang).includes(q.toLocaleLowerCase(lang))) && !props.additionalCountries.includes(c))
       .slice(0, 20);
-  }, [countryQ, props.allCountries, props.additionalCountries]);
+  }, [countryQ, props.allCountries, props.additionalCountries, lang]);
 
   return (
     <div className="space-y-6">
@@ -433,7 +434,7 @@ function FilterPanel(props: {
 
         {props.isLocked && props.lockedLabel && (
           <div className="mb-2 inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
-            {props.lockedLabel}
+            {lang === "ru" ? props.lockedLabel.replace("중앙아시아", "Центральная Азия").replace("CIS", "СНГ") : props.lockedLabel}
             <span className="ml-1 text-[10px] font-normal text-primary/70">{t("고정", "Locked", "Đã khóa")}</span>
           </div>
         )}
@@ -467,8 +468,8 @@ function FilterPanel(props: {
                 <Link
                   to="/c/$country"
                   params={{ country: encodeURIComponent(c) }}
-                  title={t(`${displayCountry(c, lang)} 전용 페이지 열기`, `Open ${displayCountry(c, lang)} page`)}
-                  aria-label={t(`${displayCountry(c, lang)} 전용 페이지`, `${displayCountry(c, lang)} page`)}
+                  title={t(`${displayCountry(c, lang)} 전용 페이지 열기`, `Open ${displayCountry(c, lang)} page`, undefined, `Открыть: ${displayCountry(c, lang)}`)}
+                  aria-label={t(`${displayCountry(c, lang)} 전용 페이지`, `${displayCountry(c, lang)} page`, undefined, `Страница: ${displayCountry(c, lang)}`)}
                   className="ml-0.5 inline-flex items-center rounded-md border border-border bg-card px-1.5 py-1 text-[10px] font-medium text-muted-foreground transition hover:border-primary hover:bg-primary/5 hover:text-primary"
                 >
                   {t("상세 ↗", "Detail ↗", "Chi tiết ↗")}
@@ -492,7 +493,7 @@ function FilterPanel(props: {
                 <Button variant="ghost"
                   onClick={() => toggleCountry(c)}
                   className="ml-0.5 rounded hover:text-destructive"
-                  aria-label={t(`${displayCountry(c, lang)} 제거`, `Remove ${displayCountry(c, lang)}`)}
+                  aria-label={t(`${displayCountry(c, lang)} 제거`, `Remove ${displayCountry(c, lang)}`, undefined, `Убрать: ${displayCountry(c, lang)}`)}
                 >
                   <X className="size-3" />
                 </Button>
@@ -550,6 +551,8 @@ function FilterPanel(props: {
               : t(
                   `전체 국가 보기 (${props.allCountries.length}개)`,
                   `View all countries (${props.allCountries.length})`,
+                  undefined,
+                  `Все страны (${props.allCountries.length})`,
                 )}
           </Button>
         )}
@@ -1195,6 +1198,7 @@ function CopyChip({
   icon?: React.ReactNode;
   mono?: boolean;
 }) {
+  const { t } = useLang();
   const [copied, setCopied] = useState(false);
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -1208,7 +1212,7 @@ function CopyChip({
     <Button variant="ghost"
       onClick={handleCopy}
       className={`group inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-1 text-xs transition hover:border-primary/40 hover:bg-primary/5 active:scale-95 ${mono ? "font-mono tabular-nums" : ""}`}
-      title="Copy"
+      title={copied ? t("복사됨", "Copied") : t("복사", "Copy")}
     >
       {icon}
       {label && <span className="font-sans text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</span>}
