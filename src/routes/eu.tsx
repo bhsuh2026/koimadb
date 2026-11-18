@@ -6,6 +6,8 @@ export const Route = createFileRoute("/eu")({
   component: EuPage,
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "EU · Korean Importers Directory | KOIMA · 유럽연합 거래 한국 수입업체" },
       {
         name: "description",

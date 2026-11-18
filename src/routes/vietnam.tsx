@@ -6,6 +6,8 @@ export const Route = createFileRoute("/vietnam")({
   component: VietnamPage,
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       {
         title:
           "Vietnam · Korean Importers Directory | KOIMA · Việt Nam · 베트남 한국 수입업체",

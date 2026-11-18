@@ -9,6 +9,8 @@ export const Route = createFileRoute("/c/$country")({
     const en = displayCountry(country, "en");
     return {
       meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
         { title: `${en} · Korean Importers Directory | KOIMA · ${country} 거래 한국 수입업체` },
         {
           name: "description",

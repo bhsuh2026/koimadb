@@ -8,6 +8,7 @@ import { adminBulkUpsertImporters } from "@/lib/importers.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/import")({
+  head: () => ({ meta: [{ title: "기업정보 업로드 | KOIMA" }, { name: "description", content: "KOIMA 바이어 기업정보 업로드 페이지." }, { property: "og:title", content: "기업정보 업로드 | KOIMA" }, { property: "og:description", content: "KOIMA 바이어 기업정보 업로드." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: AdminImport,
 });
 

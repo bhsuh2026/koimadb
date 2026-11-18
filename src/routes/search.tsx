@@ -15,6 +15,8 @@ export const Route = createFileRoute("/search")({
       : "한국 수입업체 검색 — 2025 관세청 기준";
     return {
       meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
         { title },
         {
           name: "description",
@@ -22,6 +24,7 @@ export const Route = createFileRoute("/search")({
             "2025 관세청 기준 한국 수입업체 11.8만 곳을 업체명·사업자번호·품목으로 검색하세요.",
         },
         { property: "og:title", content: title },
+        { property: "og:description", content: "KOIMA 한국 바이어 기업정보 검색 결과." },
       ],
     };
   },

@@ -12,6 +12,7 @@ import {
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/duplicates")({
+  head: () => ({ meta: [{ title: "중복 기업 통합 | KOIMA" }, { name: "description", content: "KOIMA 바이어 중복 기업 통합 페이지." }, { property: "og:title", content: "중복 기업 통합 | KOIMA" }, { property: "og:description", content: "KOIMA 바이어 중복 기업 통합." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: AdminDuplicates,
 });
 

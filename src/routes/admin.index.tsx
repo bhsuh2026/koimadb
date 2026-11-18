@@ -28,6 +28,7 @@ import { toast } from "sonner";
 
 
 export const Route = createFileRoute("/admin/")({
+  head: () => ({ meta: [{ title: "기업정보 관리 | KOIMA" }, { name: "description", content: "KOIMA 바이어 기업정보 관리 페이지." }, { property: "og:title", content: "기업정보 관리 | KOIMA" }, { property: "og:description", content: "KOIMA 바이어 기업정보 관리." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: AdminImporters,
 });
 

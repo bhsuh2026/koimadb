@@ -8,6 +8,8 @@ export const Route = createFileRoute("/importers")({
   component: ImportersPage,
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "ASEAN · Korean Importers Directory | KOIMA · 아세안 거래 한국 수입업체" },
       {
         name: "description",

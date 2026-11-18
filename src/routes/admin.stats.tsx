@@ -5,6 +5,7 @@ import { Building2, Mail, IdCard, Globe2, TrendingUp, Hash, Loader2 } from "luci
 import { adminGetStats } from "@/lib/importers.functions";
 
 export const Route = createFileRoute("/admin/stats")({
+  head: () => ({ meta: [{ title: "기업 통계 | KOIMA" }, { name: "description", content: "KOIMA 바이어 기업 통계 페이지." }, { property: "og:title", content: "기업 통계 | KOIMA" }, { property: "og:description", content: "KOIMA 바이어 기업 통계." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: AdminStats,
 });
 

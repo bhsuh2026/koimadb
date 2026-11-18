@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { ImportersDirectory } from "@/components/ImportersDirectory";
 
 const CA = [
@@ -26,25 +26,6 @@ export const Route = createFileRoute("/central-asia")({
 function CentralAsiaPage() {
   return (
     <>
-      <section className="mx-auto max-w-6xl px-4 pt-6">
-        <h2 className="mb-3 text-lg font-bold">중앙아시아 5개국 주요 수출 품목</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {CA.map((c) => (
-            <Link
-              key={c.kr}
-              to="/c/$country"
-              params={{ country: c.kr }}
-              className="rounded-xl border bg-card p-4 shadow-sm transition hover:bg-accent"
-            >
-              <div className="mb-2 flex items-center gap-2 font-semibold">
-                <span className="text-2xl leading-none">{c.flag}</span>
-                {c.label ?? c.kr}
-              </div>
-              <p className="text-sm text-muted-foreground">{c.items}</p>
-            </Link>
-          ))}
-        </div>
-      </section>
       <ImportersDirectory
         title="중앙아시아 거래 한국 수입업체 디렉토리"
         lockedCountries={CA.map((c) => c.kr)}

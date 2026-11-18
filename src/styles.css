@@ -1,6 +1,5 @@
 @import "tailwindcss" source(none);
 @import "tw-animate-css";
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
 @source "../src";
 
 
@@ -41,22 +40,22 @@
 :root {
   --radius: 0.25rem;
   --paper: oklch(0.965 0.004 95);
-  --background: oklch(0.965 0.004 95);
+  --background: oklch(0.98 0.002 180);
   --foreground: oklch(0.234 0.024 265);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.234 0.024 265);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.234 0.024 265);
-  --primary: oklch(0.298 0.082 270);
+  --primary: oklch(0.40 0.07 185);
   --primary-foreground: oklch(0.99 0 0);
   --primary-dark: oklch(0.215 0.07 270);
   --secondary: oklch(0.95 0.005 260);
   --secondary-foreground: oklch(0.298 0.082 270);
   --muted: oklch(0.95 0.005 260);
   --muted-foreground: oklch(0.55 0.02 260);
-  --accent: oklch(0.5 0.16 255);
-  --accent-foreground: oklch(0.99 0 0);
-  --accent-soft: oklch(0.94 0.03 255);
+  --accent: oklch(0.94 0.018 185);
+  --accent-foreground: oklch(0.28 0.04 185);
+  --accent-soft: oklch(0.95 0.018 185);
   --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
   --gold: oklch(0.72 0.13 75);
@@ -94,4 +93,8 @@
   100% {
     transform: translateX(-100%);
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }

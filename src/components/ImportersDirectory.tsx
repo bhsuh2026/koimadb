@@ -29,8 +29,8 @@ import {
   type Importer,
 } from "@/lib/importers.functions";
 import { flagOf, displayCountry, displayCompanyName, scaleLabel } from "@/lib/koima-types";
-import { AseanFlag } from "@/components/AseanFlag";
-import { RegionSnapshot } from "@/components/RegionSnapshot";
+import { Button } from "@/components/ui/button";
+
 import { LangToggle, LangToggleVietnam, useLang } from "@/lib/i18n";
 import { hsCategoriesFromCodes } from "@/lib/hs-categories";
 
@@ -60,11 +60,10 @@ const SCALE_ORDER = [
 function scaleColor(label: string): string {
   const i = SCALE_ORDER.indexOf(label);
   if (i < 0) return "bg-muted text-muted-foreground";
-  if (i <= 1) return "bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-300";
-  if (i <= 4) return "bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-300";
-  if (i <= 7) return "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300";
-  if (i <= 10) return "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300";
-  return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300";
+  if (i <= 1) return "bg-primary/10 text-primary";
+  if (i <= 4) return "bg-accent-soft text-foreground";
+  if (i <= 7) return "bg-gold/15 text-foreground";
+  return "bg-muted text-muted-foreground";
 }
 
 export type ImportersDirectoryProps = {
@@ -88,7 +87,6 @@ export function ImportersDirectory({
   lockedLabel,
   title,
   scopeBadge,
-  regionKey,
   initialQuery = "",
 }: ImportersDirectoryProps) {
 
@@ -190,16 +188,6 @@ export function ImportersDirectory({
   const rows = list.data?.rows ?? [];
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  // Sum of importers across all locked countries (approx — may double-count
-  // importers that trade with multiple locked countries).
-  const lockedCount = useMemo(() => {
-    if (!isLocked) return null;
-    const m = facets.data?.countries ?? {};
-    let sum = 0;
-    for (const c of lockedCountries) sum += m[c] ?? 0;
-    return sum || null;
-  }, [isLocked, lockedCountries, facets.data]);
-
   const clearAll = () => {
     setQ("");
     setCountries([]);
@@ -216,203 +204,32 @@ export function ImportersDirectory({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Header */}
-      <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur">
-        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
-          <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-                <h1 className="truncate text-lg font-semibold sm:text-xl">
-                  {scopeBadge && (
-                    <span className="mr-1.5">{scopeBadge}</span>
-                  )}
-                  {t(title, "Korean Importers Directory", "Danh bạ nhà nhập khẩu Hàn Quốc")}
-                </h1>
-                <p className="hidden text-xs text-muted-foreground sm:block">
-                  {t("2025 관세청 기준 ·", "2025 Korea Customs ·", "Dữ liệu 2025 Hải quan Hàn Quốc ·")}{" "}
-                  {(lockedCount ?? facets.data?.total ?? 0).toLocaleString()}
-                  {t("개 업체", " companies", " doanh nghiệp")}
-                </p>
-              </div>
-            <div className="flex items-center gap-2">
-              {isVietnamPage ? <LangToggleVietnam /> : <LangToggle />}
-              <button
-                onClick={() => setFilterOpen(true)}
-                className="relative inline-flex items-center gap-1.5 rounded-md border bg-card px-3 py-2 text-sm shadow-sm hover:bg-accent lg:hidden"
-              >
-                <SlidersHorizontal className="size-4" />
-                {t("필터", "Filters", "Bộ lọc")}
-                {activeFilterCount > 0 && (
-                  <span className="ml-1 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </button>
-            </div>
+      <header className="border-b bg-card">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+          <div className="mb-6 flex items-center justify-between gap-4">
+            <img src={koimaLogo} alt="KOIMA" className="h-9 w-auto sm:h-11" />
+            {isVietnamPage ? <LangToggleVietnam /> : <LangToggle />}
           </div>
-
-          {/* Search */}
-          <div className="mt-3 space-y-2">
-            <form
-              className="flex w-full items-center gap-2 rounded-full border bg-card pl-4 pr-1.5 py-1.5 shadow-sm focus-within:ring-2 focus-within:ring-ring transition"
-              onSubmit={(e) => {
-                e.preventDefault();
-                setQDeb(q.trim());
-                setPage(1);
-              }}
-            >
-              <Search className="size-4 shrink-0 text-muted-foreground" />
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder={t(
-                  "업체명·품목 검색 · 제외는 -단어 (예: 커피 -머신)",
-                  "Search · exclude with -word (e.g. coffee -machine)",
-                  "Tìm kiếm · loại trừ với -từ (vd: coffee -machine)",
-                )}
-                className="flex-1 bg-transparent py-1.5 text-sm outline-none placeholder:text-muted-foreground"
-              />
-              {q && (
-                <button
-                  type="button"
-                  onClick={() => setQ("")}
-                  className="rounded-full p-1 text-muted-foreground hover:bg-accent"
-                  aria-label={t("지우기", "Clear", "Xóa")}
-                >
-                  <X className="size-4" />
-                </button>
-              )}
-              <button
-                type="submit"
-                className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
-              >
-                <Search className="size-4" />
-                <span className="hidden sm:inline">{t("검색", "Search", "Tìm kiếm")}</span>
-              </button>
-            </form>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <input
-                value={hs}
-                onChange={(e) => {
-                  setHs(e.target.value.replace(/[^\d]/g, ""));
-                  setPage(1);
-                }}
-                placeholder={t("HS코드", "HS code", "Mã HS")}
-                inputMode="numeric"
-                className="w-28 rounded-full border bg-card px-3 py-1.5 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
-              />
-              <label
-                title={t(
-                  "켜면 품목명이 정확히 일치할 때만 표시 (예: '커피' 검색 시 '커피머신' 제외)",
-                  "When on, match items as whole entries (e.g. 'coffee' excludes 'coffee machine')",
-                  "Bật để khớp chính xác mục hàng",
-                )}
-                className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium shadow-sm transition ${
-                  exact
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "bg-card text-foreground/80 hover:bg-accent"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={exact}
-                  onChange={(e) => {
-                    setExact(e.target.checked);
-                    setPage(1);
-                  }}
-                  className="sr-only"
-                />
-                {t("정확 일치", "Exact match", "Khớp chính xác")}
-              </label>
-              <select
-                value={sort}
-                onChange={(e) => {
-                  setSort(e.target.value as SortKey);
-                  setPage(1);
-                }}
-                className="rounded-full border bg-card px-3 py-1.5 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
-              >
-                <option value="rank_import_asc">{t("수입액 순", "By imports", "Theo kim ngạch nhập khẩu")}</option>
-                <option value="rank_sales_asc">{t("매출액 순", "By revenue", "Theo doanh thu")}</option>
-                <option value="name_asc">{t("업체명 가나다순", "Name A–Z", "Theo tên A–Z")}</option>
-              </select>
-              <div className="ml-auto inline-flex items-center gap-0.5 rounded-full border bg-card p-1 shadow-sm">
-                <Link
-                  to="/"
-                  title={t("홈", "Home", "Trang chủ")}
-                  aria-label={t("홈", "Home", "Trang chủ")}
-                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
-                >
-                  <span className="text-base leading-none">🏠</span>
-                  <span className="hidden sm:inline">{t("홈", "Home", "Trang chủ")}</span>
-                </Link>
-                <Link
-                  to="/eu"
-                  title="EU"
-                  aria-label="EU"
-                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
-                >
-                  <span className="text-base leading-none">🇪🇺</span>
-                  <span className="hidden sm:inline">EU</span>
-                </Link>
-                <Link
-                  to="/cis"
-                  title="CIS"
-                  aria-label="CIS"
-                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
-                >
-                  <span className="text-base leading-none">🌍</span>
-                  <span className="hidden sm:inline">CIS</span>
-                </Link>
-                <Link
-                  to="/central-asia"
-                  title="중앙아시아"
-                  aria-label="중앙아시아"
-                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
-                >
-                  <span className="text-base leading-none">🌏</span>
-                  <span className="hidden sm:inline">중앙아시아</span>
-                </Link>
-                <Link
-                  to="/importers"
-                  title="ASEAN"
-                  aria-label="ASEAN"
-                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
-                >
-                  <AseanFlag className="h-4 w-auto" />
-                  <span className="hidden sm:inline">ASEAN</span>
-                </Link>
-                <Link
-                  to="/vietnam"
-                  title="Vietnam · Việt Nam"
-                  aria-label="Vietnam"
-                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-foreground/80 transition hover:bg-accent hover:text-foreground"
-                >
-                  <span className="text-base leading-none">🇻🇳</span>
-                  <span className="hidden sm:inline">{t("베트남", "Vietnam", "Việt Nam")}</span>
-                </Link>
-              </div>
-            </div>
-          </div>
+          <h1 className="text-2xl font-semibold leading-snug sm:text-3xl">
+            {t(isLocked ? title.replace("디렉토리", "기업정보") : "바이어 기업정보", "Buyer Companies", "Thông tin doanh nghiệp nhập khẩu")}
+          </h1>
+          <form className="mt-5 flex w-full max-w-3xl items-center gap-2 rounded-lg border bg-background p-2 focus-within:ring-2 focus-within:ring-ring"
+            onSubmit={(e) => { e.preventDefault(); setQDeb(q.trim()); setPage(1); }}>
+            <Search className="ml-2 size-5 shrink-0 text-muted-foreground" />
+            <input aria-label={t("바이어 기업 검색", "Search buyer companies", "Tìm doanh nghiệp")}
+              value={q} onChange={(e) => setQ(e.target.value)}
+              placeholder={t("기업명 · 품목 · 사업자번호", "Company · product · business number", "Tên doanh nghiệp · mặt hàng · mã số thuế")}
+              className="min-w-0 flex-1 bg-transparent px-1 py-2 text-sm outline-none sm:text-base" />
+            {q && <Button type="button" variant="ghost" size="icon" onClick={() => setQ("")} aria-label={t("지우기", "Clear", "Xóa")}><X /></Button>}
+            <Button type="submit" className="h-11 shrink-0 px-4 sm:px-6"><Search />{t("검색", "Search", "Tìm kiếm")}</Button>
+          </form>
         </div>
       </header>
-
-      {/* Region snapshot (asean/eu/cis only) */}
-      {regionKey && isLocked && (facets.data?.countries ?? null) && (
-        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
-          <RegionSnapshot
-            regionKey={regionKey}
-            lockedCountries={lockedCountries}
-            countryCounts={facets.data!.countries}
-            lockedLabel={lockedLabel}
-          />
-        </div>
-      )}
 
       <div className="mx-auto flex max-w-7xl gap-6 px-4 py-6 sm:px-6">
 
         {/* Sidebar (desktop) */}
-        <aside className="hidden w-64 shrink-0 lg:block">
+        <aside className="hidden">
           <FilterPanel
             lockedLabel={lockedLabel}
             isLocked={isLocked}
@@ -440,38 +257,25 @@ export function ImportersDirectory({
               <div className="h-full animate-[loading-slide_1.5s_ease-in-out_infinite] rounded-full bg-primary" style={{ width: '40%' }} />
             </div>
           )}
-          <div className="mb-3 flex items-center justify-between text-sm text-muted-foreground">
-            <div>
-              {list.isFetching ? (
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="inline-block size-3.5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                  {t("검색 중…", "Searching…", "Đang tìm kiếm…")}
-                </span>
-              ) : (
-                <>
-                  <span className="font-semibold text-foreground">
-                    {total.toLocaleString()}
-                  </span>{" "}
-                  {t("개 결과", "results", " kết quả")}
-                  {isLocked && (
-                    <span className="ml-1 text-xs">
-                      · {lockedLabel ?? t("선택 지역", "Selected region", "Khu vực đã chọn")} {t("거래", "trade", "giao dịch")}
-                    </span>
-                  )}
-                </>
-              )}
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div className="text-sm text-muted-foreground" aria-live="polite">
+              {list.isFetching ? t("검색 중…", "Searching…", "Đang tìm kiếm…") : <><span className="font-semibold tabular-nums text-foreground">{total.toLocaleString()}</span> {t("개 기업", "companies", "doanh nghiệp")}</>}
             </div>
-            {activeFilterCount > 0 && (
-              <button
-                onClick={clearAll}
-                className="inline-flex items-center gap-1 text-xs hover:text-foreground"
-              >
-                <X className="size-3.5" /> {t("필터 초기화", "Clear filters", "Xóa bộ lọc")}
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              <select aria-label={t("정렬", "Sort", "Sắp xếp")} value={sort} onChange={(e) => {setSort(e.target.value as SortKey); setPage(1);}}
+                className="h-9 max-w-40 rounded-md border bg-card px-2 text-xs sm:text-sm">
+                <option value="rank_import_asc">{t("수입액 순", "By imports", "Theo nhập khẩu")}</option>
+                <option value="rank_sales_asc">{t("매출액 순", "By revenue", "Theo doanh thu")}</option>
+                <option value="name_asc">{t("기업명 순", "Name A–Z", "Theo tên")}</option>
+              </select>
+              <Button variant="outline" onClick={() => setFilterOpen(true)}><SlidersHorizontal />{t("필터", "Filters", "Bộ lọc")}{activeFilterCount > 0 && <span>{activeFilterCount}</span>}</Button>
+            </div>
           </div>
-
-          <div className="space-y-2">
+          {list.error && <div role="alert" className="mb-4 flex items-center justify-between gap-3 border-b border-destructive/30 py-4 text-sm text-destructive">
+            {t("기업정보를 불러오지 못했습니다.", "Could not load companies.", "Không thể tải doanh nghiệp.")}
+            <Button variant="outline" onClick={() => list.refetch()}>{t("다시 시도", "Retry", "Thử lại")}</Button>
+          </div>}
+          <div className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-3">
             {list.isLoading && !list.data
               ? Array.from({ length: 8 }).map((_, i) => (
                   <div
@@ -492,23 +296,23 @@ export function ImportersDirectory({
           {/* Pagination */}
           {pages > 1 && (
             <div className="mt-6 flex items-center justify-center gap-2 text-sm">
-              <button
+              <Button variant="ghost"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
                 className="inline-flex items-center gap-1 rounded-md border bg-card px-3 py-2 shadow-sm enabled:hover:bg-accent disabled:opacity-40"
               >
                 <ChevronLeft className="size-4" /> {t("이전", "Prev", "Trước")}
-              </button>
+              </Button>
               <span className="px-2 tabular-nums">
                 {page} / {pages.toLocaleString()}
               </span>
-              <button
+              <Button variant="ghost"
                 onClick={() => setPage((p) => Math.min(pages, p + 1))}
                 disabled={page >= pages}
                 className="inline-flex items-center gap-1 rounded-md border bg-card px-3 py-2 shadow-sm enabled:hover:bg-accent disabled:opacity-40"
               >
                 {t("다음", "Next", "Tiếp")} <ChevronRight className="size-4" />
-              </button>
+              </Button>
             </div>
           )}
         </main>
@@ -516,21 +320,25 @@ export function ImportersDirectory({
 
       {/* Mobile filter sheet */}
       {filterOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-50">
           <div
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-foreground/50"
             onClick={() => setFilterOpen(false)}
           />
           <div className="absolute inset-y-0 right-0 w-[88%] max-w-sm overflow-y-auto bg-background p-4 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
               <div className="font-semibold">{t("필터", "Filters", "Bộ lọc")}</div>
-              <button
+              <Button variant="ghost"
                 onClick={() => setFilterOpen(false)}
                 className="rounded p-1 hover:bg-accent"
                 aria-label={t("닫기", "Close", "Đóng")}
               >
                 <X className="size-5" />
-              </button>
+              </Button>
+            </div>
+            <div className="mb-6 space-y-3">
+              <input aria-label="HS코드" value={hs} onChange={(e) => {setHs(e.target.value.replace(/[^\d]/g, "")); setPage(1);}} placeholder="HS코드" inputMode="numeric" className="h-10 w-full rounded-md border bg-card px-3 text-sm" />
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={exact} onChange={(e) => {setExact(e.target.checked); setPage(1);}} />{t("품목 정확 일치", "Exact item match", "Khớp chính xác mặt hàng")}</label>
             </div>
             <FilterPanel
               lockedLabel={lockedLabel}
@@ -550,44 +358,19 @@ export function ImportersDirectory({
               clearAll={clearAll}
               onFilterChange={() => setPage(1)}
             />
-            <button
+            <Button variant="ghost"
               onClick={() => setFilterOpen(false)}
               className="mt-6 w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow"
             >
               {t(`${total.toLocaleString()}개 결과 보기`, `View ${total.toLocaleString()} results`)}
-            </button>
+            </Button>
           </div>
         </div>
       )}
 
       {opened && <DetailSheet row={opened} onClose={() => setOpened(null)} />}
 
-      {/* Footer */}
-      <footer className="border-t bg-card">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <img
-              src={koimaLogo}
-              alt="KOIMA"
-              className="h-9 w-auto shrink-0 sm:h-10"
-            />
-          </div>
-          <div className="mt-4 flex flex-col items-center gap-3 text-center text-xs text-muted-foreground sm:flex-row sm:justify-between">
-            <p>
-              {t(
-                "출처 · 2025 관세청 수입실적 · 데이터 갱신 2026.05",
-                "Source · 2025 Korea Customs Service import records · Updated 2026.05",
-              )}
-            </p>
-            <p>
-              {t(
-                "KOIMA 품목별 수입업체 검색 · 바이어 매칭 서비스 | 문의: seobh@koima.or.kr",
-                "KOIMA Korean importers directory · Buyer matching | Contact: seobh@koima.or.kr",
-              )}
-            </p>
-          </div>
-        </div>
-      </footer>
+
     </div>
   );
 }
@@ -706,16 +489,16 @@ function FilterPanel(props: {
               >
                 <span>{flagOf(c)}</span>
                 {displayCountry(c, lang)}
-                <button
+                <Button variant="ghost"
                   onClick={() => toggleCountry(c)}
                   className="ml-0.5 rounded hover:text-destructive"
                   aria-label={t(`${displayCountry(c, lang)} 제거`, `Remove ${displayCountry(c, lang)}`)}
                 >
                   <X className="size-3" />
-                </button>
+                </Button>
               </span>
             ))}
-            <button
+            <Button variant="ghost"
               onClick={() => {
                 props.setAdditionalCountries([]);
                 props.onFilterChange();
@@ -723,7 +506,7 @@ function FilterPanel(props: {
               className="text-[11px] text-muted-foreground underline hover:text-foreground"
             >
               {t("초기화", "Reset", "Đặt lại")}
-            </button>
+            </Button>
           </div>
         )}
 
@@ -740,7 +523,7 @@ function FilterPanel(props: {
         {filteredAll.length > 0 && (
           <div className="mt-1 max-h-36 overflow-y-auto rounded-md border bg-card shadow-sm">
             {filteredAll.map((c) => (
-              <button
+              <Button variant="ghost"
                 key={c}
                 onClick={() => {
                   toggleCountry(c);
@@ -751,14 +534,14 @@ function FilterPanel(props: {
                 <span className="text-sm">{flagOf(c)}</span>
                 <span className="flex-1">{displayCountry(c, lang)}</span>
                 <span className="text-[10px] text-muted-foreground">{t("선택", "Select", "Chọn")}</span>
-              </button>
+              </Button>
             ))}
           </div>
         )}
 
         {/* Show all toggle */}
         {!countryQ && props.allCountries.length > props.topCountries.length && (
-          <button
+          <Button variant="ghost"
             onClick={() => setShowAll((v) => !v)}
             className="mt-1.5 text-xs text-muted-foreground underline hover:text-foreground"
           >
@@ -768,13 +551,13 @@ function FilterPanel(props: {
                   `전체 국가 보기 (${props.allCountries.length}개)`,
                   `View all countries (${props.allCountries.length})`,
                 )}
-          </button>
+          </Button>
         )}
         {showAll && (
           <div className="mt-1 max-h-48 overflow-y-auto rounded-md border bg-card p-1.5 shadow-sm">
             <div className="flex flex-wrap gap-1">
               {props.allCountries.map((c) => (
-                <button
+                <Button variant="ghost"
                   key={c}
                   onClick={() => toggleCountry(c)}
                   className={`rounded-full border px-2 py-0.5 text-[11px] transition ${
@@ -785,7 +568,7 @@ function FilterPanel(props: {
                 >
                   <span className="mr-0.5">{flagOf(c)}</span>
                   {displayCountry(c, lang)}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -834,12 +617,12 @@ function FilterPanel(props: {
         </label>
       </div>
 
-      <button
+      <Button variant="ghost"
         onClick={props.clearAll}
         className="w-full rounded-md border bg-card px-3 py-2 text-xs hover:bg-accent"
       >
         {t("필터 초기화", "Clear filters", "Xóa bộ lọc")}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -854,7 +637,7 @@ function FilterChip({
   children: React.ReactNode;
 }) {
   return (
-    <button
+    <Button variant="ghost"
       onClick={onClick}
       className={`rounded-full border px-2.5 py-1 text-xs transition ${
         active
@@ -863,7 +646,7 @@ function FilterChip({
       }`}
     >
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -902,21 +685,21 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
   const extra = Math.max(0, row.countries.length - countries.length);
   const items = lang === "ko" ? row.items_kr : (row.items_en || row.items_kr);
   return (
-    <button
+    <Button variant="ghost"
       onClick={onOpen}
-      className="group block w-full rounded-lg border bg-card p-3 text-left shadow-sm transition hover:border-primary/40 hover:shadow-md sm:p-4"
+      className="group flex h-full w-full flex-col items-stretch justify-start whitespace-normal rounded-lg border bg-card p-5 text-left shadow-sm transition hover:border-primary/40 hover:bg-card hover:shadow-md sm:p-6"
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <Building2 className="size-3.5 shrink-0 text-muted-foreground" />
-            <span className="truncate text-[15px] font-semibold sm:text-base">
+            <Building2 className="size-5 shrink-0 text-primary" />
+            <span className="min-w-0 break-words text-base font-semibold leading-snug sm:text-lg">
               {lang === "ko"
                 ? (displayCompanyName(row.name_kr) || row.name_en)
                 : (row.name_en || displayCompanyName(row.name_kr))}
             </span>
             {row.rank_import != null && row.rank_import <= 100 && (
-              <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
+              <span className="rounded bg-gold/15 px-1.5 py-0.5 text-[10px] font-semibold text-foreground">
                 TOP {row.rank_import}
               </span>
             )}
@@ -977,11 +760,14 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
       </div>
 
       {items && (
-        <div className="mt-2 line-clamp-2 text-xs text-muted-foreground/90">
+        <div className="mt-4 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
           {items}
         </div>
       )}
-    </button>
+      <div className="mt-auto flex items-center justify-between border-t pt-4 text-xs font-medium text-primary">
+        <span className="pt-3">{t("기업 상세정보", "Company details", "Chi tiết doanh nghiệp")}</span><ChevronRight className="mt-3 size-4" />
+      </div>
+    </Button>
   );
 }
 
@@ -1080,18 +866,18 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50">
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+        className="absolute inset-0 bg-foreground/60 backdrop-blur-sm animate-in fade-in duration-200"
         onClick={onClose}
       />
       <div
         ref={sheetRef}
-        className="absolute inset-x-0 bottom-0 flex max-h-[94vh] w-full flex-col overflow-hidden rounded-t-3xl bg-background shadow-2xl ring-1 ring-border/60 animate-in slide-in-from-bottom duration-300 sm:inset-y-6 sm:left-auto sm:right-6 sm:w-[580px] sm:max-w-[calc(100vw-2rem)] sm:rounded-2xl sm:slide-in-from-right"
+        className="absolute inset-x-0 bottom-0 flex max-h-[94vh] w-full flex-col overflow-hidden rounded-t-lg bg-background shadow-2xl ring-1 ring-border/60 animate-in slide-in-from-bottom duration-300 sm:inset-y-6 sm:left-auto sm:right-6 sm:w-[580px] sm:max-w-[calc(100vw-2rem)] sm:rounded-lg sm:slide-in-from-right"
         role="dialog"
         aria-modal="true"
         style={swipeClosing ? { transform: "translateY(100%)", transition: "transform 0.25s ease-out" } : undefined}
       >
         {/* mobile drag handle */}
-        <button
+        <Button variant="ghost"
           className="flex w-full flex-col items-center justify-center pt-2 pb-1 sm:hidden"
           onClick={onClose}
           aria-label={t("목록으로 닫기", "Close to list", "Đóng danh sách")}
@@ -1100,40 +886,40 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
           <span className="mt-1 text-[10px] text-muted-foreground">
             {t("아래로 당겨서 닫기", "Swipe down to close", "Vuốt xuống để đóng")}
           </span>
-        </button>
+        </Button>
 
         {/* Sticky compact header — shows only when scrolled */}
         {scrolled && (
           <div className="absolute inset-x-0 top-0 z-20 flex items-center gap-2 border-b border-border bg-background/95 px-4 py-2.5 backdrop-blur sm:px-5 animate-in fade-in slide-in-from-top-2 duration-200">
-            <div className="flex size-7 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-primary to-primary/70 text-xs font-bold text-primary-foreground">
-              {initial}
+            <div className="flex size-7 flex-shrink-0 items-center justify-center rounded-md bg-primary text-xs font-bold text-primary-foreground">
+              <Building2 className="size-6" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold">{primaryName}</p>
             </div>
-            <button
+            <Button variant="ghost"
               onClick={onClose}
               className="rounded-full p-1.5 hover:bg-accent"
               aria-label={t("닫기", "Close", "Đóng")}
             >
               <X className="size-4" />
-            </button>
+            </Button>
           </div>
         )}
 
         {/* Hero header */}
         <div className="relative overflow-hidden border-b border-border">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent" />
-          <div className="absolute -right-12 -top-12 size-40 rounded-full bg-primary/10 blur-3xl" />
-          <button
+          
+          
+          <Button variant="ghost"
             onClick={onClose}
             className="absolute right-3 top-3 z-10 rounded-full bg-background/80 p-1.5 backdrop-blur transition hover:bg-accent"
             aria-label={t("닫기", "Close", "Đóng")}
           >
             <X className="size-4" />
-          </button>
+          </Button>
           <div className="relative flex items-start gap-3 px-4 pb-4 pt-5 sm:px-6 sm:pb-5 sm:pt-6">
-            <div className="relative flex size-14 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/60 text-xl font-bold text-primary-foreground shadow-lg shadow-primary/20 ring-4 ring-background sm:size-16 sm:text-2xl">
+            <div className="relative flex size-14 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-xl font-bold text-primary-foreground shadow-lg shadow-primary/20 ring-4 ring-background sm:size-16 sm:text-2xl">
               {initial}
             </div>
             <div className="min-w-0 flex-1 pr-8">
@@ -1177,13 +963,13 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
                 icon={<IdCard className="size-3.5" />}
               />
             )}
-            <button
+            <Button variant="ghost"
               onClick={handleShare}
               className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium transition hover:bg-accent"
             >
               <Share2 className="size-3.5" />
               {t("공유", "Share", "Chia sẻ")}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -1191,7 +977,7 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
           className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-20 sm:pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6"
           onScroll={(e) => setScrolled((e.target as HTMLDivElement).scrollTop > 24)}
         >
-          <div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-200">
+          <div className="mb-4 flex items-start gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
             <ShieldAlert className="mt-0.5 size-3.5 flex-shrink-0" />
             <span>
               {t(
@@ -1332,13 +1118,13 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
 
         {/* Bottom close bar — mobile sticky */}
         <div className="absolute inset-x-0 bottom-0 z-10 border-t border-border bg-background/95 px-4 py-3 backdrop-blur sm:hidden">
-          <button
+          <Button variant="ghost"
             onClick={onClose}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground shadow-lg active:scale-[0.98] transition"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground shadow-lg active:scale-[0.98] transition"
           >
             <ChevronLeft className="size-4" />
             {t("목록으로 돌아가기", "Back to list", "Quay lại danh sách")}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -1355,7 +1141,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mb-3 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+    <section className="mb-6 overflow-hidden border-b border-border">
       <div className="flex items-center justify-between border-b border-border bg-muted/40 px-3.5 py-2">
         <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           {title}
@@ -1419,7 +1205,7 @@ function CopyChip({
     } catch {}
   };
   return (
-    <button
+    <Button variant="ghost"
       onClick={handleCopy}
       className={`group inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-1 text-xs transition hover:border-primary/40 hover:bg-primary/5 active:scale-95 ${mono ? "font-mono tabular-nums" : ""}`}
       title="Copy"
@@ -1428,11 +1214,11 @@ function CopyChip({
       {label && <span className="font-sans text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</span>}
       <span>{value}</span>
       {copied ? (
-        <Check className="size-3 text-emerald-600" />
+        <Check className="size-3 text-primary" />
       ) : (
         <Copy className="size-3 text-muted-foreground/60 group-hover:text-primary" />
       )}
-    </button>
+    </Button>
   );
 }
 

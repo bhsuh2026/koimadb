@@ -10,9 +10,7 @@ export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>) => ({
     redirect: typeof search.redirect === "string" ? search.redirect : "/admin",
   }),
-  head: () => ({
-    meta: [{ title: "관리자 로그인 · KOIMA" }],
-  }),
+  head: () => ({ meta: [{ title: "관리자 로그인 | KOIMA" }, { name: "description", content: "KOIMA 바이어 관리자 로그인 페이지." }, { property: "og:title", content: "관리자 로그인 | KOIMA" }, { property: "og:description", content: "KOIMA 바이어 관리자 로그인." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: LoginPage,
 });
 

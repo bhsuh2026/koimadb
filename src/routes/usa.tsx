@@ -5,6 +5,8 @@ export const Route = createFileRoute("/usa")({
   component: UsaPage,
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "USA · Korean Importers Directory | KOIMA · 미국 거래 한국 수입업체" },
       {
         name: "description",

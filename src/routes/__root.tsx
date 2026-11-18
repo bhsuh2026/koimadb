@@ -75,32 +75,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "아세안 수입업체 디렉토리 · ASEAN Importer Directory | KOIMA" },
-      {
-        name: "description",
-        content:
-          "아세안 10개국 제품을 수입 중인 한국 기업 디렉토리. KOIMA 바이어 매칭 서비스.",
-      },
+      { title: "KOIMA · 바이어 기업정보" },
       { name: "author", content: "KOIMA" },
-      {
-        property: "og:title",
-        content: "아세안 수입업체 디렉토리 · KOIMA",
-      },
-      {
-        property: "og:description",
-        content: "Verified Korean buyers actively importing from ASEAN.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { property: "og:title", content: "아세안 수입업체 디렉토리 · ASEAN Importer Directory | KOIMA" },
-      { name: "twitter:title", content: "아세안 수입업체 디렉토리 · ASEAN Importer Directory | KOIMA" },
-      { name: "description", content: "Delightful Design enhances UI/UX and provides robust database management for your applications." },
-      { property: "og:description", content: "Delightful Design enhances UI/UX and provides robust database management for your applications." },
-      { name: "twitter:description", content: "Delightful Design enhances UI/UX and provides robust database management for your applications." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f1220581-06e4-419b-acce-e86fcc7eb7b0/id-preview-374ce65b--57a8501c-8172-4e17-84ee-838c18446501.lovable.app-1779668549053.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f1220581-06e4-419b-acce-e86fcc7eb7b0/id-preview-374ce65b--57a8501c-8172-4e17-84ee-838c18446501.lovable.app-1779668549053.png" },
     ],
     links: [
+      { rel: "stylesheet", href: "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" },
       {
         rel: "stylesheet",
         href: appCss,

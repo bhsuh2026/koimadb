@@ -16,9 +16,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({
-    meta: [{ title: "관리자 · KOIMA Admin" }],
-  }),
+  head: () => ({ meta: [{ title: "관리자 | KOIMA" }, { name: "description", content: "KOIMA 바이어 관리자 페이지." }, { property: "og:title", content: "관리자 | KOIMA" }, { property: "og:description", content: "KOIMA 바이어 관리자." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   beforeLoad: async ({ location }) => {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) {

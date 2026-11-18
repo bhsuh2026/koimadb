@@ -6,6 +6,8 @@ export const Route = createFileRoute("/cis")({
   component: CisPage,
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "CIS · Korean Importers Directory | KOIMA · CIS 거래 한국 수입업체" },
       {
         name: "description",
