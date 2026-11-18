@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { Mail } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import registan from "@/assets/central-asia-registan.jpg";
 import { displayCountry, flagOf } from "@/lib/koima-types";
 import { useLang } from "@/lib/i18n";
@@ -36,6 +38,17 @@ export function CentralAsiaIdentity({ children }: { children: ReactNode }) {
           ))}
         </div>
       </div>
+      <section aria-label={t("기업 상세정보 문의", "Company details inquiries", undefined, "Запрос подробной информации о компаниях")} className="border-b bg-card">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">{t("기업 상세정보 문의", "Company details inquiries", undefined, "Запрос подробной информации о компаниях")}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{t("해당 국가 기업만 문의 가능합니다.", "Inquiries are available only to companies based in the five Central Asian countries.", undefined, "Запросы принимаются только от компаний из пяти стран Центральной Азии.")}</p>
+          </div>
+          <Button asChild variant="outline" className="w-fit max-w-full shrink-0">
+            <a href="mailto:policy@koima.or.kr"><Mail aria-hidden="true" />policy@koima.or.kr</a>
+          </Button>
+        </div>
+      </section>
     </>
   );
 }
