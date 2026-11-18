@@ -722,11 +722,6 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
                 ? (displayCompanyName(row.name_kr) || row.name_en)
                 : (row.name_en || displayCompanyName(row.name_kr))}
             </span>
-            {row.rank_import != null && row.rank_import <= 100 && (
-              <span className="rounded bg-gold/15 px-1.5 py-0.5 text-[10px] font-semibold text-foreground">
-                TOP {row.rank_import}
-              </span>
-            )}
           </div>
           {lang === "ko"
             ? row.name_en && (
@@ -960,12 +955,6 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
                   >
                     <Sparkles className="size-3" />
                     {scaleLabel(row.scale_label, lang)}
-                  </span>
-                )}
-                {row.rank_import != null && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background/70 px-2.5 py-1 text-[11px] font-medium backdrop-blur sm:text-xs">
-                    <TrendingUp className="size-3 text-primary" />
-                    {t("수입", "Imp.", "NK")} #{row.rank_import.toLocaleString()}
                   </span>
                 )}
                 {row.rank_sales != null && (
