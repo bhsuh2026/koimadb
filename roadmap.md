@@ -1,5 +1,6 @@
 # Tasks
 
+- [x] Restore a visible Central Asia entry from the directory header and verify the regional cover appears.
 - [x] Give the Central Asia page a regional visual identity and verify search, language selection, and mobile layout.
 
 - [x] Show buyer companies directly on the home page.

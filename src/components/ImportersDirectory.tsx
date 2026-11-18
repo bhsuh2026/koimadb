@@ -228,6 +228,18 @@ export function ImportersDirectory({
             <img src={koimaLogo} alt="KOIMA" className="h-9 w-auto sm:h-11" />
             {isVietnamPage ? <LangToggleVietnam /> : isCentralAsiaPage ? <LangToggleRussian /> : <LangToggle />}
           </div>
+          <nav aria-label={t("디렉토리 선택", "Directory selection", "Chọn danh bạ", "Выбор каталога")} className={`flex flex-wrap items-center gap-2 ${isCentralAsiaPage ? "mt-3" : "mb-5"}`}>
+            <Button asChild variant={isCentralAsiaPage ? "ghost" : "secondary"} size="sm">
+              <Link to="/" aria-current={router.state.location.pathname === "/" ? "page" : undefined}>
+                <Building2 />{t("전체 바이어", "All buyers", "Tất cả doanh nghiệp", "Все покупатели")}
+              </Link>
+            </Button>
+            <Button asChild variant={isCentralAsiaPage ? "secondary" : "outline"} size="sm">
+              <Link to="/central-asia" aria-current={isCentralAsiaPage ? "page" : undefined}>
+                <Globe2 />{t("중앙아시아 5개국", "Central Asia", "Trung Á", "Центральная Азия")}
+              </Link>
+            </Button>
+          </nav>
           {!isCentralAsiaPage && <><h1 className="text-2xl font-semibold leading-snug sm:text-3xl">
             {t(isLocked ? title.replace("디렉토리", "기업정보") : "바이어 기업정보", "Buyer Companies", "Thông tin doanh nghiệp nhập khẩu", router.state.location.pathname === "/central-asia" ? "Покупатели из Кореи · Центральная Азия" : "Компании-покупатели из Кореи")}
           </h1>
