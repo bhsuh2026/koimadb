@@ -37,7 +37,7 @@ export function LangProvider({ children }: { children: ReactNode }) {
   return <LangCtx.Provider value={{ lang, setLang, t, tt }}>{children}</LangCtx.Provider>;
 }
 
-/** Shared buyer-directory language selector, including home and region pages. */
+/** Korean/English/Russian selector for the Central Asia directory only. */
 export function LangToggleRussian() {
   const { lang, setLang } = useLang();
   return (
@@ -67,19 +67,13 @@ export function useLang(): Ctx {
 export function LangToggle({ className = "" }: { className?: string }) {
   const { lang, setLang } = useLang();
   return (
-    <button
-      onClick={() => setLang(lang === "ko" ? "en" : "ko")}
-      title={lang === "ko" ? "Switch to English" : "한국어로 보기"}
-      aria-label="Toggle language"
-      className={
-        className ||
-        "inline-flex items-center gap-1 rounded-md border bg-card px-2 py-1.5 text-[11px] font-bold shadow-sm hover:bg-accent"
-      }
-    >
-      <span className={lang === "ko" ? "text-primary" : "text-muted-foreground"}>KO</span>
-      <span className="text-muted-foreground/40">·</span>
-      <span className={lang !== "ko" ? "text-primary" : "text-muted-foreground"}>EN</span>
-    </button>
+    <div role="group" aria-label="Language" className={className || "inline-flex shrink-0 items-center gap-0.5 rounded-md border bg-card p-1"}>
+      {([{ code: "ko", label: "KO", name: "한국어" }, { code: "en", label: "EN", name: "English" }] as const).map(({ code, label, name }) => (
+        <Button key={code} variant={lang === code ? "secondary" : "ghost"} size="sm" onClick={() => setLang(code)} aria-label={name} aria-pressed={lang === code} title={name} className="h-8 px-2 text-xs font-semibold">
+          {label}
+        </Button>
+      ))}
+    </div>
   );
 }
 

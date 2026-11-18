@@ -31,7 +31,7 @@ import {
 import { flagOf, displayCountry, displayCompanyName, scaleLabel } from "@/lib/koima-types";
 import { Button } from "@/components/ui/button";
 
-import { LangToggleVietnam, LangToggleRussian, useLang } from "@/lib/i18n";
+import { LangToggle, LangToggleVietnam, LangToggleRussian, useLang } from "@/lib/i18n";
 import { hsCategoriesFromCodes } from "@/lib/hs-categories";
 
 
@@ -96,9 +96,13 @@ export function ImportersDirectory({
   );
   const lockedSet = useMemo(() => new Set(lockedCountries), [lockedCountries]);
   const isLocked = lockedCountries.length > 0;
-  const { t, lang } = useLang();
+  const { t, lang, setLang } = useLang();
   const router = useRouter();
   const isVietnamPage = router.state.location.pathname === "/vietnam";
+  const isCentralAsiaPage = router.state.location.pathname === "/central-asia";
+  useEffect(() => {
+    if (lang === "ru" && !isCentralAsiaPage) setLang("en");
+  }, [lang, isCentralAsiaPage, setLang]);
   const listFn = useServerFn(listImporters);
   const facetsFn = useServerFn(getImporterFacets);
   const [q, setQ] = useState(initialQuery);
@@ -208,7 +212,7 @@ export function ImportersDirectory({
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
           <div className="mb-6 flex items-center justify-between gap-4">
             <img src={koimaLogo} alt="KOIMA" className="h-9 w-auto sm:h-11" />
-            {isVietnamPage ? <LangToggleVietnam /> : <LangToggleRussian />}
+            {isVietnamPage ? <LangToggleVietnam /> : isCentralAsiaPage ? <LangToggleRussian /> : <LangToggle />}
           </div>
           <h1 className="text-2xl font-semibold leading-snug sm:text-3xl">
             {t(isLocked ? title.replace("디렉토리", "기업정보") : "바이어 기업정보", "Buyer Companies", "Thông tin doanh nghiệp nhập khẩu", router.state.location.pathname === "/central-asia" ? "Покупатели из Кореи · Центральная Азия" : "Компании-покупатели из Кореи")}
