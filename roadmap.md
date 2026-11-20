@@ -1,8 +1,5 @@
 # Tasks
 
-- [x] Apply the uploaded 249-company dataset only to Central Asia, preserving other directories.
-- [x] Display industry, website and product provenance; verify search, country filters and details.
-
 - [x] Restore a visible Central Asia entry from the directory header and verify the regional cover appears.
 - [x] Give the Central Asia page a regional visual identity and verify search, language selection, and mobile layout.
 

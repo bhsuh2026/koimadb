@@ -27,8 +27,8 @@ import {
 import {
   listImporters,
   getImporterFacets,
+  type Importer,
 } from "@/lib/importers.functions";
-import { directoryFacets, filterDirectoryRows, type DirectoryImporter as Importer } from "@/lib/central-asia-data";
 import { flagOf, displayCountry, displayCompanyName, scaleLabel } from "@/lib/koima-types";
 import { Button } from "@/components/ui/button";
 
@@ -80,8 +80,6 @@ export type ImportersDirectoryProps = {
   regionKey?: import("@/components/RegionSnapshot").RegionKey;
   /** Initial search query (e.g. from /search?q=…). */
   initialQuery?: string;
-  /** Page-scoped records; other directories retain their existing source. */
-  records?: Importer[];
 };
 
 
@@ -91,7 +89,6 @@ export function ImportersDirectory({
   title,
   scopeBadge,
   initialQuery = "",
-  records,
 }: ImportersDirectoryProps) {
 
   const lockedCountries = useMemo(
@@ -141,10 +138,8 @@ export function ImportersDirectory({
   const facets = useQuery({
     queryKey: ["importer-facets"],
     queryFn: () => facetsFn(),
-    enabled: !records,
     staleTime: 5 * 60_000,
   });
-  const facetData = useMemo(() => records ? directoryFacets(records) : facets.data, [records, facets.data]);
 
   // Effective countries: when locked, fall back to the full locked set when
   // the user hasn't picked any additional countries.
@@ -173,34 +168,29 @@ export function ImportersDirectory({
         },
       }),
     placeholderData: (prev) => prev,
-    enabled: !records,
   });
-  const resultData = useMemo(() => records ? filterDirectoryRows(records, {
-    q: qDeb, countries: effectiveCountries, scales: scaleArr, hs: hs.trim(),
-    hasEmail, exact, sort, page, pageSize: PAGE_SIZE,
-  }) : list.data, [records, qDeb, effectiveCountries, scaleArr, hs, hasEmail, exact, sort, page, list.data]);
 
   const topCountries = useMemo(() => {
-    const m = facetData?.countries ?? {};
+    const m = facets.data?.countries ?? {};
     let entries = Object.entries(m);
     if (isLocked) entries = entries.filter(([k]) => lockedSet.has(k));
     return entries
       .sort((a, b) => b[1] - a[1])
       .slice(0, isLocked ? 50 : 16)
       .map(([k]) => k);
-  }, [facetData, isLocked, lockedSet]);
+  }, [facets.data, isLocked, lockedSet]);
 
   const allCountries = useMemo(() => {
-    const m = facetData?.countries ?? {};
+    const m = facets.data?.countries ?? {};
     let keys = Object.keys(m);
     if (isLocked) keys = keys.filter((k) => lockedSet.has(k));
     return keys.sort((a, b) =>
       displayCountry(a, lang).localeCompare(displayCountry(b, lang), lang),
     );
-  }, [facetData, isLocked, lockedSet, lang]);
+  }, [facets.data, isLocked, lockedSet, lang]);
 
-  const total = resultData?.total ?? 0;
-  const rows = resultData?.rows ?? [];
+  const total = list.data?.total ?? 0;
+  const rows = list.data?.rows ?? [];
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const clearAll = () => {
@@ -268,8 +258,8 @@ export function ImportersDirectory({
             topCountries={topCountries}
             allCountries={allCountries}
             scalesAvailable={SCALE_ORDER}
-            scaleCounts={facetData?.scales ?? {}}
-            countryCounts={facetData?.countries ?? {}}
+            scaleCounts={facets.data?.scales ?? {}}
+            countryCounts={facets.data?.countries ?? {}}
 
             additionalCountries={additionalCountries}
             setAdditionalCountries={(next) => setCountries(next)}
@@ -284,14 +274,14 @@ export function ImportersDirectory({
 
         {/* Results */}
         <main className="min-w-0 flex-1">
-          {!records && list.isFetching && (
+          {list.isFetching && (
             <div className="mb-3 h-1 w-full overflow-hidden rounded-full bg-muted">
               <div className="h-full animate-[loading-slide_1.5s_ease-in-out_infinite] rounded-full bg-primary" style={{ width: '40%' }} />
             </div>
           )}
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <div className="text-sm text-muted-foreground" aria-live="polite">
-              {!records && list.isFetching ? t("검색 중…", "Searching…", "Đang tìm kiếm…") : <><span className="font-semibold tabular-nums text-foreground">{total.toLocaleString()}</span> {t("개 기업", "companies", "doanh nghiệp")}</>}
+              {list.isFetching ? t("검색 중…", "Searching…", "Đang tìm kiếm…") : <><span className="font-semibold tabular-nums text-foreground">{total.toLocaleString()}</span> {t("개 기업", "companies", "doanh nghiệp")}</>}
             </div>
             <div className="flex items-center gap-2">
               <select aria-label={t("정렬", "Sort", "Sắp xếp")} value={sort} onChange={(e) => {setSort(e.target.value as SortKey); setPage(1);}}
@@ -303,12 +293,12 @@ export function ImportersDirectory({
               <Button variant="outline" onClick={() => setFilterOpen(true)}><SlidersHorizontal />{t("필터", "Filters", "Bộ lọc")}{activeFilterCount > 0 && <span>{activeFilterCount}</span>}</Button>
             </div>
           </div>
-          {!records && list.error && <div role="alert" className="mb-4 flex items-center justify-between gap-3 border-b border-destructive/30 py-4 text-sm text-destructive">
+          {list.error && <div role="alert" className="mb-4 flex items-center justify-between gap-3 border-b border-destructive/30 py-4 text-sm text-destructive">
             {t("기업정보를 불러오지 못했습니다.", "Could not load companies.", "Không thể tải doanh nghiệp.")}
             <Button variant="outline" onClick={() => list.refetch()}>{t("다시 시도", "Retry", "Thử lại")}</Button>
           </div>}
           <div className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {!records && list.isLoading && !list.data
+            {list.isLoading && !list.data
               ? Array.from({ length: 8 }).map((_, i) => (
                   <div
                     key={i}
@@ -318,7 +308,7 @@ export function ImportersDirectory({
               : rows.map((r) => (
                   <ImporterCard key={r.id} row={r} onOpen={() => setOpened(r)} />
                 ))}
-            {(records || !list.isLoading) && rows.length === 0 && (
+            {!list.isLoading && rows.length === 0 && (
               <div className="rounded-lg border bg-card p-10 text-center text-muted-foreground">
                 {t("조건에 맞는 업체가 없습니다.", "No companies match your filters.", "Không có doanh nghiệp phù hợp.")}
               </div>
@@ -378,8 +368,8 @@ export function ImportersDirectory({
               topCountries={topCountries}
               allCountries={allCountries}
               scalesAvailable={SCALE_ORDER}
-              scaleCounts={facetData?.scales ?? {}}
-              countryCounts={facetData?.countries ?? {}}
+              scaleCounts={facets.data?.scales ?? {}}
+              countryCounts={facets.data?.countries ?? {}}
 
               additionalCountries={additionalCountries}
               setAdditionalCountries={(next) => setCountries(next)}
@@ -793,8 +783,6 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
           {items}
         </div>
       )}
-      {row.industry_kr && <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{lang === "ko" ? row.industry_kr : row.industry_en || row.industry_kr}</p>}
-      {row.product_source && <span className="mt-2 text-xs font-medium text-primary">{row.product_source === "AI추정" ? t("AI 추정 품목", "AI-estimated products") : t("기존 등록 품목", "Previously registered products")}</span>}
       <div className="mt-auto flex items-center justify-between border-t pt-4 text-xs font-medium text-primary">
         <span className="pt-3">{t("기업 상세정보", "Company details", "Chi tiết doanh nghiệp")}</span><ChevronRight className="mt-3 size-4" />
       </div>
@@ -1013,20 +1001,6 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
             </span>
           </div>
 
-          {(row.industry_kr || row.website || row.email_available !== undefined) && (
-            <Section title={t("기업 정보", "Company information")}>
-              {row.industry_kr && <DRow icon={<Building2 className="size-3.5" />} label={t("업종", "Industry")}>
-                <p className="break-words">{lang === "ko" ? row.industry_kr : row.industry_en || row.industry_kr}</p>
-              </DRow>}
-              {row.website && <DRow icon={<Globe2 className="size-3.5" />} label={t("홈페이지", "Website")}>
-                <a href={row.website} target="_blank" rel="noopener noreferrer" className="break-all text-primary underline underline-offset-4">{row.website}</a>
-              </DRow>}
-              {row.email_available !== undefined && <DRow icon={<Mail className="size-3.5" />} label={t("이메일 보유 여부", "Email availability")}>
-                {row.email_available ? t("보유 · 상세정보 문의", "Available · contact KOIMA for details") : t("미등록", "Not registered")}
-              </DRow>}
-            </Section>
-          )}
-
           {/* Contact section */}
           {(emailList.length > 0 || phoneList.length > 0) && (
             <Section
@@ -1097,9 +1071,6 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
           {/* Items section */}
           {(row.items_kr || row.items_en) ? (
             <Section title={t("취급 품목", "Items", "Mặt hàng")}>
-              {row.product_source && <DRow icon={<Sparkles className="size-3.5" />} label={t("품목 출처", "Product source")}>
-                <p className="text-primary">{row.product_source === "AI추정" ? t("AI 추정 품목 · 확인 필요", "AI-estimated products · verification required") : t("기존 등록 품목", "Previously registered products")}</p>
-              </DRow>}
               {lang === "ko"
                 ? row.items_kr && (
                     <DRow icon={<Package className="size-3.5" />} label={t("한국어", "Korean", "Tiếng Hàn")}>
