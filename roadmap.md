@@ -1,5 +1,8 @@
 # Tasks
 
+- [x] Apply the uploaded 249-company dataset only to the Central Asia page, retaining inferred-item labels and other pages' existing records.
+- [x] Verify Central Asia search, company details, filters, and isolation from other pages.
+
 - [x] Restore a visible Central Asia entry from the directory header and verify the regional cover appears.
 - [x] Give the Central Asia page a regional visual identity and verify search, language selection, and mobile layout.
 

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { supabase as supabaseAdmin } from "@/integrations/supabase/client";
 import { requireAdmin } from "./admin-auth.server";
 
-export type Importer = {
+type StoredImporter = {
   id: string;
   rank_import: number | null;
   rank_sales: number | null;
@@ -19,6 +19,15 @@ export type Importer = {
   items_kr: string;
   items_en: string;
   hs_codes: string[];
+};
+
+export type Importer = StoredImporter & {
+  industry_kr?: string;
+  industry_en?: string;
+  category?: string;
+  product_source?: string;
+  has_email?: boolean;
+  website?: string;
 };
 
 const SCALE_LABELS = [
@@ -111,6 +120,7 @@ function maskRow(r: Importer): Importer {
 }
 
 const ListInput = z.object({
+  scope: z.enum(["default", "central-asia"]).default("default"),
   q: z.string().max(100).default(""),
   countries: z.array(z.string().min(1).max(50)).max(50).default([]),
   scales: z.array(z.string().min(1).max(50)).max(20).default([]),
@@ -194,6 +204,11 @@ export const listImporters = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { include, excludes } = splitIncludeExclude(data.q);
     const tokens = getSearchTokens(include);
+    if (data.scope === "central-asia") {
+      const { queryCentralAsia } = await import("./central-asia-data");
+      const result = queryCentralAsia(data, tokens, excludes.slice(0, 5).map(cleanExcludeToken).filter((t) => t.length >= 2));
+      return { ...result, rows: result.rows.map(maskRow) };
+    }
     let query = supabaseAdmin
       .from("importers")
       .select("*", { count: tokens.length > 0 ? "planned" : "exact" });
@@ -251,6 +266,11 @@ export const listImporters = createServerFn({ method: "POST" })
     const masked = ((rows ?? []) as Importer[]).map(maskRow);
     return { rows: masked, total: count ?? 0 };
   });
+
+export const getCentralAsiaFacets = createServerFn({ method: "GET" }).handler(async () => {
+  const { centralAsiaFacets } = await import("./central-asia-data");
+  return centralAsiaFacets();
+});
 
 export const getImporterFacets = createServerFn({ method: "GET" }).handler(
   async () => {
@@ -555,7 +575,7 @@ function unionArr(...arrs: (string[] | null | undefined)[]): string[] {
   return Array.from(set);
 }
 
-function mergeRows(rows: Importer[]): Omit<Importer, "id"> & { keeperId: string; mergedIds: string[] } {
+function mergeRows(rows: Importer[]): Omit<StoredImporter, "id"> & { keeperId: string; mergedIds: string[] } {
   const sorted = [...rows].sort((a, b) => {
     const ar = a.rank_import ?? Number.MAX_SAFE_INTEGER;
     const br = b.rank_import ?? Number.MAX_SAFE_INTEGER;

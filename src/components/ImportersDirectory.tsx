@@ -27,6 +27,7 @@ import {
 import {
   listImporters,
   getImporterFacets,
+  getCentralAsiaFacets,
   type Importer,
 } from "@/lib/importers.functions";
 import { flagOf, displayCountry, displayCompanyName, scaleLabel } from "@/lib/koima-types";
@@ -106,6 +107,7 @@ export function ImportersDirectory({
   }, [lang, isCentralAsiaPage, setLang]);
   const listFn = useServerFn(listImporters);
   const facetsFn = useServerFn(getImporterFacets);
+  const centralAsiaFacetsFn = useServerFn(getCentralAsiaFacets);
   const [q, setQ] = useState(initialQuery);
   const [qDeb, setQDeb] = useState(initialQuery);
   const [countries, setCountries] = useState<string[]>([]);
@@ -136,8 +138,8 @@ export function ImportersDirectory({
   const scaleArr = useMemo(() => Array.from(scales), [scales]);
 
   const facets = useQuery({
-    queryKey: ["importer-facets"],
-    queryFn: () => facetsFn(),
+    queryKey: ["importer-facets", isCentralAsiaPage ? "central-asia" : "default"],
+    queryFn: () => isCentralAsiaPage ? centralAsiaFacetsFn() : facetsFn(),
     staleTime: 5 * 60_000,
   });
 
@@ -151,11 +153,12 @@ export function ImportersDirectory({
   const list = useQuery({
     queryKey: [
       "importers",
-      { qDeb, effectiveCountries, scaleArr, hs, hasEmail, exact, sort, page },
+      { scope: isCentralAsiaPage ? "central-asia" : "default", qDeb, effectiveCountries, scaleArr, hs, hasEmail, exact, sort, page },
     ],
     queryFn: () =>
       listFn({
         data: {
+          scope: isCentralAsiaPage ? "central-asia" : "default",
           q: qDeb,
           countries: effectiveCountries,
           scales: scaleArr,
@@ -780,6 +783,7 @@ function ImporterCard({ row, onOpen }: { row: Importer; onOpen: () => void }) {
 
       {items && (
         <div className="mt-4 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+          {row.product_source === "AI추정" && <span className="mr-2 font-medium text-foreground">{t("AI 추정", "AI-inferred", undefined, "Оценка ИИ")} ·</span>}
           {items}
         </div>
       )}
@@ -1001,6 +1005,22 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
             </span>
           </div>
 
+          {(row.industry_kr || row.industry_en || row.website) && (
+            <Section title={t("기업 정보", "Company information", undefined, "Информация о компании")}>
+              {(row.industry_kr || row.industry_en) && (
+                <DRow icon={<Building2 className="size-3.5" />} label={t("업종", "Industry", undefined, "Отрасль")}>
+                  <p className="break-words text-sm">{lang === "ko" ? row.industry_kr : (row.industry_en || row.industry_kr)}</p>
+                </DRow>
+              )}
+              {row.category && <DRow icon={<Package className="size-3.5" />} label={t("분류", "Category", undefined, "Категория")}><p className="text-sm">{row.category}</p></DRow>}
+              {row.website && (
+                <DRow icon={<Globe2 className="size-3.5" />} label={t("홈페이지", "Website", undefined, "Сайт")}>
+                  <a href={row.website} target="_blank" rel="noopener noreferrer" className="break-all text-sm text-primary underline underline-offset-4">{row.website.replace(/^https?:\/\//, "")}</a>
+                </DRow>
+              )}
+            </Section>
+          )}
+
           {/* Contact section */}
           {(emailList.length > 0 || phoneList.length > 0) && (
             <Section
@@ -1071,6 +1091,7 @@ function DetailSheet({ row, onClose }: { row: Importer; onClose: () => void }) {
           {/* Items section */}
           {(row.items_kr || row.items_en) ? (
             <Section title={t("취급 품목", "Items", "Mặt hàng")}>
+              {row.product_source === "AI추정" && <p className="mb-3 flex items-start gap-2 text-xs text-muted-foreground"><Sparkles className="size-3.5 shrink-0" />{t("AI 추정 품목 · 실제 취급 여부는 확인이 필요합니다.", "AI-inferred items · Actual products require confirmation.", undefined, "Товары определены ИИ · Требуется подтверждение ассортимента.")}</p>}
               {lang === "ko"
                 ? row.items_kr && (
                     <DRow icon={<Package className="size-3.5" />} label={t("한국어", "Korean", "Tiếng Hàn")}>
