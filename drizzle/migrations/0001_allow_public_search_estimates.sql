@@ -1,0 +1,1 @@
+ALTER FUNCTION public.search_public_importers(text[], text[], text[], text[], text[], text, boolean, text, integer, integer) VOLATILE;

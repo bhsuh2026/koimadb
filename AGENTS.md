@@ -6,3 +6,5 @@
 - Select directory languages by page scope and reset Russian to English when leaving its supported page; this prevents unsupported language state from carrying across navigation.
 - Keep Central Asia's visual identity in a presentation-only module and scoped CSS tokens; shared directory search, filters, and records remain unchanged across regions.
 - Keep uploaded Central Asia records in a separately bundled server-read dataset selected only by the Central Asia page scope; never overwrite shared importer records, and preserve product provenance in public results.
+- Raw importer SELECT is administrator-only; public searches and facets use fixed-projection masked database functions through a session-free publishable client so direct requests cannot recover hidden contacts.
+- Administrator importer queries use the authenticated middleware client, including duplicate helpers, so database access rules apply to the verified caller without widening existing write permissions.

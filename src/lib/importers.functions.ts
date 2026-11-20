@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabase as supabaseAdmin } from "@/integrations/supabase/client";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 import { requireAdmin } from "./admin-auth.server";
 
 type StoredImporter = {
@@ -29,24 +30,6 @@ export type Importer = StoredImporter & {
   has_email?: boolean;
   website?: string;
 };
-
-const SCALE_LABELS = [
-  "1억불 초과",
-  "5000만불~1억불",
-  "3000만불~5000만불",
-  "1000만불~3000만불",
-  "700만불~1000만불",
-  "500만불~700만불",
-  "300만불~500만불",
-  "100만불~300만불",
-  "50만불~100만불",
-  "30만불~50만불",
-  "10만불~30만불",
-  "5만불~10만불",
-  "3만불~5만불",
-  "1만불~3만불",
-  "1만불 미만",
-];
 
 // ---- Masking helpers ----------------------------------------------------
 // 민감 정보는 서버에서 마스킹해서 반환합니다 (개인정보 보호).
@@ -209,62 +192,22 @@ export const listImporters = createServerFn({ method: "POST" })
       const result = queryCentralAsia(data, tokens, excludes.slice(0, 5).map(cleanExcludeToken).filter((t) => t.length >= 2));
       return { ...result, rows: result.rows.map(maskRow) };
     }
-    let query = supabaseAdmin
-      .from("importers")
-      .select("*", { count: tokens.length > 0 ? "planned" : "exact" });
-
-    if (data.countries.length > 0)
-      query = query.overlaps("countries", data.countries);
-    if (data.scales.length) query = query.in("scale_label", data.scales);
-    if (data.hasEmail) query = query.neq("email", "");
-    if (data.hs) query = query.contains("hs_codes", [data.hs.trim()]);
-
-    if (tokens.length > 0) {
-      for (const t of tokens) {
-        if (data.exact) {
-          // 정확 일치: items 필드를 쉼표 경계 정규식으로 매칭. 업체명 / 사업자번호는 그대로 부분일치.
-          const pat = exactItemPattern(t);
-          query = query.or(
-            `name_kr.ilike.%${t}%,name_en.ilike.%${t}%,biz_no.ilike.%${t}%,items_kr.imatch."${pat}",items_en.imatch."${pat}"`,
-          );
-        } else {
-          query = query.or(
-            `name_kr.ilike.%${t}%,name_en.ilike.%${t}%,biz_no.ilike.%${t}%,items_kr.ilike.%${t}%,items_en.ilike.%${t}%`,
-          );
-        }
-      }
-    }
-
-    // 제외어: items_kr · items_en 양쪽 모두 해당 단어를 포함하지 않은 행만 통과.
-    for (const raw of excludes.slice(0, 5)) {
-      const w = cleanExcludeToken(raw);
-      if (w.length < 2) continue;
-      query = query
-        .not("items_kr", "ilike", `%${w}%`)
-        .not("items_en", "ilike", `%${w}%`);
-    }
-
-    switch (data.sort) {
-      case "rank_import_asc":
-      case "countries_desc":
-        query = query.order("rank_import", { ascending: true, nullsFirst: false });
-        break;
-      case "rank_sales_asc":
-        query = query.order("rank_sales", { ascending: true, nullsFirst: false });
-        break;
-      case "name_asc":
-        query = query.order("name_kr", { ascending: true });
-        break;
-    }
-
-    const from = (data.page - 1) * data.pageSize;
-    const to = from + data.pageSize - 1;
-    query = query.range(from, to);
-
-    const { data: rows, count, error } = await query;
-    if (error) throw new Error(error.message);
-    const masked = ((rows ?? []) as Importer[]).map(maskRow);
-    return { rows: masked, total: count ?? 0 };
+    const { createPublicImporterClient, publicImporterResult } = await import("./public-importers.server");
+    const client = createPublicImporterClient();
+    const { data: result, error } = await client.rpc("search_public_importers", {
+      p_tokens: tokens,
+      p_patterns: data.exact ? tokens.map(exactItemPattern) : [],
+      p_excludes: excludes.slice(0, 5).map(cleanExcludeToken).filter((t) => t.length >= 2),
+      p_countries: data.countries,
+      p_scales: data.scales,
+      p_hs: data.hs.trim(),
+      p_has_email: data.hasEmail,
+      p_sort: data.sort,
+      p_page: data.page,
+      p_page_size: data.pageSize,
+    });
+    if (error) throw new Error("Company search is unavailable. Please try again.");
+    return publicImporterResult.parse(result);
   });
 
 export const getCentralAsiaFacets = createServerFn({ method: "GET" }).handler(async () => {
@@ -272,42 +215,12 @@ export const getCentralAsiaFacets = createServerFn({ method: "GET" }).handler(as
   return centralAsiaFacets();
 });
 
-export const getImporterFacets = createServerFn({ method: "GET" }).handler(
-  async () => {
-    const { count: total } = await supabaseAdmin
-      .from("importers")
-      .select("id", { count: "exact", head: true });
-
-    // Country distribution — sample top 5000 (covers virtually all unique countries).
-    const { data: rows, error } = await supabaseAdmin
-      .from("importers")
-      .select("countries")
-      .order("rank_import", { ascending: true, nullsFirst: false })
-      .range(0, 4999);
-    if (error) throw new Error(error.message);
-
-    const countries: Record<string, number> = {};
-    for (const r of rows ?? []) {
-      for (const c of (r.countries as string[]) ?? []) {
-        countries[c] = (countries[c] ?? 0) + 1;
-      }
-    }
-
-    // Scale distribution — exact counts via parallel head queries (15 buckets).
-    const scaleEntries = await Promise.all(
-      SCALE_LABELS.map(async (label) => {
-        const { count } = await supabaseAdmin
-          .from("importers")
-          .select("id", { count: "exact", head: true })
-          .eq("scale_label", label);
-        return [label, count ?? 0] as const;
-      }),
-    );
-    const scales: Record<string, number> = Object.fromEntries(scaleEntries);
-
-    return { total: total ?? 0, countries, scales };
-  },
-);
+export const getImporterFacets = createServerFn({ method: "GET" }).handler(async () => {
+  const { createPublicImporterClient, publicFacetResult } = await import("./public-importers.server");
+  const { data, error } = await createPublicImporterClient().rpc("public_importer_facets");
+  if (error) throw new Error("Company filters are unavailable. Please try again.");
+  return publicFacetResult.parse(data);
+});
 
 // ====== Admin (관리자) ======================================================
 
@@ -342,7 +255,8 @@ export const adminListImporters = createServerFn({ method: "POST" })
       pageSize: z.number().int().min(1).max(100).default(25),
     }).parse(i),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { supabase: supabaseAdmin } = context;
     const tokens = getSearchTokens(data.q);
     let query = supabaseAdmin
       .from("importers")
@@ -370,7 +284,8 @@ export const adminListImporters = createServerFn({ method: "POST" })
 export const createImporter = createServerFn({ method: "POST" })
   .middleware([requireAdmin])
   .inputValidator((i: unknown) => ImporterInputSchema.parse(i))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { supabase: supabaseAdmin } = context;
     const { data: row, error } = await supabaseAdmin
       .from("importers")
       .insert(data)
@@ -387,7 +302,8 @@ export const updateImporter = createServerFn({ method: "POST" })
       .merge(ImporterInputSchema.partial())
       .parse(i),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { supabase: supabaseAdmin } = context;
     const { id, ...patch } = data;
     const { data: row, error } = await supabaseAdmin
       .from("importers")
@@ -402,7 +318,8 @@ export const updateImporter = createServerFn({ method: "POST" })
 export const deleteImporter = createServerFn({ method: "POST" })
   .middleware([requireAdmin])
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { supabase: supabaseAdmin } = context;
     const { error } = await supabaseAdmin
       .from("importers")
       .delete()
@@ -414,7 +331,8 @@ export const deleteImporter = createServerFn({ method: "POST" })
 // ===== Stats Dashboard ======================================================
 export const adminGetStats = createServerFn({ method: "GET" })
   .middleware([requireAdmin])
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    const { supabase: supabaseAdmin } = context;
     const { count: total } = await supabaseAdmin
       .from("importers")
       .select("id", { count: "exact", head: true });
@@ -471,7 +389,8 @@ export const adminBulkUpsertImporters = createServerFn({ method: "POST" })
       rows: z.array(ImporterInputSchema).min(1).max(2000),
     }).parse(i),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { supabase: supabaseAdmin } = context;
     let inserted = 0;
     let updated = 0;
     const errors: { row: number; message: string }[] = [];
@@ -519,7 +438,8 @@ export const adminExportImporters = createServerFn({ method: "POST" })
       hasEmail: z.boolean().default(false),
     }).parse(i),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { supabase: supabaseAdmin } = context;
     const tokens = getSearchTokens(data.q);
     const out: Importer[] = [];
     let from = 0;
@@ -619,7 +539,7 @@ function mergeRows(rows: Importer[]): Omit<StoredImporter, "id"> & { keeperId: s
   };
 }
 
-async function collectBizGroups(): Promise<Map<string, string[]>> {
+async function collectBizGroups(supabaseAdmin: SupabaseClient<Database>): Promise<Map<string, string[]>> {
   const all: { id: string; biz_no: string | null }[] = [];
   let from = 0;
   const PAGE = 1000;
@@ -649,8 +569,9 @@ async function collectBizGroups(): Promise<Map<string, string[]>> {
 
 export const adminFindDuplicates = createServerFn({ method: "GET" })
   .middleware([requireAdmin])
-  .handler(async () => {
-    const groups = await collectBizGroups();
+  .handler(async ({ context }) => {
+    const { supabase: supabaseAdmin } = context;
+    const groups = await collectBizGroups(supabaseAdmin);
     const dup = Array.from(groups.entries())
       .filter(([, ids]) => ids.length > 1)
       .map(([biz_no, ids]) => ({ biz_no, count: ids.length, ids }))
@@ -678,7 +599,8 @@ export const adminMergeGroup = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) =>
     z.object({ ids: z.array(z.string().uuid()).min(2).max(50) }).parse(i),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { supabase: supabaseAdmin } = context;
     const { data: rows, error } = await supabaseAdmin
       .from("importers")
       .select("*")
@@ -707,8 +629,9 @@ export const adminMergeAllDuplicates = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) =>
     z.object({ dryRun: z.boolean().default(false) }).parse(i),
   )
-  .handler(async ({ data }) => {
-    const groups = await collectBizGroups();
+  .handler(async ({ data, context }) => {
+    const { supabase: supabaseAdmin } = context;
+    const groups = await collectBizGroups(supabaseAdmin);
     const dupGroups = Array.from(groups.values()).filter((ids) => ids.length > 1);
 
     if (data.dryRun) {

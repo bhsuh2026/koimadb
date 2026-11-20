@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1795180451321,
+      "tag": "0000_protect_importer_contacts",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795180642961,
+      "tag": "0001_allow_public_search_estimates",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795180823903,
+      "tag": "0002_scope_importer_reads_to_admin_role_rows",
+      "breakpoints": true
+    }
+  ]
+}
