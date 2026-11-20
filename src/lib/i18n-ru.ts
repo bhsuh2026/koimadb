@@ -1,5 +1,15 @@
 /** Russian interface labels keyed by the existing English translation. */
 export const RUSSIAN_LABELS: Record<string, string> = {
+  "AI-estimated products": "Товары, предположенные ИИ",
+  "AI-estimated products · verification required": "Товары, предположенные ИИ · требуется проверка",
+  "Previously registered products": "Ранее зарегистрированные товары",
+  "Product source": "Источник сведений о товарах",
+  "Company information": "Сведения о компании",
+  "Industry": "Отрасль",
+  "Website": "Веб-сайт",
+  "Email availability": "Наличие электронной почты",
+  "Available · contact KOIMA for details": "Есть · подробности по запросу в KOIMA",
+  "Not registered": "Не зарегистрировано",
   "Buyer Companies": "Компании-покупатели",
   "Search buyer companies": "Поиск компаний-покупателей",
   "Company · product · business number": "Компания · товар · рег. номер",

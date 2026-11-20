@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ImportersDirectory } from "@/components/ImportersDirectory";
+import { centralAsiaImporters } from "@/lib/central-asia-data";
 
 const CA = [
   { kr: "카자흐스탄", flag: "🇰🇿", items: "우라늄·광물, 원유·석유제품, 밀·곡물, 구리·철합금" },
@@ -30,6 +31,7 @@ function CentralAsiaPage() {
         title="중앙아시아 거래 한국 수입업체 디렉토리"
         lockedCountries={CA.map((c) => c.kr)}
         lockedLabel="🌏 중앙아시아"
+        records={centralAsiaImporters}
       />
     </>
   );
